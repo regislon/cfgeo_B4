@@ -17,6 +17,9 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 ## Objectifs
 
 - Décrire la structure d'une image raster (pixel, résolution, bandes)
+- Distinguer les **4 résolutions** : spatiale, spectrale, radiométrique, temporelle
+- Choisir un **type de données**, gérer **NoData**
+- Comprendre une image **multispectrale** et le **NDVI**
 - Expliquer le géoréférencement (world file, GeoTIFF)
 - Calculer la taille d'un fichier raster
 - Distinguer format et algorithme de compression
@@ -33,6 +36,28 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 | Exemples | Orthophoto, MNT, satellite | Mensuration officielle, routes |
 
 - Raster : idéal pour les **phénomènes continus**, couverture complète
+
+---
+
+## 🧵 Fil rouge : 1 km² à Yverdon (tuile 2538-1180)
+
+| | SWISSIMAGE | swissALTI3D | Sentinel‑2 |
+|---|---|---|---|
+| Contenu | Orthophoto | MNT | Satellite multispectral |
+| Pixel | 0,10 m | 0,50 m | 10 m |
+| Bandes | 3 (RVB) | 1 (altitude) | 13 |
+| Type | Byte | Float32 | UInt16 |
+| Fichier | 65 Mo | 15,5 Mo | mosaïque CH |
+
+Données ouvertes swisstopo : **data.geo.admin.ch**
+
+---
+
+## 🧵 Même territoire, autres pixels
+
+![w:440](img/fil-rouge-swissimage.jpg) ![w:440](img/fil-rouge-swissalti3d-relief.jpg)
+
+Une **couleur**… ou une **altitude** · *© swisstopo*
 
 ---
 
@@ -54,17 +79,48 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 ## Bandes et types de données
 
 - **Bandes** : 1 (gris, MNT), 3 (RVB), 4 (RVB + infrarouge), 13 (Sentinel‑2)
-- **Type** de valeur :
-  - Byte : 0–255 (photos)
-  - UInt16 / Int16 : 2 octets (satellite)
-  - Float32 : 4 octets (MNT en mètres)
-- **NoData** : valeur conventionnelle pour « pas d'information » (ex. −9999)
+- **Type** = ce qu'on peut stocker **et** la taille du fichier
+
+| Type | Octets | Fil rouge |
+|---|---|---|
+| Byte (0–255) | 1 | SWISSIMAGE : couleurs |
+| UInt16 (0–65'535) | 2 | Sentinel‑2 : mesures sur 12 bits |
+| Float32 | 4 | swissALTI3D : 432,77 m |
+
+⚠️ MNT en Byte → écrêté à 255 · décimales en entier → perdues
 
 ---
 
-## Résolution géographique
+## Mise à l'échelle et NoData
 
-= **taille du pixel sur le terrain**
+`valeur réelle = valeur stockée × échelle + décalage`
+
+- Sentinel‑2 (swissEO) : échelle 0,0001, décalage −0,1
+- 3'500 → 3'500 × 0,0001 − 0,1 = **0,25** de réflectance
+
+**NoData** = « pas d'information », **déclaré** dans le fichier
+
+- swissALTI3D : −9999 · Sentinel‑2 : 0
+- ⚠️ Non déclaré → moyenne fausse, « falaise » de 10 km sur la pente
+
+---
+
+## Les 4 résolutions d'un capteur
+
+| Résolution | Question | 🧵 SWISSIMAGE | 🧵 Sentinel‑2 |
+|---|---|---|---|
+| **Spatiale** | Taille du pixel ? | 0,10 m | 10 m |
+| **Spectrale** | Quelles bandes ? | 3 visibles | 13, jusqu'à l'infrarouge |
+| **Radiométrique** | Combien de niveaux ? | 8 bits | 12 bits |
+| **Temporelle** | Tous les combien ? | ~3 ans | 3 à 5 jours |
+
+→ Toujours un **compromis** : aucun capteur n'est « le meilleur »
+
+---
+
+## Résolution spatiale
+
+= **taille du pixel sur le terrain** (GSD)
 
 | Produit | Résolution |
 |---|---|
@@ -79,16 +135,30 @@ Carte 1:25'000 scannée à 400 dpi → pixel ≈ 1,6 m
 
 ## Résolution ≠ plus petit objet visible
 
-- Un objet doit couvrir **plusieurs pixels** pour être reconnu
-- À 5 m de résolution, une voiture n'est qu'une tache
+![w:740](img/fil-rouge-swissimage-zoom-pixels.jpg)
+
+- Un objet doit couvrir **plusieurs pixels** : à 10 cm, une voiture ≈ 18 × 45 pixels
+- À 10 m (Sentinel‑2), elle est **invisible**
+
+---
+
+## Combien pèse un raster ?
+
+`colonnes × lignes × bandes × octets par valeur`
+
+| 🧵 1 km² | Brut | Fichier |
+|---|---|---|
+| SWISSIMAGE : 10'000² × 3 × 1 | 300 Mo | 65 Mo (JPEG) |
+| swissALTI3D : 2'000² × 1 × 4 | 16 Mo | 15,5 Mo (LZW) |
+
 - Pixel 2 × plus fin → **4 × plus** de pixels
-- Suisse à 10 cm ≈ 4 · 10¹² pixels ≈ **12 To** en RVB non compressé
+- Suisse à 10 cm ≈ **12 To** en RVB non compressé
 
 ---
 
 ## Affinage panchromatique
 
-![h:420](img/pansharpening.png)
+![h:360](img/pansharpening.png)
 
 Image couleur basse résolution + image panchromatique fine → couleur fine
 
@@ -164,6 +234,62 @@ Image couleur basse résolution + image panchromatique fine → couleur fine
 ![h:300](img/synthese-additive-rvb.png) ![h:300](img/separation-canaux-rvb.jpg)
 
 *Sources : Wikimedia Commons [7] [8]*
+
+---
+
+<!-- _class: lead -->
+
+# Au-delà du visible
+
+---
+
+## Un raster est une **mesure**
+
+- Chaque bande = **réflectance** (0 à 1) dans une plage de longueurs d'onde
+
+| Bande Sentinel‑2 | Domaine | Pixel |
+|---|---|---|
+| B02 · B03 · B04 | Bleu · Vert · Rouge | 10 m |
+| B08 | **Proche infrarouge** (842 nm) | 10 m |
+| B11 · B12 | Infrarouge moyen | 20 m |
+
+- Écran = 3 canaux → on **choisit 3 bandes** : composition colorée
+
+---
+
+## Vraies et fausses couleurs
+
+![w:420](img/sentinel2-vraies-couleurs.jpg) ![w:420](img/sentinel2-fausses-couleurs.jpg)
+
+R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation en **rouge**
+
+*🧵 Yverdon, 12.07.2025 · swissEO S2‑SR © swisstopo, Copernicus*
+
+---
+
+## NDVI : indice de végétation
+
+`NDVI = (PIR − Rouge) / (PIR + Rouge)` → entre −1 et +1
+
+- Plante saine : absorbe le **rouge**, réfléchit le **proche infrarouge**
+- < 0 eau · 0–0,2 sol nu, bâti · > 0,5 végétation dense
+
+🧵 Maïs : B04 = 1'500, B08 = 5'200
+→ Rouge 0,05 · PIR 0,42 → **NDVI = 0,79**
+⚠️ Sans échelle/décalage : 0,55 (faux !)
+
+---
+
+## NDVI : le résultat
+
+![bg right:45% fit](img/sentinel2-ndvi.jpg)
+
+![w:520](img/ndvi-legende.png)
+
+- Forêt, cultures : vert foncé
+- Ville, champs récoltés : beige
+- Raster **calculé** → Float32
+- QGIS : *Calculatrice raster*
 
 ---
 
@@ -275,6 +401,15 @@ Image couleur basse résolution + image panchromatique fine → couleur fine
 
 ---
 
+## Séries temporelles et cubes de données
+
+![w:1000](img/sentinel2-ndvi-saisons.jpg)
+
+- Cube = **X, Y, bande, temps** : chaque pixel devient une courbe
+- Volumes énormes → on calcule **là où sont les données** : COG + **STAC**, Zarr, openEO, Swiss Data Cube
+
+---
+
 ## Métadonnées
 
 - Capteur, date, position, orientation, résolution…
@@ -335,8 +470,11 @@ Image couleur basse résolution + image panchromatique fine → couleur fine
 
 ## À retenir
 
-- Raster = grille de pixels, **1 valeur par pixel et par bande**
-- Résolution = taille du pixel au sol ; taille du fichier ∝ résolution²
+- Raster = grille de pixels, **1 valeur par pixel et par bande** : une **mesure**
+- 4 résolutions : spatiale, spectrale, radiométrique, temporelle
+- Type de données, échelle/décalage, **NoData déclaré**
+- Proche infrarouge → fausses couleurs, **NDVI**
+- Taille brute = colonnes × lignes × bandes × octets
 - World file : 6 paramètres **sans SCR** ; GeoTIFF : SCR inclus
 - **Format ≠ compression** ; avec perte (JPEG, ondelettes) / sans perte (RLE, LZW, Deflate)
 - Données à analyser → compression **sans perte**
