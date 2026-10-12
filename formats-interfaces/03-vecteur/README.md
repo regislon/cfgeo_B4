@@ -302,7 +302,7 @@ Les volumes de données augmentant et le stockage dans le cloud se généralisan
     | [`communes_vd.parquet`](donnees/communes_vd.parquet) | GeoParquet (compression ZSTD) | MN95 | 2,1 Mo |
     | [`communes_vd.geojson`](donnees/communes_vd.geojson) | GeoJSON (RFC 7946) | WGS84 | 4,3 Mo |
 
-    **À vous de jouer**, dans QGIS ou sans installation dans [GeoLibre](https://web.geolibre.app) (*Add Data › Vector Layer*, puis glissez-déposez le fichier téléchargé) :
+    **À vous de jouer**, dans QGIS ou sans installation dans [GeoLibre](https://web.geolibre.app) (*Add Data › Vector Layer*, puis collez l'adresse du fichier, obtenue par clic droit sur le lien › *Copier l'adresse du lien*, et cliquez sur *Load* ; ou glissez-déposez le fichier téléchargé) :
 
     1. Ouvrez les cinq fichiers. Combien de fichiers faut-il pour le shapefile ? Pourquoi le zip ?
     2. Comparez les **noms des champs** : dans le shapefile, `bezirksnummer` est devenu `bezirksnum`, `einwohnerzahl` est devenu `einwohnerz`… Pourquoi ?
