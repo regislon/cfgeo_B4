@@ -6,7 +6,7 @@ Chapitre : [9. Reformatage et ETL](../../09-reformatage-etl/README.md)
 
 ## Données
 
-[⬇ Télécharger toutes les données (zip)](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex09-modele-reprojection/donnees.zip)
+[⬇ Télécharger toutes les données (zip)](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex10-modele-reprojection/donnees.zip)
 
 - [`data.gpkg`](donnees/data.gpkg)
 - [`map.geo.admin.ch_KML_20230522085715.kml`](donnees/map.geo.admin.ch_KML_20230522085715.kml)

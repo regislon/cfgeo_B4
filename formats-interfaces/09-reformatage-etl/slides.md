@@ -142,7 +142,7 @@ gpsbabel -i gpx -f trace.gpx -o kml -F trace.kml
 
 # Exercice : Conversion GPX ↔ KML
 
-[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex08-gpx-kml/)
+[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex09-gpx-kml/)
 
 ---
 
@@ -175,7 +175,7 @@ gdf.to_file("batiments.gpkg", layer="batiments", driver="GPKG")
 
 # Exercice : Modèle QGIS : reprojection et calcul
 
-[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex09-modele-reprojection/)
+[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex10-modele-reprojection/)
 
 
 ---
@@ -184,7 +184,7 @@ gdf.to_file("batiments.gpkg", layer="batiments", driver="GPKG")
 
 # Exercice : Modèle QGIS : tampon et découpage
 
-[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex10-modele-cours-eau/)
+[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex11-modele-cours-eau/)
 
 ---
 

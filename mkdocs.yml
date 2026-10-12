@@ -39,6 +39,12 @@ theme:
         icon: material/weather-sunny
         name: Mode clair
 
+extra_css:
+  - assets/demos.css
+
+extra_javascript:
+  - assets/demos.js
+
 markdown_extensions:
   - admonition
   - attr_list
@@ -66,11 +72,12 @@ nav:
           - formats-interfaces/exercices/README.md
           - "Formats d'images et compression": formats-interfaces/exercices/ex01-images-compression/README.md
           - "Compression par dictionnaire": formats-interfaces/exercices/ex02-compression-dictionnaire/README.md
-          - "Du fichier de base de données au shapefile": formats-interfaces/exercices/ex03-shapefile/README.md
-          - "Shapefile, GeoPackage et raster": formats-interfaces/exercices/ex04-geopackage/README.md
-          - "Lire et modifier un fichier KML": formats-interfaces/exercices/ex05-kml/README.md
-          - "GeoJSON et systèmes de coordonnées": formats-interfaces/exercices/ex06-geojson/README.md
-          - "Schema mapping": formats-interfaces/exercices/ex07-schema-mapping/README.md
-          - "Conversion GPX ↔ KML": formats-interfaces/exercices/ex08-gpx-kml/README.md
-          - "Modèle QGIS : reprojection et calcul": formats-interfaces/exercices/ex09-modele-reprojection/README.md
-          - "Modèle QGIS : tampon et découpage": formats-interfaces/exercices/ex10-modele-cours-eau/README.md
+          - "Compresser et diffuser un GeoTIFF": formats-interfaces/exercices/ex03-compression-geotiff/README.md
+          - "Du fichier de base de données au shapefile": formats-interfaces/exercices/ex04-shapefile/README.md
+          - "Shapefile, GeoPackage et raster": formats-interfaces/exercices/ex05-geopackage/README.md
+          - "Lire et modifier un fichier KML": formats-interfaces/exercices/ex06-kml/README.md
+          - "GeoJSON et systèmes de coordonnées": formats-interfaces/exercices/ex07-geojson/README.md
+          - "Schema mapping": formats-interfaces/exercices/ex08-schema-mapping/README.md
+          - "Conversion GPX ↔ KML": formats-interfaces/exercices/ex09-gpx-kml/README.md
+          - "Modèle QGIS : reprojection et calcul": formats-interfaces/exercices/ex10-modele-reprojection/README.md
+          - "Modèle QGIS : tampon et découpage": formats-interfaces/exercices/ex11-modele-cours-eau/README.md

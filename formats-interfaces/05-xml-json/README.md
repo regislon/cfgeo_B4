@@ -251,7 +251,7 @@ Points à connaître :
 - Un fichier **KMZ** est une **archive ZIP** (compression *Deflate*) contenant un fichier `doc.kml` et éventuellement des images ou icônes. On peut le renommer en `.zip` pour l'ouvrir.
 
 !!! tip "Exercice"
-    Mettez ces notions en pratique avec l'exercice [Lire et modifier un fichier KML](../exercices/ex05-kml/README.md).
+    Mettez ces notions en pratique avec l'exercice [Lire et modifier un fichier KML](../exercices/ex06-kml/README.md).
 
 ### GPX (GPS Exchange Format)
 
@@ -344,7 +344,7 @@ Le format de transfert d'**INTERLIS 2**, la norme suisse d'échange de géodonn�
     Selon la RFC 7946, les coordonnées GeoJSON sont **toujours en WGS84** (EPSG:4326), en degrés décimaux, dans l'ordre **[longitude, latitude]** (éventuellement suivi de l'altitude). L'ancien membre `"crs"`, qui permettait d'indiquer un autre système (p. ex. MN95), est **obsolète** depuis 2016. Certains logiciels écrivent encore des GeoJSON en MN95 avec un membre `"crs"` : ces fichiers ne sont pas conformes et peuvent être mal interprétés par d'autres outils.
 
 !!! tip "Exercice"
-    L'exercice [GeoJSON et systèmes de coordonnées](../exercices/ex06-geojson/README.md) compare un GeoJSON en WGS84 et un GeoJSON en MN95.
+    L'exercice [GeoJSON et systèmes de coordonnées](../exercices/ex07-geojson/README.md) compare un GeoJSON en WGS84 et un GeoJSON en MN95.
 
 ## JSON Schema
 
@@ -395,8 +395,8 @@ Un objet `{"nom": "Yverdon-les-Bains", "npa": 1400}` est valide ; `{"nom": "Yver
 
 ## Exercices
 
-- [Lire et modifier un fichier KML](../exercices/ex05-kml/README.md)
-- [GeoJSON et systèmes de coordonnées](../exercices/ex06-geojson/README.md)
+- [Lire et modifier un fichier KML](../exercices/ex06-kml/README.md)
+- [GeoJSON et systèmes de coordonnées](../exercices/ex07-geojson/README.md)
 
 ---
 

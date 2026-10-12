@@ -6,7 +6,7 @@ Chapitre : [9. Reformatage et ETL](../../09-reformatage-etl/README.md)
 
 ## Données
 
-[⬇ Télécharger toutes les données (zip)](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex10-modele-cours-eau/donnees.zip)
+[⬇ Télécharger toutes les données (zip)](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex11-modele-cours-eau/donnees.zip)
 
 - [`donnees_eau.gpkg`](donnees/donnees_eau.gpkg)
 - [`donnees_le_flon.gpkg`](donnees/donnees_le_flon.gpkg)

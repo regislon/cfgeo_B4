@@ -6,7 +6,7 @@ Chapitre : [3. Données vectorielles](../../03-vecteur/README.md)
 
 ## Données
 
-[⬇ Télécharger toutes les données (zip)](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex03-shapefile/donnees.zip)
+[⬇ Télécharger toutes les données (zip)](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex04-shapefile/donnees.zip)
 
 - [`Ex4.mdb`](donnees/Ex4.mdb)
 

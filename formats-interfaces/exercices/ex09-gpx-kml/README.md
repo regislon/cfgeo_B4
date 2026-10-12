@@ -6,7 +6,7 @@ Chapitre : [9. Reformatage et ETL](../../09-reformatage-etl/README.md)
 
 ## Données
 
-[⬇ Télécharger toutes les données (zip)](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex08-gpx-kml/donnees.zip)
+[⬇ Télécharger toutes les données (zip)](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex09-gpx-kml/donnees.zip)
 
 - [`Ex5.gpx`](donnees/Ex5.gpx)
 - [`test_5.kml`](donnees/test_5.kml)

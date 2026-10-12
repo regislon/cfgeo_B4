@@ -180,7 +180,7 @@ interfaces = n × (n − 1) / 2
 
 # Exercice : Schema mapping
 
-[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex07-schema-mapping/)
+[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex08-schema-mapping/)
 
 ---
 

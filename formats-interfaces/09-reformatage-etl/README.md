@@ -58,7 +58,7 @@ Un traitement FME se construit graphiquement :
 - **FME Flow** (anciennement *FME Server*) : la plateforme serveur qui exécute les traitements de manière automatisée (planification, déclenchement par un événement, services web).
 
 !!! tip "Lien avec le schema mapping"
-    La table de correspondance établie lors d'un schema mapping (colonnes `att_name_in`, `att_value_in`, `att_name_out`, `att_value_out`, voir l'[exercice 7](../exercices/ex07-schema-mapping/README.md)) peut être lue directement par FME pour piloter les transformations, au lieu d'être codée à la main.
+    La table de correspondance établie lors d'un schema mapping (colonnes `att_name_in`, `att_value_in`, `att_name_out`, `att_value_out`, voir l'[exercice 7](../exercices/ex08-schema-mapping/README.md)) peut être lue directement par FME pour piloter les transformations, au lieu d'être codée à la main.
 
 ## GDAL/OGR
 
@@ -145,8 +145,8 @@ Le **modeleur graphique** permet d'enchaîner plusieurs algorithmes dans un **mo
 
 Exemples de modèles (voir les exercices) :
 
-- reprojeter une couche en MN95 puis calculer sa surface ([exercice 9](../exercices/ex09-modele-reprojection/README.md)) ;
-- calculer un tampon autour de cours d'eau puis le découper par commune ([exercice 10](../exercices/ex10-modele-cours-eau/README.md)).
+- reprojeter une couche en MN95 puis calculer sa surface ([exercice 9](../exercices/ex10-modele-reprojection/README.md)) ;
+- calculer un tampon autour de cours d'eau puis le découper par commune ([exercice 10](../exercices/ex11-modele-cours-eau/README.md)).
 
 ## Outils INTERLIS (ili2db, ilivalidator)
 
@@ -182,7 +182,7 @@ gpsbabel -i gpx -f trace.gpx -o kml -F trace.kml
 
 (`-i`/`-o` : formats d'entrée et de sortie ; `-f`/`-F` : fichiers d'entrée et de sortie.)
 
-Voir l'[exercice 8](../exercices/ex08-gpx-kml/README.md).
+Voir l'[exercice 8](../exercices/ex09-gpx-kml/README.md).
 
 ## Services en ligne
 
@@ -227,9 +227,9 @@ Un script a l'avantage d'être **reproductible**, versionnable et facile à rela
 
 ## Exercices
 
-- [Conversion GPX ↔ KML](../exercices/ex08-gpx-kml/README.md)
-- [Modèle QGIS : reprojection et calcul](../exercices/ex09-modele-reprojection/README.md)
-- [Modèle QGIS : tampon et découpage](../exercices/ex10-modele-cours-eau/README.md)
+- [Conversion GPX ↔ KML](../exercices/ex09-gpx-kml/README.md)
+- [Modèle QGIS : reprojection et calcul](../exercices/ex10-modele-reprojection/README.md)
+- [Modèle QGIS : tampon et découpage](../exercices/ex11-modele-cours-eau/README.md)
 
 ---
 

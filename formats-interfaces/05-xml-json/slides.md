@@ -207,7 +207,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 # Exercice : Lire et modifier un fichier KML
 
-[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex05-kml/)
+[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex06-kml/)
 
 ---
 
@@ -288,7 +288,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 # Exercice : GeoJSON et systèmes de coordonnées
 
-[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex06-geojson/)
+[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex07-geojson/)
 
 ---
 

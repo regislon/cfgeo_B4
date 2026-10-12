@@ -6,7 +6,7 @@ Chapitre : [5. XML et JSON](../../05-xml-json/README.md)
 
 ## Données
 
-[⬇ Télécharger toutes les données (zip)](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex06-geojson/donnees.zip)
+[⬇ Télécharger toutes les données (zip)](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex07-geojson/donnees.zip)
 
 - [`lacs.json`](donnees/lacs.json)
 - [`lacs_mn95.json`](donnees/lacs_mn95.json)

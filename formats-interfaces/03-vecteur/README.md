@@ -337,8 +337,8 @@ Selon le contexte, on choisira des données vectorielles ou raster. Chaque mode 
 
 ## Exercices
 
-- [Du fichier de base de données au shapefile](../exercices/ex03-shapefile/README.md)
-- [Shapefile, GeoPackage et raster](../exercices/ex04-geopackage/README.md)
+- [Du fichier de base de données au shapefile](../exercices/ex04-shapefile/README.md)
+- [Shapefile, GeoPackage et raster](../exercices/ex05-geopackage/README.md)
 
 ---
 

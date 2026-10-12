@@ -7,7 +7,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 MARP_VERSION="4.5.1"
-CONTENT=(README.md formats-interfaces)
+CONTENT=(README.md formats-interfaces assets)
 
 # 1. Assemblage du contenu dans build/docs (MkDocs refuse docs_dir: .)
 rm -rf build/docs

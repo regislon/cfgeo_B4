@@ -6,7 +6,7 @@ Chapitre : [7. Échange de données](../../07-echange-de-donnees/README.md)
 
 ## Données
 
-[⬇ Télécharger toutes les données (zip)](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex07-schema-mapping/donnees.zip)
+[⬇ Télécharger toutes les données (zip)](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex08-schema-mapping/donnees.zip)
 
 - [`Normat.xlsx`](donnees/Normat.xlsx)
 

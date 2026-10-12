@@ -222,7 +222,7 @@ Image couleur basse résolution + image panchromatique fine → couleur fine
 | 24 | 16,7 millions | Couleurs vraies RVB |
 | 32 | RVB + alpha | Transparence |
 
-![h:160](img/16-niveaux-de-gris.gif) ![h:160](img/256-niveaux-de-gris.jpg)
+![h:120](img/16-niveaux-de-gris.gif) ![h:120](img/256-niveaux-de-gris.jpg) ▶ [Démo interactive : pixels et profondeur](https://regislon.github.io/cfgeo_B4/formats-interfaces/02-raster/#codage-de-la-couleur)
 
 ---
 
@@ -380,15 +380,42 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 - Ratio 10:1 à 25:1 sur les photos ; artefacts sur plans et textes
 - ⚠️ Les pertes **s'accumulent** à chaque ré-enregistrement
 
+▶ [Démo interactive : qualité JPEG / WebP](https://regislon.github.io/cfgeo_B4/formats-interfaces/02-raster/#jpeg)
+
 ---
 
 ## Ondelettes
 
-- Analogie : pyramide en **grosses briques** + petites briques pour les détails
-- Décomposition multi-résolution de l'image
-- Excellente qualité **et** ratio élevé
-- Formats **JPEG 2000** (norme ISO) et **ECW** (propriétaire)
-- Orthophoto du canton de Neuchâtel (~20 milliards de pixels) sur un DVD
+- Image décrite à **plusieurs niveaux de détail** : vue grossière + corrections fines
+- On renonce aux corrections les plus fines → ratio ↑, qualité ↓
+- Vue d'ensemble disponible immédiatement
+- Formats **JPEG 2000** (norme ISO) et **ECW** (propriétaire, en recul)
+
+---
+
+## Compressions modernes dans GeoTIFF
+
+- **Prédicteur** : stocker la **différence avec le voisin** → petites valeurs répétitives
+  `PREDICTOR=2` (entiers), `PREDICTOR=3` (virgule) · sans perte
+- **ZSTD** : comme Deflate, mais **beaucoup plus rapide**
+- **LERC** : perte **contrôlée**, on fixe l'**erreur maximale** (ex. 1 cm) → MNT
+- **WebP** : remplaçant du JPEG, avec ou sans perte
+
+⚠️ Pour l'**échange** : LZW / Deflate restent les plus compatibles
+
+---
+
+## 🧵 Mesures réelles : swissALTI3D (2'000 × 2'000, Float32, 16 Mo)
+
+| Compression | Taille | Ratio | Erreur max. |
+|---|---|---|---|
+| LZW (fichier swisstopo) | 11,8 Mo | 1,4:1 | 0 |
+| Deflate + prédicteur | 6,9 Mo | 2,3:1 | 0 |
+| ZSTD + prédicteur | 6,7 Mo | 2,4:1 | 0 |
+| **LERC + ZSTD, 1 cm** | **2,1 Mo** | **7,8:1** | 1 cm |
+| LERC + ZSTD, 10 cm | 0,6 Mo | 25:1 | 10 cm |
+
+SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
 
 ---
 
@@ -427,10 +454,11 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ## Formats d'image courants
 
-- **BMP** : simple, peu ou pas compressé, volumineux
+- **BMP** : historique, non compressé, volumineux
 - **GIF** : 256 couleurs, LZW, animation
 - **PNG** : sans perte (Deflate), transparence → cartes, tuiles web
 - **JPEG** : avec perte → photos
+- **WebP, AVIF, JPEG XL** : successeurs de JPEG/PNG sur le web
 - **TIFF** : balises, multi-bandes, toutes compressions, BigTIFF > 4 Gio
 - **GeoTIFF** : TIFF + géoréférencement + SCR
 
@@ -442,6 +470,28 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 - Lecture **partielle** par HTTP : seulement la zone et le zoom utiles
 - Lisible par tout logiciel qui lit le GeoTIFF
 - Standard OGC (2023), diffusion dans le cloud (data.geo.admin.ch)
+
+🧵 SWISSIMAGE : blocs 256 × 256, aperçus 5000² → 313², `LAYOUT=COG`
+→ QGIS lit l'aperçu 625² pour afficher toute la tuile
+
+---
+
+## Diffuser des rasters
+
+- **Tuiles raster** (PNG, JPEG, WebP) par niveau de zoom → WMTS
+  - **MBTiles** : tuiles dans une base SQLite (cartes hors ligne)
+  - **PMTiles** : un fichier lu **par morceaux** sur le web
+  - **GeoPackage** : tuiles + vecteur
+- **VRT** : raster **virtuel** (mosaïque) décrit en XML, sans copie
+- **`/vsicurl/`** : GDAL/QGIS lit un fichier **directement sur le web**
+
+---
+
+<!-- _class: exercice -->
+
+# Exercice : Compresser et diffuser un GeoTIFF
+
+[Consignes](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex03-compression-geotiff/)
 
 ---
 
@@ -460,10 +510,11 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 | Besoin | Format |
 |---|---|
 | Échange orthophoto / MNT | GeoTIFF (LZW, Deflate) |
-| Diffusion web / cloud | COG |
-| Grande mosaïque compacte | JPEG 2000, ECW |
-| Photo pour affichage | JPEG |
-| Plan, carte, transparence | PNG |
+| MNT pour ses analyses | ZSTD/Deflate + prédicteur, LERC |
+| Diffusion web / cloud | COG + STAC |
+| Fond de carte web / hors ligne | WMTS, PMTiles, MBTiles |
+| Photo pour affichage | JPEG, WebP, AVIF |
+| Plan, carte, transparence | PNG, WebP |
 | Climat, météo | NetCDF, Zarr |
 
 ---
@@ -477,5 +528,5 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 - Taille brute = colonnes × lignes × bandes × octets
 - World file : 6 paramètres **sans SCR** ; GeoTIFF : SCR inclus
 - **Format ≠ compression** ; avec perte (JPEG, ondelettes) / sans perte (RLE, LZW, Deflate)
-- Données à analyser → compression **sans perte**
+- Données à analyser → **sans perte** (ou LERC à erreur maîtrisée), jamais JPEG
 - GeoTIFF / COG = choix par défaut en géomatique

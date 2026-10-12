@@ -6,7 +6,7 @@ Chapitre : [3. Données vectorielles](../../03-vecteur/README.md)
 
 ## Données
 
-[⬇ Télécharger toutes les données (zip)](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex04-geopackage/donnees.zip)
+[⬇ Télécharger toutes les données (zip)](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex05-geopackage/donnees.zip)
 
 - [`swissBOUNDARIES3D_1_3_TLM_HOHEITSGEBIET.gpkg`](donnees/swissBOUNDARIES3D_1_3_TLM_HOHEITSGEBIET.gpkg)
 - [`swissimage-dop10_2020_2540-1150_2_2056.tif`](donnees/swissimage-dop10_2020_2540-1150_2_2056.tif)

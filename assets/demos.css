@@ -1,0 +1,92 @@
+/* Démos interactives */
+.demo {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-left: 4px solid var(--md-accent-fg-color);
+  border-radius: 4px;
+  padding: 0.8rem 1rem;
+  margin: 1em 0;
+  background: var(--md-code-bg-color);
+  font-size: 0.75rem;
+}
+
+.demo::before {
+  content: "▶ Démo interactive";
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--md-accent-fg-color);
+}
+
+.demo-canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.demo-pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.demo-pair figure {
+  margin: 0;
+  flex: 1 1 240px;
+  max-width: 400px;
+}
+
+.demo-half {
+  width: 100%;
+}
+
+.demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.4rem 0;
+}
+
+.demo-row input[type="range"] {
+  flex: 1 1 160px;
+  max-width: 260px;
+}
+
+.demo-row input[type="number"] {
+  width: 8em;
+}
+
+.demo-row input,
+.demo-row select {
+  font: inherit;
+  color: var(--md-default-fg-color);
+  background: var(--md-default-bg-color);
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 3px;
+  padding: 0.1rem 0.3rem;
+}
+
+.demo-lbl {
+  min-width: 10em;
+}
+
+.demo-info,
+.demo-stats {
+  margin: 0.4rem 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.demo-strong {
+  font-weight: 700;
+}
+
+.demo-r { color: #d32f2f; font-weight: 700; }
+.demo-g { color: #2e7d32; font-weight: 700; }
+.demo-b { color: #1565c0; font-weight: 700; }
+
+[data-md-color-scheme="slate"] .demo-r { color: #ef9a9a; }
+[data-md-color-scheme="slate"] .demo-g { color: #a5d6a7; }
+[data-md-color-scheme="slate"] .demo-b { color: #90caf9; }

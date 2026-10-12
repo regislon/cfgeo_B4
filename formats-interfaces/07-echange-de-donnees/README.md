@@ -244,7 +244,7 @@ VD0200000005              1234          → VD0200000005 / 1234   (autre commune
 
 ## Exercices
 
-- [Schema mapping](../exercices/ex07-schema-mapping/README.md)
+- [Schema mapping](../exercices/ex08-schema-mapping/README.md)
 
 ---
 

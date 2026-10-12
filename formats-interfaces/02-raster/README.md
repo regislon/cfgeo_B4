@@ -215,6 +215,8 @@ taille = nombre de colonnes × nombre de lignes × nombre de bandes × octets pa
     - SWISSIMAGE est **compressé** avec perte (JPEG) et pèse 4,6 fois moins que sa taille brute (voir [Compression](#compression)).
     - swissALTI3D est à peine plus léger que sa taille brute : la compression LZW gagne peu sur des nombres à virgule, et le fichier contient en plus des aperçus à résolution réduite (voir [COG](#cloud-optimized-geotiff-cog)).
 
+<div class="demo" data-demo="taille"></div>
+
 !!! example "🔎 Quelques ordres de grandeur"
 
     - Une scène Pléiades couvre 20 × 20 km à 70 cm de résolution : 28'571 × 28'571 ≈ **816 millions de pixels** par bande.
@@ -307,6 +309,10 @@ La valeur stockée dans un pixel est codée sur un certain nombre de bits qui d�
 ![Échelle de niveaux de gris de 0 (noir) à 255 (blanc)](img/echelle-niveaux-de-gris.png)
 
 *Échelle de niveaux de gris sur 8 bits.*
+
+<div class="demo" data-demo="pixels" data-src="img/demo-pixels-voitures.png" data-x0="2538383" data-y0="1180632" data-pixel="0.1"></div>
+
+*🧵 Fil rouge : 8 m × 8 m de SWISSIMAGE (80 × 80 pixels de 10 cm). Survolez un pixel pour lire ses valeurs R, V, B en décimal et en binaire, et les coordonnées MN95 de son centre. Réduisez la profondeur de codage pour voir apparaître des aplats de couleur. Source : © swisstopo*
 
 ### Couleurs indexées (palette)
 
@@ -505,15 +511,69 @@ JPEG est très efficace sur les images photographiques (orthophotos), avec des r
 
     Chaque enregistrement en JPEG applique à nouveau la quantification : les pertes **s'accumulent**. Ré-enregistrer en qualité 100 une image déjà dégradée ne restaure pas l'information perdue, mais augmente la taille du fichier. Travaillez sur un original sans perte et n'exportez en JPEG qu'à la fin.
 
+<div class="demo" data-demo="compression" data-src="img/demo-swissimage-400.png"></div>
+
+*Extrait de 40 m × 40 m de la tuile SWISSIMAGE du fil rouge, recompressé en direct par votre navigateur. Baissez la qualité et activez le zoom : les blocs de 8 × 8 pixels apparaissent. Source : © swisstopo*
+
 #### La compression par ondelettes
 
-La compression par **ondelettes** (*wavelets*) repose sur des notions avancées de traitement du signal ; on se limite ici au principe.
+La compression par **ondelettes** (*wavelets*) décrit l'image à **plusieurs niveaux de détail** : d'abord une version grossière de l'image entière, puis des corrections de plus en plus fines, uniquement là où il y a des détails. On renonce aux corrections les plus fines pour comprimer davantage : le seuil choisi fixe à la fois le ratio et la perte. Comme la version grossière est au début du fichier, on peut afficher rapidement une vue d'ensemble, puis l'affiner.
 
-Imaginons qu'on doive construire la pyramide de Gizeh en Lego. Avec uniquement de toutes petites briques, il faudrait décrire un nombre immense d'éléments, alors que le cœur de la pyramide est un gros bloc homogène. On peut plutôt construire le cœur avec quelques **grosses briques** (des Duplo) et n'utiliser des **petites briques** que là où il faut des détails, en surface. Le nombre d'éléments à décrire diminue fortement, sans perte notable de qualité.
+Les ondelettes donnent d'excellents résultats sur les très grandes mosaïques d'orthophotos ; elles sont utilisées par **JPEG 2000** et **ECW** (voir [Formats raster](#jpeg-2000-et-ecw)).
 
-La compression par ondelettes procède de manière similaire : elle décrit l'image à plusieurs niveaux de détail, en utilisant des éléments aussi grands que possible. Le seuil à partir duquel on renonce aux petits détails détermine à la fois le ratio de compression et la perte de qualité.
+### Compressions modernes dans GeoTIFF
 
-Les résultats sont excellents, tant en qualité qu'en ratio. Cette compression est utilisée dans les formats **JPEG 2000** et **ECW** (et MrSID). Une décomposition multi-résolution permet en outre d'afficher rapidement une vue d'ensemble, puis d'affiner. À titre d'exemple, une orthophoto couvrant tout le canton de Neuchâtel (environ 20 milliards de pixels) a pu être stockée sur un seul DVD.
+Au-delà de LZW, Deflate et JPEG, les outils actuels (GDAL, et donc QGIS) proposent pour GeoTIFF des compressions plus récentes, souvent nettement meilleures.
+
+- **Prédicteur** (*predictor*) : ce n'est pas une compression, mais une **préparation** des données. Au lieu de stocker chaque valeur, on stocke sa **différence avec le pixel voisin**. Sur un MNT, deux altitudes voisines diffèrent de quelques centimètres : les différences sont petites et répétitives, donc bien mieux compressées. On utilise `PREDICTOR=2` pour les entiers et `PREDICTOR=3` pour les nombres à virgule. Sans perte.
+- **ZSTD** (*Zstandard*, Facebook, 2016) : compression sans perte par dictionnaire, comme Deflate, avec un ratio équivalent ou meilleur mais **beaucoup plus rapide**, surtout en lecture.
+- **LERC** (*Limited Error Raster Compression*, Esri) : compression **avec perte contrôlée**, conçue pour les MNT et les données de mesure. On fixe l'**erreur maximale** admise (par exemple 1 cm) ; LERC garantit qu'aucun pixel ne s'écarte davantage de sa valeur d'origine. Avec une erreur maximale de 0, elle est sans perte. Elle se combine souvent avec ZSTD ou Deflate (`LERC_ZSTD`).
+- **WebP** (Google, 2010) : remplaçant du JPEG sur le web, avec ou sans perte, pour les images 8 bits RVB(A).
+
+!!! example "🧵 Fil rouge : mesures réelles"
+
+    Mesures faites avec GDAL sur 2'000 × 2'000 pixels de chaque produit, en GeoTIFF tuilé 256 × 256 : un extrait de 200 m × 200 m de SWISSIMAGE et la tuile swissALTI3D entière (1 km × 1 km).
+
+    **SWISSIMAGE** (3 bandes Byte, brut 12 Mo)
+
+    | Compression | Taille | Ratio | Erreur max. |
+    |---|---|---|---|
+    | Aucune | 12,6 Mo | — | 0 |
+    | LZW | 12,1 Mo | 1,0:1 | 0 |
+    | Deflate | 9,8 Mo | 1,2:1 | 0 |
+    | Deflate + prédicteur | 8,2 Mo | 1,5:1 | 0 |
+    | ZSTD + prédicteur | 8,2 Mo | 1,5:1 | 0 |
+    | WebP sans perte | 5,8 Mo | 2,1:1 | 0 |
+    | JPEG qualité 95 | 2,1 Mo | 5,8:1 | 36 niveaux |
+    | JPEG qualité 75 | 0,8 Mo | 15:1 | 71 niveaux |
+    | WebP qualité 75 | 0,7 Mo | 18:1 | 50 niveaux |
+
+    **swissALTI3D** (1 bande Float32, brut 16 Mo)
+
+    | Compression | Taille | Ratio | Erreur max. |
+    |---|---|---|---|
+    | Aucune | 16,8 Mo | — | 0 |
+    | LZW | 11,8 Mo | 1,4:1 | 0 |
+    | Deflate | 9,9 Mo | 1,6:1 | 0 |
+    | Deflate + prédicteur | 6,9 Mo | 2,3:1 | 0 |
+    | ZSTD + prédicteur | 6,7 Mo | 2,4:1 | 0 |
+    | LERC + ZSTD, erreur max. 1 cm | 2,1 Mo | 7,8:1 | 1 cm |
+    | LERC + ZSTD, erreur max. 10 cm | 0,6 Mo | 25:1 | 10 cm |
+
+    Trois enseignements :
+
+    - Les compressions **sans perte** gagnent peu sur une photo aérienne : les pixels voisins varient sans cesse (texture, bruit du capteur), et cette orthophoto a déjà été compressée en JPEG par swisstopo. Le **prédicteur** et **WebP** font nettement mieux que LZW.
+    - Sur le **MNT**, le prédicteur divise presque la taille par deux, sans aucune perte. LZW, utilisé dans le fichier swisstopo, est le moins bon choix sans perte.
+    - **LERC** est spectaculaire : avec une erreur garantie inférieure à 1 cm, bien en dessous de la précision du MNT (de l'ordre de quelques décimètres), le fichier est 5 fois plus petit qu'en LZW.
+
+!!! tip "En pratique"
+
+    Dans QGIS, ces options se règlent lors de l'export (*Exporter › Enregistrer sous…* › *Options de création* › profil personnalisé), ou avec GDAL :
+    ```bash
+    gdal_translate -co COMPRESS=ZSTD -co PREDICTOR=3 -co TILED=YES mnt.tif mnt_zstd.tif
+    gdal_translate -co COMPRESS=LERC_ZSTD -co MAX_Z_ERROR=0.01 -co TILED=YES mnt.tif mnt_lerc.tif
+    ```
+    Tous les logiciels ne lisent pas encore ZSTD, LERC ou WebP dans un GeoTIFF (les versions récentes de QGIS et d'ArcGIS Pro, oui). Pour un **échange** avec un partenaire dont on ignore les outils, LZW ou Deflate restent les choix les plus sûrs.
 
 ## Séries temporelles et cubes de données
 
@@ -556,10 +616,11 @@ Sur le plan informatique, un fichier raster est une image numérique : on retrou
 
 ### Formats d'image courants
 
-- **BMP** (*Bitmap*, Microsoft/IBM, 1990) : un des formats les plus simples. En-tête, palette éventuelle, puis les pixels écrits ligne par ligne en commençant en bas à gauche. Généralement non compressé (RLE possible). Très largement lu, mais volumineux.
+- **BMP** (*Bitmap*, Microsoft/IBM, 1990) : format historique très simple, généralement non compressé, donc volumineux. Peu utilisé aujourd'hui.
 - **GIF** : 256 couleurs au maximum (palette), compression LZW, transparence simple et animation. Adapté aux logos et pictogrammes, pas aux photos.
 - **PNG** : compression **sans perte** (Deflate), couleurs indexées ou vraies, 8 ou 16 bits par canal, transparence (canal alpha). Idéal pour les cartes, plans et captures d'écran ; utilisé pour les tuiles de cartes web.
 - **JPEG** : compression **avec perte**, idéal pour les photos et orthophotos destinées à l'affichage. Pas de transparence.
+- **WebP**, **AVIF** et **JPEG XL** : formats récents qui visent à remplacer JPEG et PNG sur le web. À qualité égale, ils produisent des fichiers nettement plus petits que JPEG et gèrent la transparence. WebP et AVIF sont lus par tous les navigateurs actuels ; JPEG XL est encore en cours d'adoption.
 
 ### TIFF et GeoTIFF
 
@@ -579,12 +640,39 @@ Un **COG** est un GeoTIFF ordinaire, mais organisé d'une manière particulière
 
 Un logiciel peut ainsi lire **uniquement la partie dont il a besoin** (une zone, un niveau de zoom) directement sur un serveur web, grâce à des requêtes HTTP partielles, sans télécharger tout le fichier. Tout logiciel qui lit le GeoTIFF lit aussi un COG. COG est un standard OGC depuis 2023 et devient le format courant de diffusion des rasters dans le cloud ; les données raster de swisstopo sur [data.geo.admin.ch](https://data.geo.admin.ch) sont par exemple livrées sous cette forme.
 
+!!! example "🧵 Fil rouge : la structure d'un COG"
+
+    `gdalinfo` sur la tuile SWISSIMAGE du fil rouge affiche notamment :
+    ```text
+    Size is 10000, 10000
+    Band 1 Block=256x256 Type=Byte, ColorInterp=Red
+      Overviews: 5000x5000, 2500x2500, 1250x1250, 625x625, 313x313
+    LAYOUT=COG
+    COMPRESSION=YCbCr JPEG
+    ```
+    L'image est découpée en blocs de 256 × 256 pixels et contient 5 aperçus. Pour afficher toute la tuile à l'écran, QGIS ne lit que l'aperçu de 625 × 625 pixels, soit une fraction des 65 Mo du fichier.
+
+### Diffuser des rasters : tuiles, VRT et lecture distante
+
+Pour la diffusion, en particulier sur le web, d'autres solutions complètent le COG :
+
+- **Tuiles raster** : l'image est précalculée en petites images (souvent 256 × 256 pixels, en PNG, JPEG ou WebP) pour chaque niveau de zoom. C'est le principe des fonds de carte web et du service WMTS (voir [chapitre 8](../08-geoservices/README.md)). Les tuiles peuvent être regroupées dans un seul fichier :
+    - **MBTiles** : une base SQLite contenant toutes les tuiles, très utilisée pour les cartes hors ligne sur mobile ;
+    - **PMTiles** : un fichier unique conçu, comme le COG, pour être lu **par morceaux** directement sur un serveur web, sans serveur cartographique ;
+    - **GeoPackage** : peut contenir des tuiles raster en plus des couches vecteur (voir [chapitre 3](../03-vecteur/README.md)).
+- **VRT** (*Virtual Raster*, GDAL) : un petit fichier XML qui décrit un raster **virtuel** à partir d'autres fichiers, par exemple une mosaïque de 100 tuiles, sans les copier. QGIS le crée avec *Raster › Divers › Construire un raster virtuel*.
+- **Lecture distante** : GDAL, et donc QGIS, peut lire un fichier directement sur le web avec le préfixe `/vsicurl/`, ou même à l'intérieur d'une archive zip avec `/vsizip/`. Combiné au COG, cela évite de télécharger des fichiers entiers.
+
+!!! tip "Exercice"
+
+    Mettez en pratique les compressions modernes et le COG sur les données du fil rouge : [Compresser et diffuser un GeoTIFF](../exercices/ex03-compression-geotiff/README.md).
+
 ### JPEG 2000 et ECW
 
 Formats à **compression par ondelettes**, avec ou sans perte, adaptés aux très grandes mosaïques d'orthophotos :
 
 - **JPEG 2000** (`.jp2`) : norme ISO ouverte, peut contenir le géoréférencement (GeoJP2/GMLJP2). Utilisé par exemple pour la distribution des images Sentinel‑2.
-- **ECW** (`.ecw`, Hexagon) : format **propriétaire**, très performant, mais dont l'écriture nécessite une licence.
+- **ECW** (`.ecw`, Hexagon) : format **propriétaire**, très performant, mais dont l'écriture nécessite une licence. Encore présent dans les archives d'orthophotos, il est **en recul** au profit de COG et JPEG 2000.
 
 ### ASCII Grid
 
@@ -622,17 +710,19 @@ Le format **ASCII Grid** (`.asc`, défini par ESRI) décrit une grille de valeur
 
 | Besoin | Format conseillé |
 |---|---|
-| Échanger une orthophoto ou un MNT géoréférencé | GeoTIFF (compression LZW ou Deflate) |
-| Diffuser de gros rasters sur le web / dans le cloud | COG |
-| Archiver ou diffuser une très grande mosaïque compacte | JPEG 2000 (ou ECW si les logiciels le permettent) |
-| Afficher une photo sur le web, sans exigence d'exactitude | JPEG |
-| Plan, carte ou capture d'écran, transparence | PNG |
+| Échanger une orthophoto ou un MNT avec un partenaire | GeoTIFF, compression LZW ou Deflate (lisible partout) |
+| Stocker un MNT pour ses propres analyses | GeoTIFF, ZSTD ou Deflate + prédicteur (sans perte), ou LERC avec une erreur maximale adaptée |
+| Diffuser de gros rasters sur le web / dans le cloud | COG (+ catalogue STAC) |
+| Fond de carte web ou hors ligne | Tuiles raster : WMTS, PMTiles, MBTiles |
+| Archiver ou diffuser une très grande mosaïque compacte | COG en JPEG ou WebP, JPEG 2000 |
+| Afficher une photo sur le web, sans exigence d'exactitude | JPEG, WebP, AVIF |
+| Plan, carte ou capture d'écran, transparence | PNG, WebP sans perte |
 | Échanger une grille simple lisible par un humain | ASCII Grid |
 | Données climatiques ou météorologiques multidimensionnelles | NetCDF (ou Zarr pour le cloud) |
 
 !!! tip "Bonne pratique"
 
-    Pour toute donnée destinée à être analysée (MNT, classification, image à traiter), utilisez une compression **sans perte** : une compression avec perte modifie les valeurs des pixels et fausse les calculs.
+    Pour toute donnée destinée à être analysée (MNT, classification, image à traiter), n'utilisez **jamais JPEG ou WebP avec perte** : ils modifient les valeurs des pixels de manière incontrôlée et faussent les calculs. Préférez une compression **sans perte**, ou **LERC** si une erreur maximale connue et inférieure à la précision des données est acceptable.
 
 ## Sources
 
@@ -653,6 +743,7 @@ Le format **ASCII Grid** (`.asc`, défini par ESRI) décrit une grille de valeur
 
 - [Formats d'images et compression](../exercices/ex01-images-compression/README.md)
 - [Compression par dictionnaire](../exercices/ex02-compression-dictionnaire/README.md)
+- [Compresser et diffuser un GeoTIFF](../exercices/ex03-compression-geotiff/README.md)
 
 ---
 
