@@ -17,21 +17,186 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 ## Objectifs
 
 - Définir interface et interopérabilité
+- Distinguer compatibilité, standard de fait et interopérabilité
 - Distinguer norme, standard ouvert et format propriétaire
-- Situer les organismes de normalisation (ISO, CEN, SNV, OGC, eCH)
+- Situer les organismes de normalisation (ISO, CEN, SNV, eCH, OGC)
 
 ---
 
 ## Qu'est-ce qu'une interface ?
 
----
-
-## Interopérabilité : définition et degrés
-
----
-
-## Normes ouvertes, restreintes et propriétaires
+- **Interface utilisateur** / **graphique** : humain ↔ machine
+- **API** : programme ↔ programme
+- **Interface d'échange** : format ou service entre deux systèmes
+- Larousse : jonction entre deux systèmes… **par l'adoption de règles communes**
 
 ---
 
-## Normalisation en géoinformation
+## Interopérabilité
+
+- Capacité de systèmes différents à **communiquer sans ambiguïté**
+- … **sans dépendre** d'un acteur particulier
+- Repose sur des **normes** claires et univoques
+- Chaque système évolue librement s'il respecte la norme
+- Exemples : Internet, téléphone, échange de géodonnées
+
+---
+
+## L'analogie ferroviaire
+
+- **CFF** : voie normale 1435 mm
+- **MOB** : voie métrique 1000 mm
+- → pas interopérables : changement de train à Zweisimmen
+- La règle commune (écartement) = une **norme**
+- GoldenPass Express (2022) : bogies à écartement variable
+  = un **convertisseur** coûteux (cf. ETL, chap. 9)
+
+---
+
+## Degrés d'interopérabilité
+
+| Compatibilité | Standard de fait | Interopérabilité |
+|:---:|:---:|:---:|
+| ![w:150](img/degre-compatibilite.png) | ![w:150](img/degre-standard-de-fait.png) | ![w:150](img/degre-interoperabilite.png) |
+| accords deux à deux | tous s'alignent sur le dominant | tous via un **standard ouvert** |
+
+---
+
+## Standard de fait : le shapefile
+
+- Créé par Esri, spécification publiée en 1998
+- Lu par tous les SIG… mais règles fixées par **un seul acteur**
+- Limites jamais corrigées : champs de 10 caractères, 2 Go
+- Alternative ouverte : **GeoPackage** (OGC)
+
+---
+
+## Norme ou standard ?
+
+- **Norme** : organisme **reconnu** (ISO, CEN, SNV), consensus
+- **Standard ouvert** : consortium (W3C, OGC, buildingSMART)
+- **Standard de fait** : une entreprise dominante
+- Anglais : un seul mot, *standard*
+- ⚠ Interopérabilité sur un standard **fermé** = risque
+
+---
+
+## Normes ouvertes
+
+- Rédaction **collaborative**, brouillon → tests → recommandation
+- Publication **libre** : chacun peut implémenter
+- W3C / IETF : XML, PNG, JSON, GeoJSON
+- OGC : GML, KML, WMS, WFS, GeoPackage
+- buildingSMART : IFC — SNV : INTERLIS
+- **PDF** : norme **ISO 32000** depuis 2008
+
+---
+
+## Normes payantes et restreintes
+
+- **Payantes** : ISO, CEN, SNV, AFNOR… publiques mais pas gratuites
+- **Distribution restreinte** : une seule entreprise décide
+  - shapefile (Esri), RAR, Java (Oracle)
+- **Brevets** : redevances (USA, Japon)
+  - GIF (LZW) : expiré en 2003-2004 → d'où le PNG
+  - MP3 : expiré en 2017
+
+---
+
+## Formats propriétaires fermés
+
+- Connus de leur seul concepteur
+- Les autres : **rétro-ingénierie**, risque à chaque version
+- Exemples : File Geodatabase (Esri), DWG (Autodesk)
+- Anciens `.doc`/`.xls` (les `.docx`/`.xlsx` sont ISO/IEC 29500)
+- Formats natifs d'instruments (scanners, GNSS)
+
+---
+
+<!-- _class: lead -->
+
+# Normalisation en géoinformation
+
+---
+
+## Qui normalise ?
+
+| Niveau | Organisme | Géoinformation |
+|---|---|---|
+| Mondial | **ISO** | **ISO/TC 211** |
+| Europe | **CEN** | **CEN/TC 287** |
+| Suisse | **SNV** | INTERLIS, adresses… |
+| Suisse | **eCH** | cyberadministration |
+| Consortium | **OGC** | GML, WMS, OGC API… |
+
+---
+
+## ISO/TC 211 : la série 191xx
+
+- ISO 19107 géométrie · 19111 systèmes de coordonnées
+- ISO 19115 métadonnées · 19125 Simple Features
+- ISO 19128 WMS · 19136 GML
+- Processus long : NWIP → WD → CD → DIS/FDIS → **IS**
+- La **SNV** représente la Suisse
+
+---
+
+## CEN et SNV
+
+- CEN reprend les normes ISO (→ **EN ISO 191xx**)
+- **ISO recommande, CEN oblige** : reprise nationale obligatoire
+- SNV membre du CEN → normes suisses contradictoires retirées
+- Normes SN : **612030/612031 INTERLIS**, 612040 adresses de bâtiments, 612050 métadonnées GM03
+
+---
+
+## Coordination suisse
+
+- **eCH** : standards de cyberadministration, groupe *Géoinformation*
+- **swisstopo / KOGIS** : coordination de l'infrastructure nationale de géodonnées
+- **LGéo** : modèles de géodonnées obligatoires (INTERLIS)
+
+---
+
+## OGC : Open Geospatial Consortium
+
+- Fondé en 1994, plus de 500 membres
+- Éditeurs, producteurs de données, administrations, universités
+- But : SIG **interopérables** grâce à des interfaces ouvertes
+- **Abstract Specification** : cadre conceptuel (Simple Features)
+- **OGC Standards** : GML, KML, WMS, WMTS, WFS, GeoPackage…
+- **Community Standards** : 3D Tiles, CityJSON, I3S
+
+---
+
+## OGC API : la nouvelle génération
+
+- **REST** + **JSON**/GeoJSON + HTML, décrit en OpenAPI
+- OGC API – **Features** → succède à WFS
+- OGC API – **Tiles** → WMTS
+- OGC API – **Maps** → WMS
+- Détails au chapitre 8
+
+---
+
+## OGC ↔ ISO
+
+| OGC | ISO |
+|---|---|
+| Simple Features | 19125 |
+| WMS 1.3.0 | 19128 |
+| GML 3.2 | 19136 |
+
+→ données **hétérogènes et distribuées** combinables
+ex. map.geo.admin.ch, geocat.ch
+
+---
+
+## À retenir
+
+- **Interface** = jonction fondée sur des règles communes
+- **Interopérabilité** = standard **ouvert**, sans dépendance
+- Compatibilité < standard de fait < interopérabilité
+- **Norme** (ISO, CEN, SNV) ≠ **standard** (consortium ou de fait)
+- ISO/TC 211 → CEN/TC 287 (obligatoire) → SNV ; eCH, swisstopo
+- **OGC** : GML, WMS, WFS… et **OGC API**
