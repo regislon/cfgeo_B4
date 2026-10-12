@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns:kml="http://earth.google.com/kml/2.1">
+  <Style id="SMExport_3_ff0000e6_fffefefe">
+    <LineStyle>
+      <color>ttff00ee</color>
+      <width>15</width>
+    </LineStyle>
+    <PolyStyle>
+      <color>fffefefe</color>
+    </PolyStyle>
+  </Style>
+  <Placemark>
+    <name>Chasseral</name>
+    <description>bonjour</description>
+    <styleUrl>#SMExport_3_ff0000e6_fffefefe</styleUrl>
+	<Point id="1234">
+		<extrude>0</extrude>                        <!-- boolean -->
+		<altitudeMode>clampToGround</altitudeMode>
+        <!-- kml:altitudeModeEnum: clampToGround, relativeToGround, or absolute -->
+        <!-- or, substitute gx:altitudeMode: clampToSeaFloor, relativeToSeaFloor -->
+		<coordinates>7.06034,47.13306,1650</coordinates>              <!-- lon,lat[,alt] -->
+	</Point>
+  </Placemark>
+  <TimeSpan>
+            <begin>2009-06-13T08:39:34Z</begin>
+            <end>2009-06-13T08:45:34Z</end>
+          </TimeSpan>
+</Document>
+

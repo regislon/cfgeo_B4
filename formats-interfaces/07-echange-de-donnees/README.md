@@ -26,6 +26,10 @@
 
 *À rédiger.*
 
+## Exercices
+
+- [Schema mapping](../exercices/ex07-schema-mapping/README.md)
+
 ---
 
 ← [Interopérabilité et normes](../06-interoperabilite-normes/README.md) · [Géoservices (GeoWeb)](../08-geoservices/README.md) →

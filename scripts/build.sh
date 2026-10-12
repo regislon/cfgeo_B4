@@ -29,4 +29,10 @@ for src in formats-interfaces/*/slides.md; do
     "$src" -o "$out" --html --theme-set marp/theme.css < /dev/null
 done
 
+# 4. Données des exercices : un zip par exercice
+for dir in formats-interfaces/exercices/*/donnees; do
+  ex="$(dirname "$dir")"
+  (cd "$dir" && zip -qr -X "$OLDPWD/site/$ex/donnees.zip" . -x ".DS_Store")
+done
+
 echo "Site construit dans site/"

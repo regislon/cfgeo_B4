@@ -35,3 +35,12 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 ---
 
 ## Incompatibilités (types, géométries, SURFACE/AREA, intégrité)
+
+---
+
+<!-- _class: exercice -->
+
+# Exercice : Schema mapping
+
+[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex07-schema-mapping/)
+

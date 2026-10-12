@@ -34,6 +34,12 @@
 
 *À rédiger.*
 
+## Exercices
+
+- [Conversion GPX ↔ KML](../exercices/ex08-gpx-kml/README.md)
+- [Modèle QGIS : reprojection et calcul](../exercices/ex09-modele-reprojection/README.md)
+- [Modèle QGIS : tampon et découpage](../exercices/ex10-modele-cours-eau/README.md)
+
 ---
 
 ← [Géoservices (GeoWeb)](../08-geoservices/README.md)

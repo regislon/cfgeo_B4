@@ -62,3 +62,15 @@ nav:
       - 7. Échange de données: formats-interfaces/07-echange-de-donnees/README.md
       - 8. Géoservices (GeoWeb): formats-interfaces/08-geoservices/README.md
       - 9. Reformatage et ETL: formats-interfaces/09-reformatage-etl/README.md
+      - Exercices:
+          - formats-interfaces/exercices/README.md
+          - "Formats d'images et compression": formats-interfaces/exercices/ex01-images-compression/README.md
+          - "Compression par dictionnaire": formats-interfaces/exercices/ex02-compression-dictionnaire/README.md
+          - "Du fichier de base de données au shapefile": formats-interfaces/exercices/ex03-shapefile/README.md
+          - "Shapefile, GeoPackage et raster": formats-interfaces/exercices/ex04-geopackage/README.md
+          - "Lire et modifier un fichier KML": formats-interfaces/exercices/ex05-kml/README.md
+          - "GeoJSON et systèmes de coordonnées": formats-interfaces/exercices/ex06-geojson/README.md
+          - "Schema mapping": formats-interfaces/exercices/ex07-schema-mapping/README.md
+          - "Conversion GPX ↔ KML": formats-interfaces/exercices/ex08-gpx-kml/README.md
+          - "Modèle QGIS : reprojection et calcul": formats-interfaces/exercices/ex09-modele-reprojection/README.md
+          - "Modèle QGIS : tampon et découpage": formats-interfaces/exercices/ex10-modele-cours-eau/README.md

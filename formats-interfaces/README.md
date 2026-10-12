@@ -17,3 +17,7 @@ stockée et échangée entre systèmes. Elle complète les cours « Modèles de 
 | 7 | [Échange de données](07-echange-de-donnees/README.md) | [📽](https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/slides.html) |
 | 8 | [Géoservices (GeoWeb)](08-geoservices/README.md) | [📽](https://regislon.github.io/cfgeo_B4/formats-interfaces/08-geoservices/slides.html) |
 | 9 | [Reformatage et ETL](09-reformatage-etl/README.md) | [📽](https://regislon.github.io/cfgeo_B4/formats-interfaces/09-reformatage-etl/slides.html) |
+
+## Exercices
+
+Les [exercices](exercices/README.md) sont annoncés dans les slides de chaque chapitre, au moment où ils sont faits en classe.

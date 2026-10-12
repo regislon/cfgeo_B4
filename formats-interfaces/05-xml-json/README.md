@@ -34,6 +34,11 @@
 
 *À rédiger.*
 
+## Exercices
+
+- [Lire et modifier un fichier KML](../exercices/ex05-kml/README.md)
+- [GeoJSON et systèmes de coordonnées](../exercices/ex06-geojson/README.md)
+
 ---
 
 ← [3D et nuages de points](../04-3d-nuages-de-points/README.md) · [Interopérabilité et normes](../06-interoperabilite-normes/README.md) →

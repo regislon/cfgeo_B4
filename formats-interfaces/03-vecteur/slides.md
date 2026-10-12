@@ -43,3 +43,21 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 ---
 
 ## Vecteur vs raster
+
+---
+
+<!-- _class: exercice -->
+
+# Exercice : Du fichier de base de données au shapefile
+
+[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex03-shapefile/)
+
+
+---
+
+<!-- _class: exercice -->
+
+# Exercice : Shapefile, GeoPackage et raster
+
+[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex04-geopackage/)
+

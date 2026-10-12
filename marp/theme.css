@@ -41,3 +41,19 @@ section.lead footer {
 code {
   background: #eef4f3;
 }
+
+/* Slide d'exercice : <!-- _class: exercice --> */
+section.exercice {
+  justify-content: center;
+  background: #ffc107;
+  color: #1f2a2e;
+}
+
+section.exercice h1 {
+  color: #1f2a2e;
+}
+
+section.exercice a {
+  color: #00574d;
+  font-weight: bold;
+}

@@ -43,3 +43,30 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 ---
 
 ## Outils spécialisés (GPSBabel…)
+
+---
+
+<!-- _class: exercice -->
+
+# Exercice : Conversion GPX ↔ KML
+
+[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex08-gpx-kml/)
+
+
+---
+
+<!-- _class: exercice -->
+
+# Exercice : Modèle QGIS : reprojection et calcul
+
+[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex09-modele-reprojection/)
+
+
+---
+
+<!-- _class: exercice -->
+
+# Exercice : Modèle QGIS : tampon et découpage
+
+[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex10-modele-cours-eau/)
+

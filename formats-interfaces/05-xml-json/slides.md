@@ -43,3 +43,21 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 ---
 
 ## JSON Schema
+
+---
+
+<!-- _class: exercice -->
+
+# Exercice : Lire et modifier un fichier KML
+
+[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex05-kml/)
+
+
+---
+
+<!-- _class: exercice -->
+
+# Exercice : GeoJSON et systèmes de coordonnées
+
+[Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex06-geojson/)
+

@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns:kml="http://earth.google.com/kml/2.1">
+  <Style id="SMExport_3_ff0000e6_fffefefe">
+    <LineStyle>
+      <color>ttff00ee</color>
+      <width>15</width>
+    </LineStyle>
+    <PolyStyle>
+      <color>fffefefe</color>
+    </PolyStyle>
+  </Style>
+  <Placemark>
+    <name></name>
+    <description></description>
+    <styleUrl>#SMExport_3_ff0000e6_fffefefe</styleUrl>
+    <LineString>
+      <tessellate>1</tessellate>
+      <coordinates>6.926710,46.997766,0.000000 6.933365,47.003103,0.000000 6.944641,47.006660,0.000000 6.955634,47.012464,0.000000 6.958872,47.018055,0.000000 6.960501,47.027147,0.000000 6.962036,47.032010,0.000000 6.968193,47.035094,0.000000 6.968193,47.035094,0.000000 </coordinates>
+    </LineString>
+  </Placemark>
+</Document>

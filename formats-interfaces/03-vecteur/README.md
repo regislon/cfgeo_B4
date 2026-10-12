@@ -34,6 +34,11 @@
 
 *À rédiger.*
 
+## Exercices
+
+- [Du fichier de base de données au shapefile](../exercices/ex03-shapefile/README.md)
+- [Shapefile, GeoPackage et raster](../exercices/ex04-geopackage/README.md)
+
 ---
 
 ← [Données raster](../02-raster/README.md) · [3D et nuages de points](../04-3d-nuages-de-points/README.md) →

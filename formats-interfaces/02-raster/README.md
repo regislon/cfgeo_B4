@@ -34,6 +34,11 @@
 
 *À rédiger.*
 
+## Exercices
+
+- [Formats d'images et compression](../exercices/ex01-images-compression/README.md)
+- [Compression par dictionnaire](../exercices/ex02-compression-dictionnaire/README.md)
+
 ---
 
 ← [Codage binaire](../01-codage-binaire/README.md) · [Données vectorielles](../03-vecteur/README.md) →
