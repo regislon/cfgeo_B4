@@ -1,0 +1,64 @@
+site_name: CFGéo B4 – Formats, interfaces
+site_url: https://regislon.github.io/cfgeo_B4/
+repo_url: https://github.com/regislon/cfgeo_B4
+edit_uri: edit/main/
+site_author: Régis Longchamp
+
+# Le contenu est copié ici par scripts/build.sh (MkDocs refuse docs_dir: .)
+docs_dir: build/docs
+site_dir: site
+
+# Les slides sont rendues séparément par Marp
+exclude_docs: |
+  slides.md
+
+theme:
+  name: material
+  language: fr
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - navigation.footer
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Mode sombre
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Mode clair
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+nav:
+  - Accueil: README.md
+  - Formats, interfaces:
+      - formats-interfaces/README.md
+      - 1. Codage binaire: formats-interfaces/01-codage-binaire/README.md
+      - 2. Données raster: formats-interfaces/02-raster/README.md
+      - 3. Données vectorielles: formats-interfaces/03-vecteur/README.md
+      - 4. 3D et nuages de points: formats-interfaces/04-3d-nuages-de-points/README.md
+      - 5. XML et JSON: formats-interfaces/05-xml-json/README.md
+      - 6. Interopérabilité et normes: formats-interfaces/06-interoperabilite-normes/README.md
+      - 7. Échange de données: formats-interfaces/07-echange-de-donnees/README.md
+      - 8. Géoservices (GeoWeb): formats-interfaces/08-geoservices/README.md
+      - 9. Reformatage et ETL: formats-interfaces/09-reformatage-etl/README.md

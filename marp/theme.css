@@ -1,0 +1,43 @@
+/* @theme cfgeo */
+@import 'default';
+
+section {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 28px;
+  padding: 60px 70px;
+  color: #1f2a2e;
+  background: #ffffff;
+}
+
+h1, h2 {
+  color: #00796b;
+}
+
+h2 {
+  border-bottom: 3px solid #ffc107;
+  padding-bottom: 8px;
+}
+
+section.lead {
+  justify-content: center;
+  background: #00796b;
+  color: #ffffff;
+}
+
+section.lead h1 {
+  color: #ffffff;
+  font-size: 64px;
+}
+
+footer {
+  font-size: 16px;
+  color: #6b7b80;
+}
+
+section.lead footer {
+  color: #cfe8e4;
+}
+
+code {
+  background: #eef4f3;
+}
