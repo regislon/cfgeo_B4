@@ -241,6 +241,24 @@ https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/20
 !!! warning "Attention à l'ordre des numéros"
     Dans l'URL de geo.admin.ch, la **colonne** (`TileCol`, X) vient **avant** la **ligne** (`TileRow`, Y). D'autres services utilisent un autre ordre : référez-vous toujours au modèle d'URL (`ResourceURL`) donné dans le GetCapabilities. De même, les numéros de niveaux et de tuiles valides dépendent du `TileMatrixSet` : ceux du système 2056 ne sont pas ceux du système 3857 (« Web Mercator », utilisé par la plupart des cartes web mondiales).
 
+!!! tip "À vous de jouer, sans installation : WMS et WMTS dans GeoLibre"
+
+    [GeoLibre](https://web.geolibre.app) est un SIG qui fonctionne dans le navigateur (voir [chapitre 2](../02-raster/README.md#fil-rouge-un-kilometre-carre-a-yverdon-les-bains)). Il suffit pour tester les services de la Confédération :
+
+    **WMS** — *Add Data › WMS Layer* :
+
+    1. *Service URL* : `https://wms.geo.admin.ch/`, puis cliquez sur **Retrieve layers**. GeoLibre envoie une requête **GetCapabilities** et liste les quelque 900 couches disponibles.
+    2. *Layers* : par exemple `ch.kantone.cadastralwebmap-farbe` (plan cadastral), version 1.3.0, format PNG.
+    3. Cliquez sur *Add layer* et zoomez sur une commune : chaque déplacement de la carte déclenche des requêtes **GetMap**.
+
+    **WMTS** — *Add Data › WMTS Layer* : GeoLibre attend directement le **modèle d'URL** des tuiles (approche REST) :
+    ```text
+    https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg
+    ```
+    Notez le `TileMatrixSet` **3857** : comme la plupart des cartes web, GeoLibre affiche la carte en Web Mercator et ne peut donc pas utiliser la pyramide de tuiles en 2056. geo.admin.ch publie heureusement ses couches dans les deux systèmes.
+
+    Ouvrez les outils de développement du navigateur (touche F12, onglet *Réseau*) pour **voir passer les requêtes** GetMap et les tuiles.
+
 ## WFS – Web Feature Service
 
 Un **WFS** renvoie des **données vectorielles** : les objets eux-mêmes, avec leur géométrie et leurs attributs, et non une image. C'est donc un service de **téléchargement** : le client peut analyser, filtrer ou réutiliser les données.
@@ -352,6 +370,12 @@ https://data.geo.admin.ch/api/stac/v1/collections/ch.swisstopo.swissimage-dop10/
 ```
 
 La seconde requête renvoie, en GeoJSON, les dalles SWISSIMAGE qui touchent l'emprise demandée (en WGS84), avec pour chacune les liens de téléchargement des fichiers.
+
+!!! tip "À vous de jouer : parcourir le catalogue STAC de swisstopo"
+
+    Dans [GeoLibre](https://web.geolibre.app), ouvrez *Add Data › STAC Layer*, saisissez `https://data.geo.admin.ch/api/stac/v1/` et cliquez sur *Connect*. GeoLibre liste les collections du catalogue ; zoomez sur votre région et laissez cochée l'option *Limit search to the current map extent* pour ne rechercher que les items visibles. Comparez avec la réponse brute de la requête ci-dessus dans votre navigateur : c'est le même JSON, mis en forme par le logiciel.
+
+    Autre exemple de catalogue STAC, cette fois pour des données **multidimensionnelles** au format Zarr : la [démo de prévisions météo](../02-raster/README.md#zarr) du chapitre 2.
 
 ## À retenir
 

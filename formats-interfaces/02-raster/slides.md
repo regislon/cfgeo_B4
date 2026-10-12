@@ -61,6 +61,18 @@ Une **couleur**… ou une **altitude** · *© swisstopo*
 
 ---
 
+## Sans installation : GeoLibre
+
+- SIG libre **dans le navigateur** : `web.geolibre.app`
+- *Add Data › Raster Layer* → coller l'URL du COG → *Load*
+- *Inspect pixel values* : valeur d'un pixel (433,17 m)
+- Lit COG, GeoParquet, GeoPackage, WMS, WMTS, STAC…
+
+⚠️ Affichage en **Web Mercator**, coordonnées **jamais en MN95**
+→ QGIS / GDAL restent la référence pour le travail précis
+
+---
+
 <!-- _class: lead -->
 
 # Pixel et résolution
@@ -502,6 +514,16 @@ SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
 - **Zarr** : cubes découpés en blocs, pensé pour le cloud
 
 ![w:520](img/netcdf-multidimensionnel.png)
+
+---
+
+## ▶ Démo : un cube Zarr
+
+![w:560](img/zarr-cube-previsions.jpg)
+
+- Prévision ECMWF AIFS : X, Y + **échéance** (0–360 h) en hauteur
+- Seuls les **blocs** utiles sont téléchargés · requêtes **SQL** (DuckDB) dans le navigateur
+- Démo *zarr-sql-views* (G. Milevski) · données dynamical.org
 
 ---
 

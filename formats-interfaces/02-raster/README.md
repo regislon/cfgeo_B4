@@ -57,6 +57,19 @@ Ces trois produits décrivent le même territoire, mais leurs pixels ne contienn
     `https://data.geo.admin.ch/ch.swisstopo.swissalti3d/swissalti3d_2019_2538-1180/swissalti3d_2019_2538-1180_0.5_2056_5728.tif`.
     C'est possible parce que ces fichiers sont des *Cloud Optimized GeoTIFF* (voir [plus bas](#cloud-optimized-geotiff-cog)).
 
+    **Sans rien installer** : ouvrez [GeoLibre](https://web.geolibre.app) dans votre navigateur, puis *Add Data › Raster Layer*, collez la même URL et cliquez sur *Load*. Activez *Inspect pixel values* (icône de la couche) et cliquez sur la carte pour lire l'altitude d'un pixel.
+
+!!! info "GeoLibre, un SIG dans le navigateur"
+
+    [GeoLibre](https://geolibre.app) est un SIG libre qui fonctionne **entièrement dans le navigateur**, sans installation ([version web](https://web.geolibre.app)), et existe aussi en application de bureau. Il lit directement les COG, GeoParquet, FlatGeobuf, GeoPackage, les services WMS, WMTS, WFS, OGC API et STAC, et propose de nombreux traitements. Nous l'utilisons dans ce cours comme **alternative légère à QGIS**, notamment lors des journées à distance.
+
+    Deux limites à connaître :
+
+    - la carte est affichée en **Web Mercator** (EPSG:3857) et les coordonnées sont données en degrés, UTM ou EPSG:3857, **jamais en MN95** : les données en MN95 sont reprojetées à la volée pour l'affichage ;
+    - l'interface est en anglais et le logiciel évolue très vite : les menus peuvent changer d'une version à l'autre.
+
+    Pour un travail précis en MN95 ou des options d'export détaillées, QGIS et GDAL restent les outils de référence.
+
 ## Valeur du pixel et résolution
 
 ### La valeur du pixel
@@ -704,7 +717,23 @@ Le format **ASCII Grid** (`.asc`, défini par ESRI) décrit une grille de valeur
 
 ### Zarr
 
-**Zarr** stocke, comme NetCDF, des tableaux multidimensionnels, mais découpés en de nombreux petits blocs (*chunks*) enregistrés séparément. Il est conçu pour le **cloud** : plusieurs programmes peuvent lire et écrire des blocs différents en parallèle. On le rencontre surtout dans les grands projets d'observation de la Terre et de climatologie (avec Python et la bibliothèque xarray).
+**Zarr** stocke, comme NetCDF, des tableaux multidimensionnels, mais découpés en de nombreux petits blocs (*chunks*) enregistrés séparément. Il est conçu pour le **cloud** : plusieurs programmes peuvent lire et écrire des blocs différents en parallèle. On le rencontre surtout dans les grands projets d'observation de la Terre et de climatologie (avec Python et la bibliothèque xarray). L'OGC prépare une variante géographique normalisée, **GeoZarr**.
+
+!!! example "▶ Démo : un cube Zarr de prévisions météo dans le navigateur"
+
+    La démo **[zarr-sql-views](https://zarr-sql-views.netlify.app/?view=2&dataset=https%3A%2F%2Fstac.dynamical.org%2Fecmwf-aifs-single-forecast%2Fcollection.json&variable=temperature_2m&extent=%5B-10.9857%2C32.1472%2C27.0143%2C70.1472%5D)** (Gjore Milevski) affiche la dernière prévision de température du modèle **AIFS** du Centre européen de prévision (ECMWF) sous forme d'un **cube** : longitude et latitude à plat, **échéance de prévision** (0 à 360 heures) en hauteur.
+
+    ![Cube de prévisions de température sur l'Europe : la carte forme le dessus du cube, l'échéance de prévision la hauteur](img/zarr-cube-previsions.jpg)
+
+    *Capture de la démo zarr-sql-views (licence ISC). Données : ECMWF AIFS, diffusées en Zarr par [dynamical.org](https://dynamical.org).*
+
+    Ce qui se passe dans votre navigateur :
+
+    1. la démo lit le **catalogue STAC** de dynamical.org pour trouver le jeu de données Zarr ;
+    2. elle télécharge **uniquement les blocs** (*chunks*) qui couvrent l'emprise et la variable choisies, et non le jeu de données complet ;
+    3. les valeurs sont chargées dans **DuckDB**, une base de données qui tourne dans le navigateur : on peut alors interroger le cube en **SQL**, par exemple « toutes les cellules à plus de 28 °C entre +24 h et +72 h ».
+
+    À essayer : coupez le cube (*Slice*), cliquez sur un lieu pour voir la courbe de prévision, modifiez la requête SQL. Comparez avec un GeoTIFF : ici, **le temps est une dimension du fichier**, et non un fichier par date.
 
 ### Quel format choisir ?
 

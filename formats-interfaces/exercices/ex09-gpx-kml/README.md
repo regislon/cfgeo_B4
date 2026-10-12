@@ -13,7 +13,7 @@ Chapitre : [9. Reformatage et ETL](../../09-reformatage-etl/README.md)
 
 ## Consignes
 
-Logiciels : [GPSBabel](https://www.gpsbabel.org/) et QGIS.
+Logiciels : [GPSBabel](https://www.gpsbabel.org/) et QGIS, ou sans installation [GeoLibre](https://web.geolibre.app) (*Add Data › GPX Layer*, puis *Processing › Conversion › GeoLibre (WASM) › GPX To Features* et *KML To Features*).
 
 1. Ouvrez `Ex5.gpx` dans un éditeur. Quelle est la structure du fichier (trace, segments, points) ? Quelles informations chaque point contient-il ?
 2. Convertissez `Ex5.gpx` en KML avec GPSBabel.

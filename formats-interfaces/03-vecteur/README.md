@@ -290,6 +290,26 @@ Les volumes de données augmentant et le stockage dans le cloud se généralisan
 - **FlatGeobuf** (`.fgb`) : un fichier unique, binaire, avec un **index spatial** intégré. Très rapide à lire, il peut être lu **en flux** (*streaming*) et interrogé partiellement sur un serveur web, sans tout télécharger. Idéal pour **diffuser** de gros jeux de données en lecture seule. Il n'est pas prévu pour être modifié.
 - **GeoParquet** (`.parquet`) : extension géographique du format **Apache Parquet**, spécifiée par l'OGC (version 1.0 en 2023). Les données sont stockées **par colonnes** et fortement compressées, ce qui rend très efficaces les **analyses sur de très gros volumes** (millions d'objets) avec des outils comme DuckDB, Python (GeoPandas) ou les plateformes de données cloud.
 
+!!! example "🧪 Un même jeu de données, cinq formats"
+
+    Les **300 communes du canton de Vaud** (swissBOUNDARIES3D, état 2026, © swisstopo), exportées avec GDAL dans cinq formats. Les données sont identiques : seul le format change.
+
+    | Fichier | Format | Système | Taille |
+    |---|---|---|---|
+    | [`communes_vd.gpkg`](donnees/communes_vd.gpkg) | GeoPackage | MN95 | 2,9 Mo |
+    | [`communes_vd_shp.zip`](donnees/communes_vd_shp.zip) | Shapefile (5 fichiers, zippés) | MN95 | 2,6 Mo (1,4 Mo zippé) |
+    | [`communes_vd.fgb`](donnees/communes_vd.fgb) | FlatGeobuf | MN95 | 2,6 Mo |
+    | [`communes_vd.parquet`](donnees/communes_vd.parquet) | GeoParquet (compression ZSTD) | MN95 | 2,1 Mo |
+    | [`communes_vd.geojson`](donnees/communes_vd.geojson) | GeoJSON (RFC 7946) | WGS84 | 4,3 Mo |
+
+    **À vous de jouer**, dans QGIS ou sans installation dans [GeoLibre](https://web.geolibre.app) (*Add Data › Vector Layer*, puis glissez-déposez le fichier téléchargé) :
+
+    1. Ouvrez les cinq fichiers. Combien de fichiers faut-il pour le shapefile ? Pourquoi le zip ?
+    2. Comparez les **noms des champs** : dans le shapefile, `bezirksnummer` est devenu `bezirksnum`, `einwohnerzahl` est devenu `einwohnerz`… Pourquoi ?
+    3. Pourquoi le GeoJSON est-il en WGS84 et non en MN95 ? Pourquoi est-il le plus volumineux ?
+    4. Lequel de ces formats pourriez-vous ouvrir avec un éditeur de texte ? Lequel pourriez-vous modifier ?
+    5. Dans GeoLibre, ouvrez la table attributaire et triez les communes par nombre d'habitants (`einwohnerzahl`).
+
 ### Quel format choisir ?
 
 | Besoin | Format conseillé |

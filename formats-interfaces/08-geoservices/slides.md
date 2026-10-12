@@ -155,6 +155,19 @@ https://wmts.geo.admin.ch/EPSG/2056/1.0.0/WMTSCapabilities.xml
 
 ---
 
+## À tester : GeoLibre (navigateur)
+
+**WMS** : *Add Data › WMS Layer*
+`https://wms.geo.admin.ch/` → **Retrieve layers** = GetCapabilities (~900 couches)
+→ `ch.kantone.cadastralwebmap-farbe` → GetMap à chaque déplacement
+
+**WMTS** : modèle d'URL REST, en **3857** (Web Mercator)
+`…/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg`
+
+F12 › *Réseau* : voir passer les requêtes
+
+---
+
 ## WFS – Web Feature Service
 
 - Renvoie les **objets** : géométrie + attributs (GML par défaut, parfois GeoJSON)
@@ -235,6 +248,16 @@ https://geo.exemple.ch/wfs?SERVICE=WFS&VERSION=2.0.0
 https://data.geo.admin.ch/api/stac/v1/collections/
   ch.swisstopo.swissimage-dop10/items?bbox=7.43,46.94,7.45,46.95
 ```
+
+---
+
+## À tester : STAC dans GeoLibre
+
+- *Add Data › STAC Layer*
+- `https://data.geo.admin.ch/api/stac/v1/` → *Connect*
+- Liste des **collections** swisstopo, recherche limitée à l'emprise de la carte
+- Même JSON que la requête brute, mis en forme par le logiciel
+- STAC + **Zarr** : démo de prévisions météo (chapitre 2)
 
 ---
 

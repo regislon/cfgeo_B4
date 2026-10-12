@@ -146,6 +146,18 @@ gpsbabel -i gpx -f trace.gpx -o kml -F trace.kml
 
 ---
 
+## Un SIG dans le navigateur : GeoLibre
+
+- `web.geolibre.app` : **aucune installation**, données traitées **dans le navigateur**
+- *Processing › Conversion* : GPX/KML → entités, Vector Convert, GeoParquet, PMTiles
+- **SQL Workspace** (DuckDB) · **Model Builder**
+- Export : GeoJSON, GeoParquet, Shapefile, GeoPackage, CSV
+
+⚠️ Pas de MN95 ni d'options de création fines, pas d'INTERLIS
+→ explorer : GeoLibre · produire : QGIS, GDAL, FME
+
+---
+
 ## Services en ligne : prudence !
 
 - Convertisseurs web (p. ex. GPS Visualizer, interface de GPSBabel)

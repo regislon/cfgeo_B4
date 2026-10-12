@@ -31,6 +31,9 @@ Aucune donnée à télécharger : vous travaillez directement sur les fichiers d
 
 ### Partie A — Lire un COG sans le télécharger
 
+!!! tip "Variante sans installation"
+    Cette partie peut se faire entièrement dans le navigateur avec [GeoLibre](https://web.geolibre.app) : *Add Data › Raster Layer*, collez l'URL, *Load*. Le panneau de la couche affiche l'histogramme et les bandes ; l'icône *Metadata* donne les informations du fichier, et *Inspect pixel values* la valeur d'un pixel. Ouvrez l'onglet *Réseau* des outils de développement (F12) pour observer les requêtes partielles (*Range*) envoyées au serveur. Les parties B à E nécessitent en revanche QGIS ou GDAL.
+
 1. Dans QGIS, ajoutez la couche SWISSIMAGE par *Couche › Ajouter une couche › Ajouter une couche raster*, source **Protocole HTTP(S)**, en collant l'adresse ci-dessus. Zoomez et dézoomez. Le fichier pèse 65 Mo : est-il téléchargé entièrement ? Comment est-ce possible ?
 2. Affichez les informations du fichier :
     ```bash

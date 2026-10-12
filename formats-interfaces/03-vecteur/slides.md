@@ -211,6 +211,23 @@ AC1018
 
 ---
 
+## 🧪 Un jeu de données, cinq formats
+
+300 communes vaudoises (swissBOUNDARIES3D 2026)
+
+| Format | Système | Taille |
+|---|---|---|
+| GeoPackage | MN95 | 2,9 Mo |
+| Shapefile (5 fichiers) | MN95 | 2,6 Mo |
+| FlatGeobuf | MN95 | 2,6 Mo |
+| GeoParquet (ZSTD) | MN95 | 2,1 Mo |
+| GeoJSON | **WGS84** | 4,3 Mo |
+
+Shapefile : `einwohnerzahl` → `einwohnerz` (10 caractères !)
+À ouvrir dans QGIS ou **GeoLibre** (navigateur)
+
+---
+
 ## Quel format choisir ?
 
 | Besoin | Format |

@@ -184,6 +184,23 @@ gpsbabel -i gpx -f trace.gpx -o kml -F trace.kml
 
 Voir l'[exercice 8](../exercices/ex09-gpx-kml/README.md).
 
+## Un SIG dans le navigateur : GeoLibre
+
+[GeoLibre](https://geolibre.app) est un SIG libre qui fonctionne **dans le navigateur**, sans installation ([version web](https://web.geolibre.app)), ou en application de bureau. Il s'appuie sur des technologies récentes conçues pour le web : MapLibre pour l'affichage, **DuckDB** (une base de données qui tourne dans le navigateur) pour les requêtes SQL, et des outils de traitement compilés en WebAssembly.
+
+Pour le reformatage, il propose notamment (menu *Processing › Conversion*) :
+
+- la lecture de nombreux formats (GeoJSON, Shapefile, GeoPackage, FlatGeobuf, GeoParquet, CSV, GPX, KML, DXF…) et l'**export** d'une couche en GeoJSON, GeoParquet, Shapefile, GeoPackage ou CSV depuis la table attributaire ;
+- des conversions spécialisées : *GPX To Features*, *KML To Features*, *Vector Convert*, *Write GeoParquet*, *Raster to PMTiles*, *Vector to PMTiles* ;
+- un **espace de travail SQL** (*Processing › SQL Workspace*) qui permet de filtrer, joindre et transformer des données avec DuckDB Spatial ;
+- un **modeleur de traitements** (*Model Builder*), comparable à celui de QGIS.
+
+!!! warning "Limites pour la géomatique suisse"
+    GeoLibre affiche les données en Web Mercator et ne propose pas, à ce jour, de choix fin du système de coordonnées de sortie ni des options de création (compression, prédicteur…). Pour des données en **MN95**, des échanges **INTERLIS** ou des conversions à reproduire exactement, QGIS, GDAL et FME restent les outils de référence. GeoLibre est en revanche idéal pour **explorer** rapidement un fichier ou un service, sans rien installer.
+
+!!! note "Et la confidentialité ?"
+    Contrairement aux services de conversion en ligne décrits ci-dessous, GeoLibre traite les fichiers **dans votre navigateur** : ils ne sont pas envoyés sur un serveur. La version hébergée utilise toutefois un outil de statistiques de visite (Google Analytics). Pour des données sensibles, préférez l'application de bureau ou un outil local.
+
 ## Services en ligne
 
 De nombreux services en ligne proposent des conversions de formats. Par exemple, [GPS Visualizer](https://www.gpsvisualizer.com/gpsbabel/) offre une interface web à GPSBabel pour convertir des fichiers GPS. Ces services évoluent et disparaissent rapidement.
