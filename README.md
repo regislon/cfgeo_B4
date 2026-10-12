@@ -16,18 +16,17 @@ dialoguer des systèmes différents.
 
 ## Planning 2026-2027
 
-Les cours ont lieu au Centre Venoge (TCS), Route de Dizy 4, 1304 Cossonay.
+Les cours en présentiel ont lieu au Centre Venoge (TCS), Route de Dizy 4, 1304 Cossonay.
 Venir avec un PC portable.
 
-| Date | Horaire | Périodes |
-|---|---|---|
-| Lundi 7 décembre 2026 | 08:30 – 16:30 | 8 |
-| Lundi 14 décembre 2026 | 08:30 – 11:45 | 4 |
-| Lundi 11 janvier 2027 | 08:30 – 11:45 | 4 |
-| Lundi 25 janvier 2027 | 08:30 – 16:30 | 8 |
-| Mardi 2 février 2027 | Préparation de l'examen oral (matin) | |
-| Vendredi 19 février 2027 | Examens oraux, présentations par groupes | |
-| Vendredi 16 avril 2027 | Examen du module B4 | |
+| Date | Horaire | Lieu | Périodes |
+|---|---|---|---|
+| Lundi 7 décembre 2026 | 08:30 – 16:30 | Présentiel (Cossonay) | 8 |
+| Lundi 14 décembre 2026 | 08:30 – 16:30 | En ligne (visio) | 8 |
+| Lundi 25 janvier 2027 | 08:30 – 16:30 | En ligne (visio) | 8 |
+| Mardi 2 février 2027 | Préparation de l'examen oral (matin) | Présentiel (Cossonay) | |
+| Vendredi 19 février 2027 | Examens oraux, présentations par groupes | Présentiel (Cossonay) | |
+| Vendredi 16 avril 2027 | Examen du module B4 | Présentiel (Cossonay) | |
 
 ## Les autres cours du module B4
 
