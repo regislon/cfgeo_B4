@@ -16,11 +16,11 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ## Objectifs
 
-- Connaître les primitives géométriques et les notions de topologie
-- Comparer les familles de stockage (fichier simple, multiple, base de données)
-- Distinguer codage binaire, texte et XML/JSON
-- Connaître les principaux formats et leurs limites
-- Choisir entre vecteur et raster selon le besoin
+- Primitives, modèle **Simple Features**, WKT / WKB
+- Familles de stockage, codage binaire / texte / XML-JSON
+- Principaux formats, leurs limites, **qui les définit**
+- **GDAL** : quels formats sont lisibles et écrits
+- Anticiper les **pertes** lors d'une conversion
 
 ---
 
@@ -39,11 +39,26 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
-## Hiérarchie *Simple Features*
+## Un modèle commun : *Simple Features*
 
-![w:900](img/postgis-types-geometries.png)
+![w:820](img/postgis-types-geometries.png)
 
-*Types de géométries de PostGIS. Source : [11]*
+OGC / ISO 19125 · repris par presque tous les formats et logiciels
+
+---
+
+## WKT et WKB
+
+🧵 Centre de la tuile d'Yverdon (MN95)
+
+```text
+WKT : POINT (2538500 1180500)
+WKB : 010100000000000000025E43410000000054033241
+```
+
+- **WKT** : texte → CSV, SQL, échanges
+- **WKB** : binaire → GeoPackage, GeoParquet, PostGIS
+- Modèle commun = conversions possibles · hors modèle (arcs, topologie) = **pertes**
 
 ---
 
@@ -61,7 +76,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 | Catégorie | Exemples |
 |---|---|
 | Fichier simple | DXF, KML, GeoJSON, INTERLIS |
-| Fichiers multiples | Shapefile, MIF/MID |
+| Fichiers multiples | Shapefile |
 | Base de données fichier | GeoPackage, SpatiaLite |
 | BD + intergiciel | ArcSDE, Topobase |
 | BD spatiale native | **PostGIS**, Oracle Spatial |
@@ -73,17 +88,34 @@ Complexité et possibilités (relations, multi-utilisateurs) croissantes ↓
 ## Binaire, texte, XML/JSON
 
 - **Binaire** : compact, rapide, illisible → Shapefile, GeoPackage
-- **Texte (ASCII)** : lisible, structure convenue (colonnes, codes) → DXF, GSI, ITF
+- **Texte (ASCII)** : lisible, structure convenue (colonnes, codes) → DXF, ITF, CSV + WKT
 - **XML / JSON** : balises ou clés nommées, verbeux mais auto-descriptif → GML, KML, XTF, GeoJSON
 
 ---
 
-## Formats d'échange
+## Qui définit les formats ?
 
-- Description **simple** (souvent sans topologie)
-- Codage **texte** (ASCII, XML, JSON)
-- **De jure** (normalisés) : INTERLIS, GML (ISO 19136), KML (OGC), GeoPackage (OGC), GeoJSON (RFC 7946), IFC
-- **De facto** (imposés par le marché) : DXF, Shapefile, MIF/MID
+- **OGC** : GML, KML, GeoPackage, Simple Features
+- **ISO** TC 211 : GML (19136), Simple Features (19125), IFC (16739)
+- **IETF** : GeoJSON (RFC 7946)
+- **SNV / eCH** : INTERLIS
+- **Éditeurs** (de facto) : DXF (Autodesk), Shapefile, File Geodatabase (Esri)
+- **Communautés libres** : FlatGeobuf, PMTiles · GeoParquet (OGC, en cours)
+
+---
+
+## GDAL, le traducteur universel
+
+- Bibliothèque libre, **200+ formats** raster et vecteur
+- Au cœur de **QGIS**, GeoLibre, PostGIS, GeoPandas…
+- Un **pilote** (*driver*) par format · `ogrinfo --formats`
+
+```text
+GPKG       (rw+uvs)   FlatGeobuf (rw+v)   Parquet (rw+v)
+PMTiles    (rw+v)     Interlis 2 (rov)  ← lecture seule !
+```
+
+`r` lecture · `w` écriture · `+` mise à jour · `v` fichier distant / zip
 
 ---
 
@@ -109,22 +141,6 @@ AC1018
 - Autodesk, échange DAO/CAO — couples **code / valeur**
 - ASCII ou binaire (−25 % de taille, ×5 en vitesse)
 - ⚠️ Pas de SCR, pas de vraie table d'attributs : sémantique = **calques**
-
----
-
-## Leica GSI : de l'ASCII structuré
-
-![bg right:35% w:330](img/leica-gsi-structure.png)
-
-```text
-*110002+0000000000005303
-81..00+0000000075781205
-82..00+0000000070718513
-```
-
-- **WI** : 11 = n° de point, 81 = Est, 82 = Nord, 83 = altitude
-- Point 5303 : E = 75'781,205 m, N = 70'718,513 m
-- Dans le fichier, ces 3 mots forment **une seule ligne**
 
 ---
 
@@ -200,31 +216,54 @@ AC1018
 
 ---
 
-## Formats « cloud » récents
+## Formats récents
 
-- **FlatGeobuf** (`.fgb`)
-  - binaire, index spatial, lecture en flux sur le web
-  - diffusion de gros volumes, lecture seule
-- **GeoParquet** (`.parquet`)
-  - stockage **par colonnes**, très compressé
-  - analyses sur des millions d'objets (DuckDB, GeoPandas)
+- **FlatGeobuf** (`.fgb`) : binaire, **index spatial**, lu par morceaux · non modifiable
+- **GeoParquet** (`.parquet`) : **par colonnes**, très compressé → analyses (DuckDB, GeoPandas) · OGC en cours
+- **PMTiles** (`.pmtiles`) : **tuiles vectorielles** dans un fichier → cartes web
+  ⚠️ visualisation, pas données : géométries **découpées et simplifiées**
+
+→ Formats *cloud-native* : diffusion sur le web au **chapitre 8**
 
 ---
 
-## 🧪 Un jeu de données, cinq formats
+## 🧪 Un jeu de données, plusieurs formats
 
 300 communes vaudoises (swissBOUNDARIES3D 2026)
 
-| Format | Système | Taille |
-|---|---|---|
-| GeoPackage | MN95 | 2,9 Mo |
-| Shapefile (5 fichiers) | MN95 | 2,6 Mo |
-| FlatGeobuf | MN95 | 2,6 Mo |
-| GeoParquet (ZSTD) | MN95 | 2,1 Mo |
-| GeoJSON | **WGS84** | 4,3 Mo |
+| Format | Système | Taille | Format | Système | Taille |
+|---|---|---|---|---|---|
+| GeoParquet | MN95 | 2,1 Mo | CSV + WKT | MN95 | 3,7 Mo |
+| PMTiles | 3857 | 2,1 Mo | GML | MN95 | 4,0 Mo |
+| FlatGeobuf | MN95 | 2,6 Mo | GeoJSON | **WGS84** | 4,3 Mo |
+| Shapefile | MN95 | 2,6 Mo | KML | **WGS84** | 5,5 Mo |
+| GeoPackage | MN95 | 2,9 Mo | | | |
 
-Shapefile : `einwohnerzahl` → `einwohnerz` (10 caractères !)
-À ouvrir dans QGIS ou **GeoLibre** (navigateur)
+Shapefile : `einwohnerzahl` → `einwohnerz` · À ouvrir dans QGIS ou **GeoLibre**
+
+---
+
+## Synthèse : GDAL et OGC
+
+| Format | GDAL | OGC | Format | GDAL | OGC |
+|---|---|---|---|---|---|
+| Shapefile | ✅ | ❌ | GeoJSON | ✅ | ❌ (IETF) |
+| File Geodatabase | ✅ | ❌ | GPX | ✅ | ❌ |
+| DXF | ✅ | ❌ | INTERLIS | ⚠️ lecture | ❌ (SNV) |
+| GeoPackage | ✅ | ✅ | FlatGeobuf | ✅ | ❌ |
+| GML | ✅ | ✅ | GeoParquet | ✅ | 🟡 en cours |
+| KML | ✅ | ✅ | PMTiles | ✅ | ❌ |
+
+---
+
+## Pièges de conversion
+
+- Noms de champs **tronqués** (Shapefile : 10 caractères)
+- **Système de coordonnées** perdu : `.prj` oublié, DXF, GeoJSON/KML en WGS84
+- **Encodage** : « GenÃ¨ve » si le `.cpg` manque
+- **Arcs** → segments · **topologie** et relations perdues
+- **Types** : dates, booléens, `NULL`
+- Tuiles (PMTiles) → géométries **simplifiées** : pas des données de référence
 
 ---
 
@@ -238,6 +277,7 @@ Shapefile : `einwohnerzahl` → `einwohnerz` (10 caractères !)
 | Google Earth | KML / KMZ |
 | Géodonnées de base suisses | INTERLIS |
 | Gros volumes web / analyse | FlatGeobuf / GeoParquet |
+| Carte web sans serveur | PMTiles |
 | Multi-utilisateurs | PostGIS |
 
 ---
@@ -266,6 +306,7 @@ Shapefile : `einwohnerzahl` → `einwohnerz` (10 caractères !)
 - Primitives : **point, ligne, surface** (+ multi, arcs, Z/M)
 - Stockage : fichier simple → fichiers multiples → base de données
 - Codage : **binaire** (rapide) / **texte** (lisible) / **XML-JSON** (auto-descriptif)
+- Modèle commun **Simple Features** (WKT / WKB) · **GDAL** lit presque tout
 - Shapefile = standard de fait mais **limité** → préférer **GeoPackage**
 - Conversion vers un format plus pauvre = **perte d'information**
 - Vecteur et raster sont **complémentaires**

@@ -6,10 +6,12 @@
 
 À la fin de ce chapitre, vous êtes capables de :
 
-- Connaître les primitives géométriques et les notions de topologie
+- Connaître les primitives géométriques, le modèle *Simple Features* et ses encodages WKT/WKB
 - Comparer les familles de stockage (fichier simple, multiple, base de données)
 - Distinguer codage binaire, texte (ASCII) et XML/JSON d'un format vectoriel
-- Citer les caractéristiques et limites des principaux formats (DXF, Shapefile, GeoPackage, GeoJSON, KML, GML…)
+- Citer les caractéristiques et limites des principaux formats (DXF, Shapefile, GeoPackage, GeoJSON, KML, GML, FlatGeobuf, GeoParquet, PMTiles…)
+- Savoir quels formats GDAL lit et écrit, et qui les définit (OGC, ISO, IETF, éditeurs, communautés)
+- Anticiper les pertes d'information lors d'une conversion
 - Choisir entre vecteur et raster selon le besoin
 
 ## Introduction
@@ -34,11 +36,29 @@ Tous les objets vectoriels sont construits à partir de **primitives géométriq
 
 Selon les formats et les logiciels, on trouve aussi des géométries plus complexes : **arcs de cercle**, courbes de Bézier, splines, ainsi que des **géométries multiples** (un objet composé de plusieurs parties, par exemple une commune constituée de plusieurs enclaves). Les coordonnées peuvent porter une altitude **Z** et une valeur de mesure **M**.
 
-La norme *Simple Features* (OGC / ISO 19125) définit une hiérarchie de types de géométries reprise par la plupart des SIG et bases de données.
+### Un modèle commun : OGC Simple Features
+
+La norme **Simple Features** (OGC / ISO 19125) définit un modèle de géométrie que reprennent **presque tous les formats, logiciels et bases de données** : `Point`, `LineString`, `Polygon`, leurs versions multiples (`MultiPoint`, `MultiLineString`, `MultiPolygon`) et la `GeometryCollection`, avec d'éventuelles coordonnées Z et M.
 
 ![Hiérarchie des géométries : Point, Curve/LineString, Surface/Polygon et collections MultiPoint, MultiLineString, MultiPolygon](img/postgis-types-geometries.png)
 
 *Types de géométries supportés par PostGIS. Source : [11]*
+
+La norme définit aussi deux **encodages** de ces géométries, que l'on retrouve partout :
+
+- **WKT** (*Well-Known Text*) : une écriture **texte** lisible, utilisée dans les fichiers CSV, les requêtes SQL, les échanges entre logiciels ;
+- **WKB** (*Well-Known Binary*) : l'équivalent **binaire**, compact, utilisé à l'intérieur des GeoPackage, des GeoParquet et des bases PostGIS.
+
+!!! example "🔎 Un même point en WKT et en WKB"
+
+    Le centre de la tuile du fil rouge (Yverdon-les-Bains, MN95) :
+    ```text
+    WKT : POINT (2538500 1180500)
+    WKB : 010100000000000000025E43410000000054033241
+    ```
+    Le WKB est ici affiché en hexadécimal : `01` indique l'ordre des octets, `01000000` le type « Point », puis viennent les deux coordonnées codées en nombres à virgule sur 8 octets chacune (voir [chapitre 1](../01-codage-binaire/README.md)).
+
+Ce modèle commun est ce qui rend les conversions entre formats possibles. À l'inverse, tout ce qui **sort** de ce modèle (arcs de cercle, topologie, réseaux) risque d'être perdu lors d'une conversion.
 
 ### Au-delà de la géométrie
 
@@ -63,7 +83,7 @@ L'organisation du stockage peut prendre des formes très différentes selon le n
 | Catégorie | Caractéristiques | Exemples |
 |---|---|---|
 | **Fichier simple** | Géométrie et attributs sont stockés dans **un seul fichier**. Relation 1-1 entre la géométrie d'un objet et ses attributs. | DXF, KML, GeoJSON, GML, INTERLIS (.itf/.xtf) |
-| **Fichiers multiples** | Les données sont réparties dans **plusieurs fichiers** : géométrie, attributs, index spatial… Pas de relations entre les objets. | Shapefile ESRI, MIF/MID (MapInfo) |
+| **Fichiers multiples** | Les données sont réparties dans **plusieurs fichiers** : géométrie, attributs, index spatial… Pas de relations entre les objets. | Shapefile ESRI |
 | **Base de données fichier** (embarquée, « mobile ») | Un seul fichier contient une base de données complète : plusieurs tables, géométries, attributs, relations entre objets. Pas de serveur. | GeoPackage, SpatiaLite, File Geodatabase ESRI |
 | **Base de données professionnelle avec intergiciel** (*middleware*) | Une base de données classique (Oracle, SQL Server…) garde toutes ses capacités, complétée par une couche logicielle qui gère les objets spatiaux. | ArcSDE / géodatabase d'entreprise ESRI, Topobase |
 | **Base de données à capacité spatiale native** | La base de données elle-même gère les types géométriques, les index et les fonctions spatiales. | PostgreSQL/PostGIS, Oracle Spatial, MySQL spatial, SQL Server spatial |
@@ -72,11 +92,11 @@ L'organisation du stockage peut prendre des formes très différentes selon le n
 
 Un format vectoriel peut coder l'information de trois manières :
 
-- **Binaire** : le système utilise son propre codage, proche de la représentation en mémoire. Avantages : fichiers compacts, lecture et écriture rapides. Inconvénient : illisible pour un humain, et tout logiciel qui veut lire le fichier doit connaître précisément ce codage. *Exemples : Shapefile, GeoPackage, DXF binaire, FlatGeobuf.*
-- **Texte (ASCII)** : les objets et attributs sont décrits avec des caractères lisibles. L'information est retrouvée grâce à une structure convenue : colonnes de largeur fixe, séparateurs, codes ou mots-clés. Lisible et facile à échanger, mais plus volumineux et plus lent. *Exemples : DXF ASCII, Leica GSI, INTERLIS 1 (.itf), CSV avec coordonnées.*
+- **Binaire** : le système utilise son propre codage, proche de la représentation en mémoire. Avantages : fichiers compacts, lecture et écriture rapides. Inconvénient : illisible pour un humain, et tout logiciel qui veut lire le fichier doit connaître précisément ce codage. *Exemples : Shapefile, GeoPackage, DXF binaire, FlatGeobuf, GeoParquet.*
+- **Texte (ASCII)** : les objets et attributs sont décrits avec des caractères lisibles. L'information est retrouvée grâce à une structure convenue : colonnes de largeur fixe, séparateurs, codes ou mots-clés. Lisible et facile à échanger, mais plus volumineux et plus lent. *Exemples : DXF ASCII, INTERLIS 1 (.itf), CSV avec coordonnées ou géométries en WKT.*
 - **XML (ou JSON)** : l'information est structurée par des **balises** (XML) ou des paires **clé-valeur** (JSON) qui nomment chaque élément. Chaque format définit ses propres balises. Très lisible et facilement validable, mais verbeux. *Exemples : GML, KML, INTERLIS 2 (.xtf) pour XML ; GeoJSON pour JSON.* Ces langages font l'objet du chapitre [XML et JSON](../05-xml-json/README.md).
 
-## Formats d'échange : standards de jure et de facto
+## Qui définit les formats ?
 
 Un **format d'échange** est un compromis destiné à être compris par des systèmes différents. Il respecte en général les principes suivants :
 
@@ -84,19 +104,47 @@ Un **format d'échange** est un compromis destiné à être compris par des syst
 - un codage le plus souvent **texte** (ASCII, XML, JSON) ;
 - une spécification publique, éventuellement **normalisée**.
 
-On distingue :
+Derrière chaque format, il y a un **responsable** qui en publie (ou non) la spécification. On distingue :
 
-- les **standards de jure** (« de droit »), définis par un organisme de normalisation (ISO, OGC, SNV, IETF…) :
-    - **INTERLIS** (norme suisse SN 612030, imposée par la législation sur la géoinformation pour l'échange de géodonnées de base) ;
-    - **GML** (OGC, norme ISO 19136 depuis 2007) ;
-    - **KML** (standard OGC depuis 2008) ;
-    - **GeoPackage** (standard OGC) ;
-    - **GeoJSON** (IETF, RFC 7946) ;
-    - **IFC** (BIM, ISO 16739) ;
-- les **standards de facto** (« de fait »), qui se sont imposés par leur large diffusion sur le marché, sans normalisation formelle :
-    - **DXF** (Autodesk) ;
-    - **Shapefile** (ESRI) ;
-    - **MIF/MID** (MapInfo).
+- les **standards de jure** (« de droit »), définis par un organisme de normalisation :
+    - **OGC** (*Open Geospatial Consortium*, voir [chapitre 6](../06-interoperabilite-normes/README.md)) : GML, KML, GeoPackage, CityGML, ainsi que le modèle Simple Features ;
+    - **ISO** (comité TC 211) : reprend plusieurs standards OGC (GML = ISO 19136, Simple Features = ISO 19125) ; IFC pour le BIM (ISO 16739) ;
+    - **IETF** (l'organisme des standards d'Internet) : GeoJSON (RFC 7946) ;
+    - **SNV / eCH** en Suisse : INTERLIS (norme SN 612030, imposée par la législation sur la géoinformation pour l'échange de géodonnées de base) ;
+- les **standards de facto** (« de fait »), définis par un **éditeur** et imposés par leur diffusion : **DXF** (Autodesk), **Shapefile** et **File Geodatabase** (Esri) ;
+- les **spécifications communautaires**, ouvertes et développées en logiciel libre, souvent très récentes : **FlatGeobuf**, **PMTiles** (Protomaps), **GeoParquet** (développé au sein d'un groupe de travail de l'OGC, en cours de normalisation).
+
+Un standard de jure ou communautaire est **publié et ouvert** : n'importe qui peut écrire un logiciel qui le lit. Un format d'éditeur peut être bien documenté (Shapefile, DXF), partiellement documenté, ou fermé (File Geodatabase, dont la lecture repose sur un travail de rétro-ingénierie).
+
+## GDAL, le traducteur universel
+
+**GDAL** (*Geospatial Data Abstraction Library*, avec sa partie vecteur historiquement appelée **OGR**) est une bibliothèque libre qui sait lire et écrire **plus de 200 formats** raster et vecteur. Elle est au cœur de la plupart des logiciels de géomatique : **QGIS**, **GeoLibre**, **PostGIS**, les bibliothèques Python (GeoPandas, rasterio), et elle est utilisée en partie par ArcGIS et FME.
+
+Chaque format est géré par un **pilote** (*driver*). La commande `ogrinfo --formats` liste les pilotes vecteur disponibles et leurs capacités :
+
+```text
+$ ogrinfo --formats
+  ESRI Shapefile -vector- (rw+uv): ESRI Shapefile (*.shp, *.dbf, *.shz, *.shp.zip)
+  GPKG -raster,vector- (rw+uvs): GeoPackage (*.gpkg, *.gpkg.zip)
+  FlatGeobuf -vector- (rw+v): FlatGeobuf (*.fgb)
+  Parquet -vector- (rw+v): (Geo)Parquet (*.parquet)
+  PMTiles -vector- (rw+v): ProtoMap Tiles (*.pmtiles)
+  Interlis 2 -vector- (rov): Interlis 2 (*.xtf, *.xml, *.ili)
+  ...
+```
+
+| Lettre | Signification |
+|---|---|
+| `r` | lecture (*read*) |
+| `w` | écriture (*write*) |
+| `+` | mise à jour d'un fichier existant |
+| `v` | lecture via des chemins virtuels (fichier sur le web, dans un zip…) |
+| `o` | ouverture directe d'un fichier |
+
+!!! note "INTERLIS et GDAL"
+    Dans les versions récentes de GDAL (3.11), les pilotes INTERLIS sont en **lecture seule** (`rov`). Pour produire des fichiers INTERLIS, on utilise les outils dédiés, comme **ili2db** (voir [chapitre 9](../09-reformatage-etl/README.md#outils-interlis-ili2db-ilivalidator)).
+
+Savoir qu'un format est géré par GDAL est donc très pratique : cela garantit qu'il est utilisable dans la grande majorité des logiciels, et qu'on peut le convertir avec `ogr2ogr` (voir [chapitre 9](../09-reformatage-etl/README.md)).
 
 ## Les principaux formats vectoriels
 
@@ -132,34 +180,6 @@ Le DXF binaire (depuis AutoCAD R10) contient les mêmes informations, mais occup
 !!! warning "Limites du DXF en géomatique"
 
     DXF est un format de **dessin** : il ne connaît ni système de coordonnées, ni structure d'attributs comparable à une table, ni topologie. La « sémantique » des objets repose souvent uniquement sur le nom des calques.
-
-### Leica GSI
-
-Le format **GSI** de Leica (GSI-8 et GSI-16) est ancien et de moins en moins utilisé, mais il donne un exemple très clair d'**ASCII structuré** : il servait à transférer les mesures d'un instrument (tachéomètre, niveau) vers le logiciel de calcul.
-
-Chaque ligne commence par `*` et représente un bloc : un **bloc de code** (informations complémentaires) ou un **bloc de mesure**. Chaque bloc est composé de **mots** séparés par un espace. Un mot contient :
-
-![Structure d'un mot GSI-8 et GSI-16 : Word Index, informations additionnelles, données, séparateur](img/leica-gsi-structure.png)
-
-*Structure d'un mot GSI. Source : documentation Leica.*
-
-- **WI** (*Word Index*) : 2 chiffres indiquant le type de donnée (11 = numéro de point, 71 = code/remarque, 81 = coordonnée Est, 82 = coordonnée Nord, 83 = altitude…) ;
-- **ZS** (informations additionnelles) : 4 caractères (unité, mode de saisie…) ;
-- **DA** (données) : le signe et la valeur, sur 8 chiffres (GSI-8) ou 16 chiffres (GSI-16) ;
-- **LE** : un espace qui sépare les mots.
-
-!!! example "🔎 Extrait d'un fichier GSI-16"
-
-    ```text
-    *410001+0000000000000010 42....+00000000U020513ac 43....+0000000020020513 44....+0000000000010.23 45....+0000000000000BPW ...
-    *110002+0000000000005303 71....+00000000001F4091 81..00+0000000075781205 82..00+0000000070718513 83..00+0000000000032760
-    *110003+0000000000005304 71....+000000000001F500 81..00+0000000075795261 82..00+0000000070720649 83..00+0000000000032953
-    *110005+0000000000005305 71....+000000000001F500 81..00+0000000075792266 82..00+0000000070725521 83..00+0000000000033081
-    ```
-
-    - La première ligne est un bloc de code (mots 41 à 49) : informations libres comme la date ou les initiales de l'opérateur (`BPW`).
-    - La deuxième ligne décrit le point n° 5303 (mot `11`), de code `1F4091` (mot `71`), de coordonnées E = 75'781,205 m, N = 70'718,513 m et H = 32,760 m (mots `81`, `82`, `83` ; le `0` en 6ᵉ position indique des valeurs en millimètres).
-    - Chaque mot GSI-16 compte 23 caractères + 1 séparateur.
 
 ### Shapefile
 
@@ -283,16 +303,20 @@ GML est avant tout une **boîte à outils** : il fournit les types de base (poin
 
 **INTERLIS** est le standard suisse d'échange de géodonnées ; il sera traité en détail dans d'autres cours de la formation. Du point de vue des formats, retenons qu'il décrit non seulement les **données**, mais aussi le **modèle de données**, dans un fichier texte (`.ili`). Les données sont transférées en ASCII avec INTERLIS 1 (`.itf`) et en XML avec INTERLIS 2 (`.xtf`).
 
-### Formats modernes : FlatGeobuf et GeoParquet
+### Formats récents : FlatGeobuf, GeoParquet et PMTiles
 
-Les volumes de données augmentant et le stockage dans le cloud se généralisant, de nouveaux formats **binaires** sont apparus :
+Avec l'augmentation des volumes et la généralisation du stockage dans le cloud, de nouveaux formats **binaires** sont apparus. Tous trois sont gérés par GDAL, donc par QGIS et GeoLibre.
 
-- **FlatGeobuf** (`.fgb`) : un fichier unique, binaire, avec un **index spatial** intégré. Très rapide à lire, il peut être lu **en flux** (*streaming*) et interrogé partiellement sur un serveur web, sans tout télécharger. Idéal pour **diffuser** de gros jeux de données en lecture seule. Il n'est pas prévu pour être modifié.
-- **GeoParquet** (`.parquet`) : extension géographique du format **Apache Parquet**, spécifiée par l'OGC (version 1.0 en 2023). Les données sont stockées **par colonnes** et fortement compressées, ce qui rend très efficaces les **analyses sur de très gros volumes** (millions d'objets) avec des outils comme DuckDB, Python (GeoPandas) ou les plateformes de données cloud.
+- **FlatGeobuf** (`.fgb`) : un fichier unique, binaire, avec un **index spatial** intégré. Très rapide à lire et pensé pour être lu par morceaux ; il n'est en revanche pas prévu pour être modifié (on le régénère). Spécification communautaire, non OGC.
+- **GeoParquet** (`.parquet`) : extension géographique du format **Apache Parquet**, issu du monde des données massives. Les données sont stockées **par colonnes** (toutes les valeurs d'un attribut ensemble) et fortement compressées : idéal pour **analyser** de très gros volumes (millions d'objets) avec des outils comme DuckDB, Python (GeoPandas) ou les plateformes de données. Développé au sein d'un groupe de travail de l'OGC (versions 1.0 en 2023 et 1.1 en 2024), il est **en cours de normalisation**. Depuis 2025, le format Parquet lui-même intègre des types géométriques.
+- **PMTiles** (`.pmtiles`, Protomaps) : un **fichier unique** qui contient une pyramide de **tuiles vectorielles** prêtes à afficher (comme une carte web). Ce n'est pas un format de **données** mais de **visualisation** : les géométries y sont découpées par tuile et **simplifiées** selon le niveau de zoom, en Web Mercator. Spécification communautaire, non OGC (l'équivalent normalisé côté service est OGC API – Tiles).
 
-!!! example "🧪 Un même jeu de données, cinq formats"
+!!! tip "Formats « cloud-native »"
+    Ces formats, comme le COG pour le raster, sont conçus pour être **lus directement sur un serveur web, par morceaux**, sans télécharger tout le fichier. Leur diffusion et leur utilisation en ligne sont traitées au [chapitre 8](../08-geoservices/README.md#formats-cloud-native-lire-sans-tout-telecharger).
 
-    Les **300 communes du canton de Vaud** (swissBOUNDARIES3D, état 2026, © swisstopo), exportées avec GDAL dans cinq formats. Les données sont identiques : seul le format change.
+!!! example "🧪 Un même jeu de données, plusieurs formats"
+
+    Les **300 communes du canton de Vaud** (swissBOUNDARIES3D, état 2026, © swisstopo), exportées avec GDAL (`ogr2ogr`) dans plusieurs formats. Les données sont identiques : seul le format change.
 
     | Fichier | Format | Système | Taille |
     |---|---|---|---|
@@ -301,6 +325,10 @@ Les volumes de données augmentant et le stockage dans le cloud se généralisan
     | [`communes_vd.fgb`](donnees/communes_vd.fgb) | FlatGeobuf | MN95 | 2,6 Mo |
     | [`communes_vd.parquet`](donnees/communes_vd.parquet) | GeoParquet (compression ZSTD) | MN95 | 2,1 Mo |
     | [`communes_vd.geojson`](donnees/communes_vd.geojson) | GeoJSON (RFC 7946) | WGS84 | 4,3 Mo |
+    | [`communes_vd.pmtiles`](donnees/communes_vd.pmtiles) | PMTiles (tuiles vectorielles, zoom 6 à 14) | Web Mercator | 2,1 Mo |
+    | *à produire vous-même* | CSV avec géométrie en WKT | MN95 | 3,7 Mo |
+    | *à produire vous-même* | GML | MN95 | 4,0 Mo |
+    | *à produire vous-même* | KML | WGS84 | 5,5 Mo |
 
     **À vous de jouer**, dans QGIS ou sans installation dans [GeoLibre](https://web.geolibre.app) (*Add Data › Vector Layer*, puis collez l'adresse du fichier, obtenue par clic droit sur le lien › *Copier l'adresse du lien*, et cliquez sur *Load* ; ou glissez-déposez le fichier téléchargé) :
 
@@ -309,6 +337,50 @@ Les volumes de données augmentant et le stockage dans le cloud se généralisan
     3. Pourquoi le GeoJSON est-il en WGS84 et non en MN95 ? Pourquoi est-il le plus volumineux ?
     4. Lequel de ces formats pourriez-vous ouvrir avec un éditeur de texte ? Lequel pourriez-vous modifier ?
     5. Dans GeoLibre, ouvrez la table attributaire et triez les communes par nombre d'habitants (`einwohnerzahl`).
+    6. Exportez le GeoPackage en CSV (géométrie en WKT), en GML et en KML (QGIS : *Exporter › Sauvegarder les entités sous…*). Ouvrez le CSV dans un éditeur de texte : reconnaissez-vous le WKT ? Pourquoi ces trois formats sont-ils les plus volumineux ?
+    7. Le fichier PMTiles contient-il « les communes » au même titre que les autres ? Que perd-on ?
+
+## Synthèse : GDAL, normalisation et capacités
+
+| Format | Extension | GDAL | Défini par | OGC |
+|---|---|---|---|---|
+| Shapefile | `.shp` + `.shx` + `.dbf`… | ✅ lecture / écriture | Esri (1998), standard de fait | ❌ |
+| File Geodatabase | dossier `.gdb` | ✅ lecture / écriture (pilote OpenFileGDB) | Esri, format fermé | ❌ |
+| DXF | `.dxf` | ✅ lecture / écriture | Autodesk, standard de fait | ❌ |
+| GeoPackage | `.gpkg` | ✅ lecture / écriture | OGC (2014) | ✅ |
+| GML | `.gml` + `.xsd` | ✅ lecture / écriture | OGC, ISO 19136 | ✅ |
+| KML / KMZ | `.kml`, `.kmz` | ✅ lecture / écriture | OGC (2008) | ✅ |
+| GeoJSON | `.geojson`, `.json` | ✅ lecture / écriture | IETF (RFC 7946) | ❌ (mais utilisé par OGC API) |
+| CSV + WKT | `.csv` | ✅ lecture / écriture | — (WKT : OGC Simple Features) | 〰️ |
+| GPX | `.gpx` | ✅ lecture / écriture | Topografix | ❌ |
+| INTERLIS 1 / 2 | `.itf`, `.xtf` + `.ili` | ⚠️ lecture seule | SNV / eCH (norme suisse) | ❌ |
+| FlatGeobuf | `.fgb` | ✅ lecture / écriture | Communauté libre | ❌ |
+| GeoParquet | `.parquet` | ✅ lecture / écriture | Groupe de travail OGC | 🟡 en cours |
+| PMTiles | `.pmtiles` | ✅ lecture / écriture (GDAL ≥ 3.8) | Protomaps, communauté libre | ❌ |
+
+*Capacités GDAL relevées avec `ogrinfo --formats` (GDAL 3.11).*
+
+| Format | Fichiers | Couches par fichier | Système de coordonnées | Noms de champs | Index spatial | Codage | Modifiable |
+|---|---|---|---|---|---|---|---|
+| Shapefile | 3 à 7 | 1 | `.prj` séparé, facultatif | 10 caractères | facultatif | binaire | oui |
+| GeoPackage | 1 | plusieurs | inclus | libres | oui | binaire (SQLite) | oui |
+| GeoJSON | 1 | 1 | WGS84 imposé | libres | non | texte (JSON) | oui |
+| KML | 1 | plusieurs (dossiers) | WGS84 imposé | libres | non | texte (XML) | oui |
+| GML | 1 (+ schéma `.xsd`) | plusieurs | inclus | libres | non | texte (XML) | oui |
+| DXF | 1 | calques | **aucun** | — | non | texte ou binaire | oui |
+| FlatGeobuf | 1 | 1 | inclus | libres | oui | binaire | non (on régénère) |
+| GeoParquet | 1 | 1 | inclus | libres | statistiques par bloc | binaire (colonnes) | non (on régénère) |
+| PMTiles | 1 | plusieurs | Web Mercator imposé | libres | index des tuiles | binaire | non |
+| INTERLIS 2 | 1 (+ modèle `.ili`) | plusieurs (thèmes, classes) | défini par le modèle | libres | non | texte (XML) | via outils dédiés |
+
+!!! warning "Pièges classiques lors d'une conversion"
+    - **Noms de champs tronqués** vers le Shapefile (10 caractères) : `einwohnerzahl` devient `einwohnerz`, et deux champs peuvent même entrer en collision.
+    - **Système de coordonnées perdu** : `.prj` oublié, DXF sans système, GeoJSON ou KML imposant le WGS84.
+    - **Encodage des caractères** : accents illisibles si le `.cpg` manque (« GenÃ¨ve » au lieu de « Genève »).
+    - **Arcs de cercle** transformés en segments ; **topologie** et **relations** perdues.
+    - **Types de données** : dates, booléens, valeurs vides (`NULL`) ou très grands nombres mal transmis.
+    - **Plusieurs types de géométrie** dans une même couche, refusés par le Shapefile.
+    - **Données généralisées** : convertir des PMTiles ou des tuiles vectorielles en données revient à récupérer des géométries **simplifiées et découpées**.
 
 ### Quel format choisir ?
 
@@ -322,6 +394,7 @@ Les volumes de données augmentant et le stockage dans le cloud se généralisan
 | Échange officiel de géodonnées de base en Suisse | INTERLIS |
 | Services web OGC (WFS), INSPIRE, maquettes 3D de villes | GML / CityGML |
 | Diffusion de gros volumes sur le web | FlatGeobuf |
+| Carte web sans serveur cartographique | PMTiles |
 | Analyse de très gros volumes, cloud | GeoParquet |
 | Données multi-utilisateurs, centralisées | Base de données spatiale (PostGIS) |
 
@@ -353,7 +426,10 @@ Selon le contexte, on choisira des données vectorielles ou raster. Chaque mode 
 - [RFC 7946 – The GeoJSON Format (IETF)](https://datatracker.ietf.org/doc/html/rfc7946)
 - [KML – Open Geospatial Consortium](https://www.ogc.org/standard/kml/)
 - [FlatGeobuf](https://flatgeobuf.org/)
-- [GeoParquet](https://geoparquet.org/)
+- [GeoParquet](https://geoparquet.org/) et [GeoParquet – OGC](https://www.ogc.org/standard/geoparquet/)
+- [PMTiles – Protomaps](https://docs.protomaps.com/pmtiles/)
+- [Pilotes vecteur de GDAL](https://gdal.org/en/stable/drivers/vector/index.html)
+- [Simple Feature Access – OGC](https://www.ogc.org/standard/sfa/)
 
 ## Exercices
 

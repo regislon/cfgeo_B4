@@ -211,6 +211,36 @@ https://geo.exemple.ch/wfs?SERVICE=WFS&VERSION=2.0.0
 
 ---
 
+## Formats *cloud-native*
+
+- Pas de serveur cartographique : de simples **fichiers** sur un serveur web
+- Le client lit **seulement ce qu'il faut** : requêtes HTTP **partielles** + index
+
+| Format | Type | Usage |
+|---|---|---|
+| COG | raster | orthophotos, MNT |
+| Zarr | multidimensionnel | climat, météo |
+| FlatGeobuf | vecteur | afficher une zone |
+| GeoParquet | vecteur | SQL, analyses |
+| PMTiles | tuiles | carte web sans serveur |
+
+---
+
+## 🧪 GeoParquet + SQL, directement en ligne
+
+```sql
+SELECT name, einwohnerzahl
+FROM 'https://regislon.github.io/…/communes_vd.parquet'
+ORDER BY einwohnerzahl DESC LIMIT 5;
+```
+
+Lausanne 144'873 · **Yverdon-les-Bains 30'292** · Montreux 26'955…
+
+- DuckDB ne lit que **2 colonnes**, pas les géométries
+- FlatGeobuf → GeoLibre · PMTiles → pmtiles.io
+- Services **ou** fichiers ? Données changeantes → services · stables → fichiers
+---
+
 ## OGC API : la nouvelle génération
 
 - **REST** + **JSON/GeoJSON** + description **OpenAPI**

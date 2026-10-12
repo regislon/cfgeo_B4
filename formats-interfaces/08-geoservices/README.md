@@ -11,6 +11,7 @@
 - Distinguer les types de géoservices et les grands standards OGC (WMS, WMTS, WFS, CSW)
 - Interroger un service WMS, WMTS ou WFS, en KVP ou en REST
 - Situer les tuiles vectorielles, les OGC API et les catalogues STAC
+- Expliquer le principe des formats *cloud-native* (COG, FlatGeobuf, GeoParquet, PMTiles, Zarr) et les comparer aux géoservices
 
 ## Services web et géoservices
 
@@ -323,6 +324,62 @@ En contrepartie, le client doit faire plus de travail (dessin des objets) et les
 
 swisstopo propose des **fonds de carte en tuiles vectorielles** ([vectortiles.geo.admin.ch](https://www.geo.admin.ch/de/vector-tiles-service-verfuegbare-dienste-und-daten/)), utilisables avec des styles prêts à l'emploi ou personnalisés.
 
+## Formats cloud-native : lire sans tout télécharger
+
+Les géoservices WMS, WMTS ou WFS nécessitent un **serveur cartographique** qui calcule les réponses. Une approche plus récente, dite ***cloud-native***, s'en passe : on dépose simplement des **fichiers** sur un serveur web ordinaire (ou un stockage cloud), et c'est le **client** (QGIS, GeoLibre, un navigateur, DuckDB…) qui va lire **uniquement la partie dont il a besoin**.
+
+Deux ingrédients rendent cela possible :
+
+1. les **requêtes HTTP partielles** (*range requests*) : le client demande « les octets 120'000 à 180'000 du fichier » au lieu du fichier entier ;
+2. une **organisation interne** du fichier qui permet de savoir où se trouvent les données utiles : en-tête placé au début, index spatial, blocs (tuiles, *chunks*, groupes de lignes).
+
+| Format | Type | Organisation | Usage typique | Voir |
+|---|---|---|---|---|
+| **COG** | raster | tuiles + aperçus | orthophotos, MNT (swisstopo) | [chapitre 2](../02-raster/README.md#cloud-optimized-geotiff-cog) |
+| **Zarr** | raster multidimensionnel | blocs (*chunks*) | climat, météo, séries temporelles | [chapitre 2](../02-raster/README.md#zarr) |
+| **FlatGeobuf** | vecteur | index spatial (R-tree) | afficher une zone d'un gros jeu de données | [chapitre 3](../03-vecteur/README.md#formats-recents-flatgeobuf-geoparquet-et-pmtiles) |
+| **GeoParquet** | vecteur | colonnes, groupes de lignes | analyses, requêtes SQL sur de gros volumes | [chapitre 3](../03-vecteur/README.md#formats-recents-flatgeobuf-geoparquet-et-pmtiles) |
+| **PMTiles** | tuiles (vecteur ou raster) | pyramide de tuiles + index | carte web sans serveur cartographique | [chapitre 3](../03-vecteur/README.md#formats-recents-flatgeobuf-geoparquet-et-pmtiles) |
+
+Ces fichiers sont souvent décrits dans un **catalogue STAC** (voir [plus bas](#stac-un-catalogue-pour-les-donnees-spatio-temporelles)), qui permet de les trouver.
+
+!!! example "🧪 À vous de jouer : les communes vaudoises sur le web"
+
+    Les fichiers du [chapitre 3](../03-vecteur/README.md) sont publiés sur ce site, donc sur un simple serveur web, sans aucun serveur cartographique.
+
+    **FlatGeobuf dans GeoLibre** — *Add Data › Vector Layer*, collez l'adresse puis *Load* :
+    ```text
+    https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/donnees/communes_vd.fgb
+    ```
+    Les communes s'affichent, reprojetées à la volée depuis le MN95.
+
+    **PMTiles dans un visualiseur web** — ouvrez [pmtiles.io](https://pmtiles.io/?url=https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/donnees/communes_vd.pmtiles) : la carte est dessinée à partir des tuiles, téléchargées au fur et à mesure du zoom. Observez la simplification des limites communales quand on dézoome.
+
+    **GeoParquet interrogé en SQL** — avec [DuckDB](https://duckdb.org) (ou le *SQL Workspace* de GeoLibre), une seule requête suffit, directement sur le fichier en ligne :
+    ```sql
+    SELECT name, einwohnerzahl
+    FROM 'https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/donnees/communes_vd.parquet'
+    ORDER BY einwohnerzahl DESC
+    LIMIT 5;
+    ```
+    ```text
+    ┌───────────────────┬───────────────┐
+    │       name        │ einwohnerzahl │
+    ├───────────────────┼───────────────┤
+    │ Lausanne          │        144873 │
+    │ Yverdon-les-Bains │         30292 │
+    │ Montreux          │         26955 │
+    │ Nyon              │         23351 │
+    │ Renens (VD)       │         21541 │
+    └───────────────────┴───────────────┘
+    ```
+    Grâce au stockage par colonnes, DuckDB ne lit que les colonnes `name` et `einwohnerzahl`, sans télécharger les géométries.
+
+    Ouvrez l'onglet *Réseau* des outils de développement (F12) pendant ces essais pour voir les requêtes partielles.
+
+!!! note "Services ou fichiers ?"
+    Les deux approches coexistent. Les **services** (WMS, WFS, OGC API) restent indispensables quand les données changent souvent, sont volumineuses à préparer, ou doivent être filtrées et sécurisées par le serveur. Les **fichiers cloud-native** sont plus simples et moins coûteux à publier, et se prêtent bien à la diffusion de données stables (une mise à jour = un nouveau fichier).
+
 ## OGC API : la nouvelle génération
 
 Les standards WMS, WFS, WMTS ou CSW (souvent regroupés sous le nom **WxS**) datent des années 2000 : ils reposent sur des requêtes KVP et des réponses XML. Depuis 2019, l'OGC publie une nouvelle famille de standards, les **[OGC API](https://ogcapi.ogc.org/)**, conçues selon les pratiques actuelles du web :
@@ -394,6 +451,7 @@ La seconde requête renvoie, en GeoJSON, les dalles SWISSIMAGE qui touchent l'em
 - [20] [geometalab – Vector Tiles: The Web Mapping Technology of the Future?](https://geometalab.tumblr.com/post/169813788729/vector-tiles-the-web-mapping-technology-of-the)
 - [Loi fédérale sur la géoinformation (LGéo, RS 510.62)](https://www.fedlex.admin.ch/eli/cc/2008/388/fr)
 - [OGC API – site officiel](https://ogcapi.ogc.org/)
+- [Cloud-Native Geospatial Formats Guide](https://guide.cloudnativegeo.org/)
 - [STAC – SpatioTemporal Asset Catalog](https://stacspec.org/)
 - [Documentation de geo.admin.ch](https://docs.geo.admin.ch/)
 - [Service de tuiles vectorielles de geo.admin.ch](https://www.geo.admin.ch/de/vector-tiles-service-verfuegbare-dienste-und-daten/)
