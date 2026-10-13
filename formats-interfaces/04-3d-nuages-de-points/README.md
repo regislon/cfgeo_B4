@@ -92,6 +92,19 @@ Les classes standardisées par l'ASPRS sont utilisées par la plupart des produc
 !!! tip "Exemple suisse : swissSURFACE3D"
     swisstopo diffuse **swissSURFACE3D**, un nuage de points LiDAR **classifié** couvrant toute la Suisse, en libre accès sur [swisstopo.admin.ch](https://www.swisstopo.admin.ch/fr/modele-altimetrique-swisssurface3d). Les données sont livrées en **LAZ**, en dalles de 1 km × 1 km, dans le système **MN95 (EPSG:2056)** avec altitudes NF02. Elles servent notamment à dériver le modèle de terrain swissALTI3D et le modèle de surface swissSURFACE3D Raster.
 
+    Selon la documentation de swisstopo, la densité moyenne est de **15 à 20 points/m²**, et une dalle de 1 km² pèse environ **450 Mo en LAS**. Les classes utilisées sont 1 (non classé, objets temporaires comme les véhicules ou les grues), 2 (sol), 3 (végétation, tous étages confondus), 6 (bâtiments), 9 (eau) et 17 (ponts et viaducs).
+
+### 🧵 Fil rouge : le kilomètre carré d'Yverdon en nuage de points
+
+Pour la tuile **2538-1180** des chapitres précédents, swisstopo diffuse le millésime 2025 de swissSURFACE3D au format **COPC** : 18,4 millions de points, soit environ 18 points/m², pour **113 Mo** (compressé). C'est trop lourd pour une page web : nous en avons extrait un carré de **300 m × 300 m**, réduit à 260'000 points tirés au hasard, et l'avons enregistré en **LAS** non compressé ([`yverdon_extrait.las`](donnees/yverdon_extrait.las), 5,2 Mo).
+
+<div class="demo" data-demo="las" data-src="donnees/yverdon_extrait.las" data-label="5,2 Mo"></div>
+
+*Visionneuse écrite pour ce cours : elle lit **elle-même** le fichier LAS octet par octet, selon la spécification de l'ASPRS (voir l'en-tête détaillé sous la vue). Comparez les trois colorations : par **classe** (on reconnaît immédiatement bâtiments, arbres et sol), par **altitude** et par **intensité** du retour laser (les marquages routiers et les toits réfléchissent davantage). Masquez le sol pour ne garder que bâtiments et végétation. Données : swissSURFACE3D, © swisstopo.*
+
+!!! note "Lien avec le chapitre 1"
+    Un fichier LAS est un fichier **binaire** : ouvert dans un éditeur de texte, il est illisible, mais ses 4 premiers octets forment la signature `LASF`, et chaque point est un enregistrement de taille fixe (ici 20 octets : X, Y, Z en entiers 32 bits, intensité, retours, classe…). Les coordonnées sont stockées comme des **entiers** multipliés par une **échelle** (0,01 m) et augmentés d'un **décalage** (2'538'000 / 1'180'000) : une astuce qui évite les problèmes de précision des nombres à virgule vus au [chapitre 1](../01-codage-binaire/README.md#les-nombres-a-virgule).
+
 ## CityGML et niveaux de détail (LOD)
 
 ### CityGML
@@ -174,6 +187,15 @@ En Suisse, le BIM gagne aussi les procédures administratives : le canton de Gen
 - Les objets sont reliés entre eux : un étage contient des espaces, un mur contient une ouverture qui contient une porte.
 - Le fichier `.ifc` est un fichier **texte** (encodage STEP) ; il existe aussi une variante XML (ifcXML) et une version compressée (ifcZIP).
 
+!!! example "▶ Démo : une maquette IFC dans le navigateur"
+    Le modèle ci-dessous est un exemple officiel de **buildingSMART** ([licence CC BY 4.0](https://github.com/buildingSMART/Sample-Test-Files)) : une maison individuelle en **IFC 4.3**, de 142 Ko ([`maison-buildingsmart.ifc`](donnees/maison-buildingsmart.ifc)). Le fichier est lu directement par votre navigateur avec la bibliothèque libre [web-ifc](https://github.com/ThatOpen/engine_web-ifc).
+
+    **Cliquez sur un élément** : la visionneuse affiche sa **classe IFC** (`IfcWall`, `IfcSlab`, `IfcRoof`, `IfcChimney`…), son nom, son identifiant unique `GlobalId`, et la **ligne correspondante dans le fichier texte**. Utilisez les cases pour masquer une classe (par exemple les dalles `IfcSlab`, dont fait partie le toit) et voir l'intérieur ; la zone spatiale (`IfcSpatialZone`), un volume virtuel, est masquée au départ.
+
+    Observez aussi le fichier : il contient un objet `IfcMapConversion` qui **géoréférence** la maquette (ici dans le système UTM 60 Sud, EPSG:32760). C'est ce même mécanisme qui permet de placer une maquette en **MN95 (EPSG:2056)**.
+
+<div class="demo" data-demo="ifc" data-src="donnees/maison-buildingsmart.ifc" data-label="142 Ko + bibliothèque de 6 Mo"></div>
+
 !!! warning "Un modèle contraignant"
     Le nombre de classes IFC est limité. Il n'existe par exemple pas de classe `IfcTree` : un objet sans classe adaptée doit être placé dans une classe générique (p. ex. `IfcBuildingElementProxy`), ce qui fait perdre une partie de sa sémantique.
 
@@ -202,6 +224,9 @@ Un navigateur ne peut pas charger d'un coup le modèle 3D de tout un pays. Comme
 
 ## Sources
 
+- [swissSURFACE3D – information produit (swisstopo)](https://www.swisstopo.admin.ch/dam/fr/sd-web/uIK9XXLTAGiI/swissSURFACE3D-ProdInfo-FR.pdf)
+- [Fichiers d'exemple IFC – buildingSMART (CC BY 4.0)](https://github.com/buildingSMART/Sample-Test-Files)
+- [web-ifc – That Open Company](https://github.com/ThatOpen/engine_web-ifc)
 - [13] *Les GéoBlogs*, GeoRezo — présentation de CityGML : <https://blog.georezo.net/>
 - [14] État de Genève, *Comprendre le futur dépôt en BIM de demandes d'autorisation de construire* : <https://www.ge.ch/node/28252>
 - [15] *Industry Foundation Classes*, Wikipédia : <https://fr.wikipedia.org/wiki/Industry_Foundation_Classes>

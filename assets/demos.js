@@ -1022,9 +1022,318 @@
     showScore();
   }
 
+  // ---------------------------------------------------------------- 3D : outils communs
+  const THREE_URL = "https://unpkg.com/three@0.180.0/build/three.module.min.js";
+  const WEBIFC_URL = "https://unpkg.com/web-ifc@0.0.77/web-ifc-api.js";
+  const WEBIFC_WASM = "https://unpkg.com/web-ifc@0.0.77/";
+
+  // Bouton « Charger » : les bibliothèques 3D et les données ne sont téléchargées qu'à la demande
+  function lazyDemo(root, label, start) {
+    const btn = el("button", { type: "button", class: "demo-btn demo-load", text: label });
+    const status = el("span", { class: "demo-stats" });
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      status.textContent = " Chargement…";
+      try { await start(status); btn.remove(); status.remove(); }
+      catch (e) { status.textContent = " Erreur : " + e.message; btn.disabled = false; }
+    });
+    root.append(el("div", { class: "demo-row" }, [btn, status]));
+  }
+
+  // Scène three.js minimale avec rotation (glisser), zoom (molette) et déplacement (clic droit ou Maj + glisser)
+  function makeViewer(THREE, container, { up = "z" } = {}) {
+    const canvasBox = el("div", { class: "demo-3d" });
+    container.appendChild(canvasBox);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    canvasBox.appendChild(renderer.domElement);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf4f6f6);
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100000);
+    if (up === "z") camera.up.set(0, 0, 1);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x888888, 2.2));
+    const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+    sun.position.set(1, -1, 2);
+    scene.add(sun);
+
+    const target = new THREE.Vector3();
+    let radius = 100, theta = -Math.PI / 4, phi = Math.PI / 3.2;
+    function place() {
+      const s = Math.sin(phi);
+      const off = up === "z"
+        ? new THREE.Vector3(radius * s * Math.cos(theta), radius * s * Math.sin(theta), radius * Math.cos(phi))
+        : new THREE.Vector3(radius * s * Math.cos(theta), radius * Math.cos(phi), radius * s * Math.sin(theta));
+      camera.position.copy(target).add(off);
+      camera.lookAt(target);
+    }
+    function resize() {
+      const w = canvasBox.clientWidth, h = canvasBox.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    let drag = null;
+    const dom = renderer.domElement;
+    dom.addEventListener("contextmenu", (e) => e.preventDefault());
+    dom.addEventListener("pointerdown", (e) => {
+      drag = { x: e.clientX, y: e.clientY, pan: e.button === 2 || e.shiftKey, moved: false };
+      dom.setPointerCapture(e.pointerId);
+    });
+    dom.addEventListener("pointermove", (e) => {
+      if (!drag) return;
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
+      drag.x = e.clientX; drag.y = e.clientY;
+      if (drag.pan) {
+        const k = radius / dom.clientHeight;
+        const right = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 0);
+        const upv = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 1);
+        target.addScaledVector(right, -dx * k).addScaledVector(upv, dy * k);
+      } else {
+        theta -= dx * 0.008;
+        phi = Math.min(Math.PI / 2 - 0.02, Math.max(0.05, phi - dy * 0.008));
+      }
+      place();
+    });
+    dom.addEventListener("pointerup", (e) => { viewer.lastClickMoved = drag && drag.moved; drag = null; dom.releasePointerCapture(e.pointerId); });
+    dom.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      radius = Math.max(1, radius * (e.deltaY > 0 ? 1.12 : 0.89));
+      place();
+    }, { passive: false });
+    new ResizeObserver(resize).observe(canvasBox);
+    const viewer = {
+      THREE, scene, camera, renderer, dom,
+      fit(box) {
+        box.getCenter(target);
+        radius = box.getSize(new THREE.Vector3()).length() * 0.9;
+        camera.near = radius / 1000; camera.far = radius * 20;
+        camera.updateProjectionMatrix();
+        place();
+      },
+    };
+    resize();
+    place();
+    renderer.setAnimationLoop(() => renderer.render(scene, camera));
+    return viewer;
+  }
+
+  // ---------------------------------------------------------------- Nuage de points LAS
+  const LAS_CLASSES = {
+    1: ["Non classé", "#9e9e9e"], 2: ["Sol", "#a1887f"], 3: ["Végétation", "#43a047"], 6: ["Bâtiments", "#e53935"],
+    9: ["Eau", "#1e88e5"], 17: ["Ponts", "#8e24aa"],
+  };
+  function demoLas(root) {
+    lazyDemo(root, `Charger le nuage de points (${root.dataset.label || "LAS"})`, async (status) => {
+      const THREE = await import(THREE_URL);
+      status.textContent = " Téléchargement du fichier LAS…";
+      const buf = await (await fetch(root.dataset.src)).arrayBuffer();
+      const dv = new DataView(buf);
+      // En-tête LAS (spécification ASPRS) : positions des champs en octets
+      const sig = String.fromCharCode(...new Uint8Array(buf, 0, 4));
+      const ver = `${dv.getUint8(24)}.${dv.getUint8(25)}`;
+      const dataOffset = dv.getUint32(96, true);
+      const fmtId = dv.getUint8(104) & 0x3f;
+      const recLen = dv.getUint16(105, true);
+      const n = dv.getUint32(107, true);
+      const sc = [131, 139, 147].map((o) => dv.getFloat64(o, true));
+      const of = [155, 163, 171].map((o) => dv.getFloat64(o, true));
+      const mx = [179, 195, 211].map((o) => dv.getFloat64(o, true));
+      const mn = [187, 203, 219].map((o) => dv.getFloat64(o, true));
+      const classOffset = fmtId >= 6 ? 16 : 15;
+
+      const ctr = [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, mn[2]];
+      const byClass = new Map();
+      const zs = new Float32Array(n), ints = new Uint16Array(n);
+      for (let i = 0; i < n; i++) {
+        const p = dataOffset + i * recLen;
+        const x = dv.getInt32(p, true) * sc[0] + of[0] - ctr[0];
+        const y = dv.getInt32(p + 4, true) * sc[1] + of[1] - ctr[1];
+        const z = dv.getInt32(p + 8, true) * sc[2] + of[2] - ctr[2];
+        const c = dv.getUint8(p + classOffset) & (fmtId >= 6 ? 0xff : 0x1f);
+        const key = LAS_CLASSES[c] ? c : 0;
+        if (!byClass.has(key)) byClass.set(key, []);
+        byClass.get(key).push(x, y, z, i);
+        zs[i] = z; ints[i] = dv.getUint16(p + 12, true);
+      }
+      const zmax = mx[2] - mn[2];
+      let imax = 0; for (const v of ints) if (v > imax) imax = v;
+
+      const head = el("table", { class: "demo-table" });
+      head.innerHTML = `<tr><th colspan="2">En-tête lu dans le fichier (les 227 premiers octets)</th></tr>
+        <tr><td>Signature (octets 0–3)</td><td><code>${sig}</code></td></tr>
+        <tr><td>Version LAS</td><td>${ver}</td></tr>
+        <tr><td>Format des points</td><td>${fmtId} (${recLen} octets par point)</td></tr>
+        <tr><td>Nombre de points</td><td>${fmt(n)}</td></tr>
+        <tr><td>Échelle / décalage</td><td>${sc[0]} m · E ${fmt(of[0])} / N ${fmt(of[1])}</td></tr>
+        <tr><td>Emprise (MN95)</td><td>E ${fmt(mn[0], 2)} – ${fmt(mx[0], 2)}<br>N ${fmt(mn[1], 2)} – ${fmt(mx[1], 2)}<br>Altitude ${fmt(mn[2], 2)} – ${fmt(mx[2], 2)} m</td></tr>`;
+
+      const viewer = makeViewer(THREE, root);
+      const material = new THREE.PointsMaterial({ size: 1.6, sizeAttenuation: false, vertexColors: true });
+      const layers = new Map();
+      const color = new THREE.Color();
+      function colorize(mode) {
+        for (const [key, obj] of layers) {
+          const arr = obj.geometry.attributes.color.array, ids = obj.userData.ids;
+          for (let j = 0; j < ids.length; j++) {
+            if (mode === "classe") color.set(key ? LAS_CLASSES[key][1] : "#ff9800");
+            else if (mode === "altitude") color.setHSL(0.66 * (1 - zs[ids[j]] / zmax), 0.85, 0.5);
+            else { const t = Math.sqrt(ints[ids[j]] / (imax || 1)); color.setRGB(t, t, t); }
+            arr[j * 3] = color.r; arr[j * 3 + 1] = color.g; arr[j * 3 + 2] = color.b;
+          }
+          obj.geometry.attributes.color.needsUpdate = true;
+        }
+      }
+      const box = new THREE.Box3();
+      for (const [key, vals] of byClass) {
+        const m = vals.length / 4;
+        const pos = new Float32Array(m * 3), ids = new Uint32Array(m);
+        for (let j = 0; j < m; j++) { pos[j * 3] = vals[j * 4]; pos[j * 3 + 1] = vals[j * 4 + 1]; pos[j * 3 + 2] = vals[j * 4 + 2]; ids[j] = vals[j * 4 + 3]; }
+        const g = new THREE.BufferGeometry();
+        g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+        g.setAttribute("color", new THREE.BufferAttribute(new Float32Array(m * 3), 3));
+        g.computeBoundingBox(); box.union(g.boundingBox);
+        const pts = new THREE.Points(g, material);
+        pts.userData.ids = ids;
+        viewer.scene.add(pts);
+        layers.set(key, pts);
+      }
+      viewer.fit(box);
+
+      const mode = el("select", {}, [
+        el("option", { value: "classe", text: "Couleur : classe" }),
+        el("option", { value: "altitude", text: "Couleur : altitude" }),
+        el("option", { value: "intensite", text: "Couleur : intensité du retour" }),
+      ]);
+      mode.addEventListener("change", () => colorize(mode.value));
+      const size = el("input", { type: "range", min: "1", max: "5", step: "0.5", value: "1.6" });
+      size.addEventListener("input", () => { material.size = +size.value; });
+      const legend = el("div", { class: "demo-row" });
+      [...layers.keys()].sort((a, b) => (a || 99) - (b || 99)).forEach((key) => {
+        const cb = el("input", { type: "checkbox" });
+        cb.checked = true;
+        cb.addEventListener("change", () => { layers.get(key).visible = cb.checked; });
+        const [name, col] = key ? LAS_CLASSES[key] : ["Autres classes", "#ff9800"];
+        legend.appendChild(el("label", { class: "demo-legend" }, [cb, el("span", { class: "demo-dot", style: `background:${col}` }),
+          el("span", { text: ` ${key ? key + " " : ""}${name} (${fmt(layers.get(key).userData.ids.length)})` })]));
+      });
+      root.append(
+        el("div", { class: "demo-row" }, [mode, el("span", { text: " Taille des points " }), size]),
+        legend,
+        el("p", { class: "demo-stats", text: "Glisser : tourner · molette : zoomer · clic droit (ou Maj + glisser) : déplacer. Décochez une classe pour la masquer." }),
+        el("details", { class: "demo-details" }, [el("summary", { text: "En-tête du fichier LAS" }), head])
+      );
+      colorize("classe");
+    });
+  }
+
+  // ---------------------------------------------------------------- Maquette IFC
+  function demoIfc(root) {
+    lazyDemo(root, `Charger la maquette IFC (${root.dataset.label || "IFC"})`, async (status) => {
+      const THREE = await import(THREE_URL);
+      status.textContent = " Chargement de la bibliothèque web-ifc (~6 Mo)…";
+      const WebIFC = await import(WEBIFC_URL);
+      const api = new WebIFC.IfcAPI();
+      api.SetWasmPath(WEBIFC_WASM, true);
+      await api.Init();
+      status.textContent = " Lecture du fichier IFC…";
+      const text = await (await fetch(root.dataset.src)).text();
+      const model = api.OpenModel(new TextEncoder().encode(text), { COORDINATE_TO_ORIGIN: true });
+
+      const viewer = makeViewer(THREE, root, { up: "y" });
+      const box = new THREE.Box3(), allBox = new THREE.Box3();
+      const meshes = [];
+      const byType = new Map();
+      api.StreamAllMeshes(model, (mesh) => {
+        const id = mesh.expressID;
+        const type = api.GetNameFromTypeCode(api.GetLineType(model, id));
+        const group = new THREE.Group();
+        group.userData = { id, type };
+        const placed = mesh.geometries;
+        for (let i = 0; i < placed.size(); i++) {
+          const pg = placed.get(i);
+          const geom = api.GetGeometry(model, pg.geometryExpressID);
+          const v = api.GetVertexArray(geom.GetVertexData(), geom.GetVertexDataSize());
+          const idx = api.GetIndexArray(geom.GetIndexData(), geom.GetIndexDataSize());
+          const pos = new Float32Array(v.length / 2), nor = new Float32Array(v.length / 2);
+          for (let k = 0, j = 0; k < v.length; k += 6, j += 3) {
+            pos[j] = v[k]; pos[j + 1] = v[k + 1]; pos[j + 2] = v[k + 2];
+            nor[j] = v[k + 3]; nor[j + 1] = v[k + 4]; nor[j + 2] = v[k + 5];
+          }
+          const g = new THREE.BufferGeometry();
+          g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+          g.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
+          g.setIndex(new THREE.BufferAttribute(idx, 1));
+          const c = pg.color;
+          const mat = new THREE.MeshLambertMaterial({ color: new THREE.Color(c.x, c.y, c.z), transparent: c.w < 1, opacity: c.w, side: THREE.DoubleSide });
+          const m = new THREE.Mesh(g, mat);
+          m.matrix.fromArray(pg.flatTransformation);
+          m.matrixAutoUpdate = false;
+          m.userData = group.userData;
+          group.add(m);
+          meshes.push(m);
+          geom.delete && geom.delete();
+        }
+        viewer.scene.add(group);
+        group.updateMatrixWorld(true);
+        // Cadrage sur le bâtiment lui-même (murs, dalles, toit), pas sur le terrain environnant
+        if (/WALL|SLAB|ROOF/i.test(type)) box.expandByObject(group);
+        else allBox.expandByObject(group);
+        if (!byType.has(type)) byType.set(type, []);
+        byType.get(type).push(group);
+      });
+      viewer.fit(box.isEmpty() ? allBox : box);
+
+      const info = el("div", { class: "demo-ifc-info", html: "Cliquez sur un élément de la maquette." });
+      const src = el("pre", { class: "demo-pre demo-ifc-src" });
+      const lines = text.split("\n");
+      const highlight = new THREE.MeshLambertMaterial({ color: 0xffc107, side: THREE.DoubleSide });
+      let selected = [];
+      const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
+      viewer.dom.addEventListener("click", (e) => {
+        if (viewer.lastClickMoved) return;
+        const r = viewer.dom.getBoundingClientRect();
+        mouse.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+        ray.setFromCamera(mouse, viewer.camera);
+        const hit = ray.intersectObjects(meshes.filter((m) => m.parent.visible), false)[0];
+        selected.forEach((m) => { m.material = m.userData.orig; });
+        selected = [];
+        if (!hit) { info.innerHTML = "Cliquez sur un élément de la maquette."; src.textContent = ""; return; }
+        const { id, type } = hit.object.userData;
+        hit.object.parent.children.forEach((m) => { m.userData.orig = m.material; m.material = highlight; selected.push(m); });
+        const line = api.GetLine(model, id);
+        const val = (a) => (a && a.value !== undefined ? a.value : "—");
+        info.innerHTML = `<b>${type}</b> · #${id}<br>Nom : <b>${val(line.Name)}</b><br>GlobalId : <code>${val(line.GlobalId)}</code>` +
+          (line.PredefinedType ? `<br>Type prédéfini : ${val(line.PredefinedType)}` : "");
+        const i = lines.findIndex((l) => l.startsWith(`#${id}=`));
+        src.innerHTML = i >= 0
+          ? lines.slice(Math.max(0, i - 1), i + 2).map((l, k) => (k === (i > 0 ? 1 : 0) ? `<mark>${l.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</mark>` : l.replace(/&/g, "&amp;").replace(/</g, "&lt;"))).join("\n")
+          : "";
+      });
+
+      const filters = el("div", { class: "demo-row" });
+      [...byType.keys()].sort().forEach((type) => {
+        const cb = el("input", { type: "checkbox" });
+        cb.checked = !/SPACE|ZONE/.test(type);
+        const apply = () => byType.get(type).forEach((g) => { g.visible = cb.checked; });
+        cb.addEventListener("change", apply);
+        apply();
+        filters.appendChild(el("label", { class: "demo-legend" }, [cb, el("span", { text: ` ${type} (${byType.get(type).length})` })]));
+      });
+      root.append(
+        el("p", { class: "demo-stats", text: "Glisser : tourner · molette : zoomer · clic droit (ou Maj + glisser) : déplacer · clic : identifier un élément." }),
+        filters,
+        info,
+        el("p", { html: "<b>La ligne correspondante dans le fichier IFC (texte) :</b>" }),
+        src
+      );
+    });
+  }
+
   const demos = {
     pixels: demoPixels, compression: demoCompression, taille: demoTaille, pmtiles: demoPmtiles, quiz: demoQuiz,
     bits: demoBits, float: demoFloat, unites: demoUnites, texte: demoTexte, fichier: demoFichier, exercices: demoExercices,
+    las: demoLas, ifc: demoIfc,
   };
 
   function init() {
