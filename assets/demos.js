@@ -1350,8 +1350,285 @@
     show(0);
   }
 
+  // ---------------------------------------------------------------- Chapitre 7 : échange de données
+  // Interfaces point à point ou format pivot
+  function demoPivot(root) {
+    const n = el("input", { type: "range", min: "2", max: "12", value: "6" });
+    const mode = el("select", {}, [el("option", { value: "p2p", text: "Interfaces point à point" }), el("option", { value: "pivot", text: "Format pivot (INTERLIS)" })]);
+    const svgBox = el("div", { class: "demo-pivot" });
+    const out = el("div", { class: "demo-stats" });
+    const NS = "http://www.w3.org/2000/svg";
+    function draw() {
+      const k = +n.value, W = 360, c = W / 2, r = 135;
+      const pts = Array.from({ length: k }, (_, i) => [c + r * Math.cos((2 * Math.PI * i) / k - Math.PI / 2), c + r * Math.sin((2 * Math.PI * i) / k - Math.PI / 2)]);
+      const svg = document.createElementNS(NS, "svg");
+      svg.setAttribute("viewBox", `0 0 ${W} ${W}`);
+      const line = (a, b, cls) => { const l = document.createElementNS(NS, "line"); l.setAttribute("x1", a[0]); l.setAttribute("y1", a[1]); l.setAttribute("x2", b[0]); l.setAttribute("y2", b[1]); l.setAttribute("class", cls); svg.appendChild(l); };
+      const node = (p, label, cls) => {
+        const g = document.createElementNS(NS, "g");
+        const ci = document.createElementNS(NS, "circle"); ci.setAttribute("cx", p[0]); ci.setAttribute("cy", p[1]); ci.setAttribute("r", cls === "hub" ? 30 : 17); ci.setAttribute("class", "demo-pv-" + cls);
+        const t = document.createElementNS(NS, "text"); t.setAttribute("x", p[0]); t.setAttribute("y", p[1] + 4); t.setAttribute("text-anchor", "middle"); t.setAttribute("class", "demo-pv-t"); t.textContent = label;
+        g.append(ci, t); svg.appendChild(g);
+      };
+      const p2p = mode.value === "p2p";
+      if (p2p) { for (let i = 0; i < k; i++) for (let j = i + 1; j < k; j++) line(pts[i], pts[j], "demo-pv-l"); }
+      else pts.forEach((p) => line(p, [c, c], "demo-pv-l2"));
+      if (!p2p) node([c, c], "INTERLIS", "hub");
+      pts.forEach((p, i) => node(p, String.fromCharCode(65 + i), "sys"));
+      svgBox.innerHTML = "";
+      svgBox.appendChild(svg);
+      const nb = (k * (k - 1)) / 2;
+      out.innerHTML = `${k} systèmes · point à point : <b>${nb}</b> interface${nb > 1 ? "s" : ""} (n×(n−1)/2) · format pivot : <b>${k}</b> interface${k > 1 ? "s" : ""}` +
+        `<br>Si le système A change de logiciel : il faut refaire <b>${p2p ? k - 1 : 1}</b> interface${(p2p ? k - 1 : 1) > 1 ? "s" : ""}.`;
+    }
+    n.addEventListener("input", draw);
+    mode.addEventListener("change", draw);
+    root.append(el("div", { class: "demo-row" }, [el("span", { text: "Nombre de systèmes : " }), n, mode]), svgBox, out);
+    draw();
+  }
+
+  // Mini-ETL : règles de mapping appliquées à cinq bâtiments réels de swissBUILDINGS3D
+  const ETL_SRC = [
+    { UUID: "{0FB0172F-593E-4E1C-8817-6E3F36D4C954}", OBJEKTART: "Gebaeude Einzelhaus", NAME_KOMPLETT: "Salle omnisports des Isles", GESAMTHOEHE: null, ZMIN: 430.34, ZMAX: 445.12 },
+    { UUID: "{55F72582-2831-41E3-88D5-09900F76CE3F}", OBJEKTART: "Hochhaus", NAME_KOMPLETT: "", GESAMTHOEHE: null, ZMIN: 431.17, ZMAX: 478.51 },
+    { UUID: "{B98D6987-7E3B-4D85-AFC1-8ED0E64C92E2}", OBJEKTART: "Im Bau", NAME_KOMPLETT: "", GESAMTHOEHE: null, ZMIN: 430.34, ZMAX: 445.59 },
+    { UUID: "{64935DEE-E29A-447C-876B-B2F995EB2F0E}", OBJEKTART: "Gebaeude Einzelhaus", NAME_KOMPLETT: "", GESAMTHOEHE: null, ZMIN: 431.03, ZMAX: 453.10 },
+    { UUID: "{AE2C2556-E0A7-4544-A565-C0DE5B354D7D}", OBJEKTART: "Gebaeude Einzelhaus", NAME_KOMPLETT: "", GESAMTHOEHE: null, ZMIN: 430.13, ZMAX: 451.30 },
+  ];
+  const ETL_GENRES = ["Bâtiment", "Immeuble de grande hauteur", "En construction"];
+  const ETL_TARGET = [
+    ["uuid", "texte", true, "copy:UUID"],
+    ["genre", "liste : " + ETL_GENRES.join(" / "), true, "copy:OBJEKTART"],
+    ["nom", "texte", false, "copy:NAME_KOMPLETT"],
+    ["hauteur", "nombre (m)", true, "copy:GESAMTHOEHE"],
+    ["altitude_sol", "nombre (m)", false, "none"],
+  ];
+  const ETL_RULES = [
+    ["none", "(aucune)"], ["copy:UUID", "Copier UUID"], ["copy:OBJEKTART", "Copier OBJEKTART"], ["translate", "Traduire OBJEKTART (table ci-dessous)"],
+    ["copy:NAME_KOMPLETT", "Copier NAME_KOMPLETT"], ["nullify", "Copier NAME_KOMPLETT (vide → NULL)"], ["copy:GESAMTHOEHE", "Copier GESAMTHOEHE"],
+    ["height", "Calculer ZMAX − ZMIN"], ["copy:ZMIN", "Copier ZMIN"], ["copy:ZMAX", "Copier ZMAX"], ["const", "Constante « Bâtiment »"],
+  ];
+  function demoEtl(root) {
+    const show = (v) => (v === null ? "<i>NULL</i>" : v === "" ? "<i>(vide)</i>" : esc(v));
+    const srcTable = el("div", { class: "demo-scroll", html:
+      `<table class="demo-table"><tr><th colspan="6">Source : swissBUILDINGS3D, couche Floor (5 objets)</th></tr><tr>${Object.keys(ETL_SRC[0]).map((k) => `<th>${k}</th>`).join("")}</tr>` +
+      ETL_SRC.map((r) => `<tr>${Object.values(r).map((v) => `<td>${show(v)}</td>`).join("")}</tr>`).join("") + "</table>" });
+    const rules = {};
+    const ruleRows = ETL_TARGET.map(([name, type, req, def]) => {
+      const sel = el("select", {}, ETL_RULES.map(([v, t]) => el("option", { value: v, text: t })));
+      sel.value = def;
+      rules[name] = sel;
+      return el("tr", {}, [el("td", { html: `<b>${name}</b>${req ? " *" : ""}` }), el("td", { text: type }), el("td", {}, [sel])]);
+    });
+    const ruleTable = el("table", { class: "demo-table" }, [el("tr", { html: "<th>Champ cible</th><th>Type</th><th>Règle de transformation</th>" }), ...ruleRows]);
+    const trans = {};
+    const transRows = ["Gebaeude Einzelhaus", "Hochhaus", "Im Bau"].map((de) => {
+      const sel = el("select", {}, [el("option", { value: "", text: "— à choisir —" }), ...ETL_GENRES.map((g) => el("option", { value: g, text: g }))]);
+      trans[de] = sel;
+      return el("tr", {}, [el("td", { html: `<code>${de}</code>` }), el("td", {}, [sel])]);
+    });
+    const transTable = el("table", { class: "demo-table" }, [el("tr", { html: "<th>Valeur source (OBJEKTART)</th><th>Valeur cible (genre)</th>" }), ...transRows]);
+    const run = el("button", { type: "button", class: "demo-btn demo-load", text: "▶ Exécuter le mapping" });
+    const result = el("div", { class: "demo-scroll" });
+    const report = el("div", { class: "demo-quiz-fb" });
+    function apply(rule, r) {
+      if (rule === "none") return null;
+      if (rule.startsWith("copy:")) return r[rule.slice(5)];
+      if (rule === "translate") return trans[r.OBJEKTART].value || r.OBJEKTART;
+      if (rule === "nullify") return r.NAME_KOMPLETT === "" ? null : r.NAME_KOMPLETT;
+      if (rule === "height") return Math.round((r.ZMAX - r.ZMIN) * 10) / 10;
+      if (rule === "const") return "Bâtiment";
+      return null;
+    }
+    run.addEventListener("click", () => {
+      const errors = [];
+      let html = `<table class="demo-table"><tr><th colspan="5">Cible : couche batiments</th></tr><tr>${ETL_TARGET.map(([n]) => `<th>${n}</th>`).join("")}</tr>`;
+      ETL_SRC.forEach((r, i) => {
+        html += "<tr>";
+        ETL_TARGET.forEach(([name, type, req]) => {
+          const v = apply(rules[name].value, r);
+          let err = "";
+          if (req && (v === null || v === "")) err = "obligatoire mais vide";
+          else if (type.startsWith("nombre") && v !== null && v !== "" && typeof v !== "number") err = "texte dans un champ numérique";
+          else if (name === "genre" && v !== null && !ETL_GENRES.includes(v)) err = `« ${v} » n'est pas une valeur de la liste`;
+          else if (name === "uuid" && v !== null && !/^\{[0-9A-F-]{36}\}$/.test(v)) err = "n'est pas un identifiant UUID";
+          if (err) errors.push(`objet ${i + 1}, <b>${name}</b> : ${esc(err)}`);
+          html += `<td class="${err ? "demo-cell-ko" : "demo-cell-ok"}" title="${esc(err)}">${show(v)}</td>`;
+        });
+        html += "</tr>";
+      });
+      result.innerHTML = html + "</table>";
+      report.innerHTML = errors.length
+        ? `❌ <b>${errors.length} erreur(s)</b> : le jeu de données ne respecte pas le modèle cible.<ul>${[...new Set(errors)].slice(0, 12).map((e) => `<li>${e}</li>`).join("")}</ul>Corrigez les règles et relancez : c'est l'itération du schema mapping.`
+        : "✅ <b>Aucune erreur</b> : 5 objets en entrée, 5 objets en sortie, tous conformes au modèle cible. C'est exactement le mapping appliqué au fil rouge.";
+    });
+    root.append(srcTable, el("p", { html: "<b>1. Règles par champ cible</b> (* = obligatoire)" }), ruleTable,
+      el("p", { html: "<b>2. Table de correspondance des valeurs</b> (utilisée par la règle « Traduire »)" }), transTable,
+      el("div", { class: "demo-row" }, [run]), result, report);
+  }
+
+  // Simulateur d'incompatibilités
+  function demoIncompat(root) {
+    const tabs = el("div", { class: "demo-row" });
+    const body = el("div");
+    const cases = {
+      "Texte → numérique": () => {
+        const data = ["12", "12a", "K-045", "7", "12b"];
+        const strat = el("select", {}, [
+          el("option", { value: "direct", text: "Conversion directe en entier" }),
+          el("option", { value: "digits", text: "Ne garder que les chiffres" }),
+          el("option", { value: "keep", text: "Entier + champ texte « numero_original »" }),
+        ]);
+        const out = el("div");
+        const runIt = () => {
+          const rows = data.map((d) => {
+            if (strat.value === "direct") { const ok = /^\d+$/.test(d); return [d, ok ? d : "ERREUR", ok ? "" : "pas un entier", ""]; }
+            const digits = (d.match(/\d+/) || [""])[0];
+            return [d, digits || "ERREUR", digits ? "" : "aucun chiffre", strat.value === "keep" ? d : ""];
+          });
+          const counts = {};
+          rows.forEach((r) => { counts[r[1]] = (counts[r[1]] || 0) + 1; });
+          out.innerHTML = `<table class="demo-table"><tr><th>Numéro source (texte)</th><th>Numéro cible (entier)</th><th>Problème</th>${strat.value === "keep" ? "<th>numero_original</th>" : ""}</tr>` +
+            rows.map(([a, b, pb, keep]) => {
+              const dup = b !== "ERREUR" && counts[b] > 1 && strat.value !== "keep";
+              const msg = pb || (dup ? "doublon : information perdue" : "");
+              return `<tr><td>${a}</td><td class="${msg ? "demo-cell-ko" : "demo-cell-ok"}">${b}</td><td>${msg}</td>${strat.value === "keep" ? `<td>${keep}</td>` : ""}</tr>`;
+            }).join("") + "</table>" +
+            (strat.value === "keep" ? "<p>✅ Le numéro d'origine est conservé dans un champ texte supplémentaire : aucune information perdue.</p>" : "<p>❌ Des chambres deviennent impossibles à distinguer ou à transférer.</p>");
+        };
+        strat.addEventListener("change", runIt);
+        body.append(el("p", { text: "Numéros de chambres d'un cadastre des conduites, à transférer dans un système qui n'accepte que des entiers." }), el("div", { class: "demo-row" }, [el("span", { text: "Stratégie : " }), strat]), out);
+        runIt();
+      },
+      "Identifiants PFP3": () => {
+        const data = [["Yverdon-les-Bains", "VD0100000001", "1234"], ["Yverdon-les-Bains", "VD0100000001", "1235"], ["Grandson", "VD0200000005", "1234"], ["Orbe", "VD0300000002", "1234"]];
+        const key = el("select", {}, [el("option", { value: "num", text: "Identifiant = numéro seul" }), el("option", { value: "comp", text: "Identifiant = domaine de numérotation + numéro" })]);
+        const out = el("div");
+        const runIt = () => {
+          const ids = data.map((d) => (key.value === "num" ? d[2] : `${d[1]} / ${d[2]}`));
+          const counts = {};
+          ids.forEach((i) => { counts[i] = (counts[i] || 0) + 1; });
+          out.innerHTML = `<table class="demo-table"><tr><th>Commune</th><th>Domaine</th><th>Numéro</th><th>Identifiant dans la base centrale</th></tr>` +
+            data.map((d, i) => `<tr><td>${d[0]}</td><td>${d[1]}</td><td>${d[2]}</td><td class="${counts[ids[i]] > 1 ? "demo-cell-ko" : "demo-cell-ok"}">${ids[i]}${counts[ids[i]] > 1 ? " (doublon !)" : ""}</td></tr>`).join("") + "</table>" +
+            (key.value === "num" ? "<p>❌ Le numéro 1234 existe dans trois communes : impossible d'en faire un identifiant à l'échelle du canton.</p>" : "<p>✅ Le couple domaine + numéro est unique partout. <i>Valeurs fictives.</i></p>");
+        };
+        key.addEventListener("change", runIt);
+        body.append(el("p", { text: "Points fixes PFP3 de plusieurs communes agrégés dans une base cantonale." }), el("div", { class: "demo-row" }, [key]), out);
+        runIt();
+      },
+      "Polyligne → surface": () => {
+        const w = el("input", { type: "range", min: "0", max: "14", value: "0" });
+        const lab = el("span", { class: "demo-strong" });
+        const box = el("div", { class: "demo-pivot" });
+        const runIt = () => {
+          const width = +w.value;
+          lab.textContent = width ? ` tampon de ${width / 2} m de part et d'autre de l'axe` : " (axe seul, comme dans swissTLM3D)";
+          box.innerHTML = `<svg viewBox="0 0 360 200">
+            <path d="M10,120 L120,118 L180,95 L230,60 L350,40 M180,95 L200,190" class="demo-pv-mo"/>
+            <path d="M10,112 L118,110 L170,90 L225,52 L350,32 L350,48 L236,68 L196,96 L212,190 L188,190 L172,104 L122,126 L10,128 Z" class="demo-pv-surf"/>
+            <path d="M10,120 L120,118 L180,95 L230,60 L350,40 M180,95 L200,190" class="demo-pv-axe" style="stroke-width:${Math.max(1.5, width * 1.1)};stroke-opacity:${width ? 0.55 : 1}"/>
+            <text x="12" y="20" class="demo-pv-t2">gris : surface de route mesurée (MO) · bleu : axe ${width ? "+ tampon" : ""}</text></svg>`;
+        };
+        w.addEventListener("input", runIt);
+        body.append(el("p", { text: "La route est une ligne (axe) dans swissTLM3D, une surface dans la couverture du sol de la MO. Élargissez l'axe par un tampon : la forme ne correspond jamais exactement, surtout au carrefour." }),
+          el("div", { class: "demo-row" }, [el("span", { text: "Largeur : " }), w, lab]), box);
+        runIt();
+      },
+    };
+    Object.keys(cases).forEach((name, i) => {
+      const b = el("button", { type: "button", class: "demo-btn", text: name });
+      b.addEventListener("click", () => { tabs.querySelectorAll("button").forEach((x) => x.classList.toggle("demo-ok", x === b)); body.innerHTML = ""; cases[name](); });
+      tabs.appendChild(b);
+      if (i === 0) setTimeout(() => b.click(), 0);
+    });
+    root.append(tabs, body);
+  }
+
+  // Exercice Normat en ligne : table de correspondance des valeurs
+  const NORMAT_SRC = ["Aire forestière 18 LAT", "Aire forestière sylvo-pastorale 18 LAT", "Alignement", "Autres contenus linéaires", "Autres périmètres superposés", "Autres zones superposées", "Monuments culturels", "Objets naturels", "Périmètres à développer par plan d'affectation", "Périmètres avec étape d'équipement différée", "Périmètres conditionnés", "Périmètres des plans d'affectation légalisés", "Périmètres des plans superposés", "Périmètres d'implantation des constructions", "Secteur dont l'affectation en vigueur est maintenue", "Secteurs de protection de la nature et du paysage 17 LAT", "Secteurs de protection du site bâti 17 LAT", "Secteurs de restrictions liés aux dangers naturels", "Secteurs de sport d'hiver 18 LAT", "Zone à options 15 LAT", "Zone affectée à des besoins publics 15 LAT", "Zone affectée à des besoins publics 18 LAT", "Zone agricole 16 LAT", "Zone agricole protégée 16 LAT", "Zone agricole spécialisée 16 LAT", "Zone centrale 15 LAT", "Zone d'activités économiques 15 LAT", "Zone d'aérodrome 15 LAT", "Zone d'aérodrome 18 LAT", "Zone de desserte 15 LAT", "Zone de desserte 18 LAT", "Zone de production d'énergie 18 LAT", "Zone de protection de la nature et du paysage 17 LAT", "Zone de site construit protégé 17 LAT", "Zone de sport d'hiver 18 LAT", "Zone de tourisme et de loisirs 15 LAT", "Zone de tourisme et de loisirs 18 LAT", "Zone de verdure 15 LAT", "Zone des eaux 17 LAT", "Zone d'extraction et de dépôt de matériaux 18 LAT", "Zone d'habitation de faible densité 15 LAT", "Zone d'habitation de forte densité 15 LAT", "Zone d'habitation de moyenne densité 15 LAT", "Zone d'habitation de très faible densité 15 LAT", "Zone ferroviaire 15 LAT", "Zone ferroviaire 18 LAT", "Zone intermédiaire 18 LAT", "Zone militaire 18 LAT", "Zone mixte 15 LAT", "Zone para-agricole 18 LAT", "Zone pour petites entités urbanisées 18 LAT", "Zone viticole 16 LAT", "Zone viticole protégée 16 LAT"];
+  const NORMAT_TGT = ["Activités touristiques", "Agricole", "Agricole protégée", "Agricole spécialisée", "Aire forestière", "Aéroport / aérodrome", "Centre de localité (zone village)", "Domaine publique", "Extraction et dépôt de matériaux", "Ferroviaire", "Habitation faible densité", "Habitation forte densité", "Habitation moyenne densité", "Habitation très faible densité", "Hameau", "Industrielle", "Installations (para-) publiques", "Intermédiaire", "Militaire", "Naturelle protégée", "Options", "Para-agricole", "Piste de ski", "Site construit protégé", "Sport et loisirs", "Verdure", "Viticole", "Viticole protégée"];
+  function demoNormat(root) {
+    const KEY = "cfgeo-normat-v1";
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { saved = {}; }
+    const stats = el("div", { class: "demo-quiz-fb" });
+    const sels = NORMAT_SRC.map((v) => {
+      const sel = el("select", {}, [el("option", { value: "", text: "— à choisir —" }), el("option", { value: "∅", text: "(aucune correspondance)" }), ...NORMAT_TGT.map((t) => el("option", { value: t, text: t }))]);
+      sel.value = saved[v] || "";
+      sel.addEventListener("change", update);
+      return [v, sel];
+    });
+    const table = el("div", { class: "demo-scroll demo-normat" }, [el("table", { class: "demo-table" }, [
+      el("tr", { html: "<th>vd_Designation (source)</th><th>TYPE_PRINCIPAL (cible)</th>" }),
+      ...sels.map(([v, sel]) => el("tr", {}, [el("td", { text: v }), el("td", {}, [sel])])),
+    ])]);
+    const exp = el("button", { type: "button", class: "demo-btn", text: "⬇ Exporter la table (CSV)" });
+    const reset = el("button", { type: "button", class: "demo-btn", text: "Tout effacer" });
+    function update() {
+      const map = {};
+      sels.forEach(([v, sel]) => { if (sel.value) map[v] = sel.value; });
+      try { localStorage.setItem(KEY, JSON.stringify(map)); } catch (e) { /* stockage indisponible */ }
+      const done = Object.keys(map).length;
+      const none = Object.values(map).filter((t) => t === "∅").length;
+      const groups = {};
+      Object.entries(map).forEach(([s, t]) => { if (t !== "∅") (groups[t] = groups[t] || []).push(s); });
+      const multi = Object.entries(groups).filter(([, l]) => l.length > 1).sort((a, b) => b[1].length - a[1].length);
+      const unused = NORMAT_TGT.filter((t) => !groups[t]);
+      stats.innerHTML = `<b>${done} / ${NORMAT_SRC.length}</b> valeurs traitées · <b>${none}</b> sans correspondance · <b>${multi.length}</b> regroupement(s)` +
+        (multi.length ? `<br>Regroupements (plusieurs valeurs sources → une seule valeur cible : <b>perte d'information</b>) :<ul>${multi.slice(0, 6).map(([t, l]) => `<li><b>${esc(t)}</b> ← ${l.length} valeurs : ${l.map(esc).join(" ; ")}</li>`).join("")}</ul>` : "") +
+        (done === NORMAT_SRC.length && unused.length ? `<br>Valeurs cibles jamais utilisées : ${unused.map(esc).join(", ")}` : "");
+    }
+    exp.addEventListener("click", () => {
+      const lines = ["att_name_in;att_value_in;att_name_out;att_value_out"];
+      sels.forEach(([v, sel]) => { if (sel.value && sel.value !== "∅") lines.push(`vd_Designation;${v};TYPE_PRINCIPAL;${sel.value}`); });
+      const blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+      const a = el("a", { href: URL.createObjectURL(blob), download: "mapping_normat.csv" });
+      document.body.appendChild(a); a.click(); a.remove();
+    });
+    reset.addEventListener("click", () => { sels.forEach(([, sel]) => { sel.value = ""; }); update(); });
+    root.append(el("p", { text: "Choisissez la valeur cible de chaque désignation. Votre travail est conservé dans ce navigateur." }), table, stats, el("div", { class: "demo-row" }, [exp, reset]));
+    update();
+  }
+
   // ---------------------------------------------------------------- Quiz
   const QUIZZES = {
+    echange: [
+      {
+        q: "Combien d'interfaces faut-il pour relier 8 systèmes deux à deux (point à point) ?",
+        a: ["8", "16", "28", "64"], ok: 2,
+        e: "n×(n−1)/2 = 8×7/2 = 28. Avec un format pivot, il n'en faut que 8.",
+      },
+      {
+        q: "Dans le fil rouge, l'attribut GESAMTHOEHE de swissBUILDINGS3D est vide. Quelle règle a-t-on appliquée ?",
+        a: ["Supprimer l'attribut", "Mettre une constante de 10 m", "Calculer la hauteur à partir de la géométrie 3D", "Copier l'altitude du sol"], ok: 2,
+        e: "Hauteur = altitude maximale − altitude minimale de la géométrie 3D : un attribut manquant peut parfois être dérivé d'autres données.",
+      },
+      {
+        q: "Traduire « Hochhaus » en « Immeuble de grande hauteur » relève de quel niveau d'interopérabilité ?",
+        a: ["Technique", "Syntaxique", "Sémantique", "Juridique"], ok: 2,
+        e: "Il s'agit de donner le même sens aux valeurs : c'est le niveau sémantique, au cœur du schema mapping.",
+      },
+      {
+        q: "Plusieurs désignations sources sont associées à une même valeur cible. Quelle est la conséquence ?",
+        a: ["Aucune", "Une perte d'information : on ne peut plus revenir à la valeur d'origine", "Une erreur de syntaxe", "Un doublon d'identifiants"], ok: 1,
+        e: "Un regroupement (n → 1) simplifie le modèle cible, mais la distinction entre les valeurs sources est perdue.",
+      },
+      {
+        q: "Pourquoi tester une interface sur un jeu de données réduit ?",
+        a: ["Pour économiser de l'espace disque", "Pour la déboguer rapidement, en incluant les cas particuliers", "Parce que les outils ETL sont limités", "Ce n'est pas recommandé"], ok: 1,
+        e: "Un extrait représentatif, contenant les cas particuliers, permet d'itérer vite avant le transfert complet.",
+      },
+      {
+        q: "Le même numéro de PFP3 existe dans plusieurs communes. Comment la MO garantit-elle un identifiant unique ?",
+        a: ["En renumérotant tous les points", "Avec le couple domaine de numérotation + numéro", "En ajoutant les coordonnées au numéro", "Ce n'est pas possible"], ok: 1,
+        e: "Le domaine de numérotation (NBIdent) délimite la zone où le numéro doit être unique ; le couple des deux est unique partout.",
+      },
+      {
+        q: "Qu'est-ce qu'une mise à jour incrémentale ?",
+        a: ["Retransmettre tout le jeu de données", "Ne transmettre que les objets créés, modifiés ou supprimés depuis la dernière livraison", "Compresser le fichier", "Changer de format pivot"], ok: 1,
+        e: "INTERLIS 2 le permet grâce à des identifiants stables des objets (TID) et des corbeilles (BID).",
+      },
+    ],
     interop: [
       {
         q: "Deux systèmes échangent des fichiers GeoPackage sans erreur, mais l'un appelle « Hochhaus » ce que l'autre appelle « immeuble ». Quel niveau d'interopérabilité pose problème ?",
@@ -1855,6 +2132,7 @@
     las: demoLas, ifc: demoIfc,
     editeur: demoEditeur, couleurkml: demoCouleurKml, geojsoncarte: demoGeojsonCarte,
     normes: demoNormes, trier: demoTrier, frise: demoFrise,
+    pivot: demoPivot, etl: demoEtl, incompat: demoIncompat, normat: demoNormat,
   };
 
   function init() {

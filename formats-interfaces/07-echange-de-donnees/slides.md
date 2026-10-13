@@ -98,6 +98,16 @@ interfaces = n × (n − 1) / 2
 
 ---
 
+## ▶ Point à point ou pivot ?
+
+- Curseur de 2 à 12 systèmes : le schéma dessine **toutes les liaisons**
+- 10 systèmes : **45** interfaces point à point · **10** avec un pivot
+- Un partenaire change de logiciel : **9** interfaces à refaire… ou **1**
+
+▶ [Démo interactive](https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/#interfaces-point-a-point)
+
+---
+
 ## Que contient l'échange ?
 
 1. **Modèle** : simple graphique, objets + attributs, ou classes + relations + contraintes ?
@@ -176,11 +186,46 @@ interfaces = n × (n − 1) / 2
 
 ---
 
+## 🧵 Fil rouge : le mapping des bâtiments
+
+| swissBUILDINGS3D | Règle | `batiments` |
+|---|---|---|
+| `OBJEKTART` = `Hochhaus`… | **traduire** | `genre` = Immeuble de grande hauteur… |
+| `GESAMTHOEHE` (**vide**) | **calculer** Z max − Z min | `hauteur` |
+| `NAME_KOMPLETT` | vide → `NULL` | `nom` |
+| triangles 3D (TIN) | **2D + fusion** par bâtiment | MultiPolygon |
+| feuille 1203 (3'094 bât.) | **filtrer** sur la tuile | 405 bâtiments |
+
+Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
+
+---
+
+## ▶ Mini-ETL dans le navigateur
+
+- 5 **vrais** bâtiments sources (allemand, hauteur vide)
+- Choisir une **règle** par champ cible + table de **traduction** des valeurs
+- « Exécuter » → table cible + **erreurs** (obligatoire vide, valeur hors liste, texte dans un nombre)
+- Itérer jusqu'à **0 erreur**
+
+▶ [Ouvrir le mini-ETL](https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/#fil-rouge-le-schema-mapping-de-la-couche-batiments)
+
+---
+
 <!-- _class: exercice -->
 
 # Exercice : Schema mapping
 
 [Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex08-schema-mapping/)
+
+---
+
+## ▶ Exercice Normat en ligne
+
+- 53 désignations vaudoises → 28 types principaux
+- Signale les **regroupements** (n → 1 = perte d'information)
+- Export **CSV** `att_name_in;att_value_in;att_name_out;att_value_out`
+
+▶ [Faire l'exercice en ligne](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex08-schema-mapping/#version-en-ligne)
 
 ---
 
@@ -227,6 +272,32 @@ interfaces = n × (n − 1) / 2
 - MO : numéro de **PFP3** unique… **par commune**
 - Base centrale → même numéro plusieurs fois !
 - Solution : **domaine de numérotation** + numéro = identifiant unique
+
+---
+
+## ▶ Simulateur d'incompatibilités
+
+- **Texte → numérique** : `12a` dans un champ entier ? 3 stratégies
+- **Identifiants PFP3** : numéro seul (doublons) ou **domaine + numéro**
+- **Polyligne → surface** : tampon autour de l'axe vs surface MO
+
+▶ [Ouvrir le simulateur](https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/#incompatibilites-possibles-lors-dun-transfert)
+
+---
+
+## Échanger aujourd'hui
+
+- **Mises à jour incrémentales** : seulement les objets créés, modifiés, supprimés (INTERLIS 2 : `TID`, `BID`)
+- **Portails, STAC, API** : un fichier à jour, téléchargé au moment voulu
+- **Validation systématique** à la réception (ilivalidator)
+
+---
+
+## ❓ Testez-vous
+
+7 questions : n(n−1)/2, hauteur calculée, sémantique, regroupements, jeu test, PFP3, incrémental
+
+▶ [Faire le quiz](https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/#testez-vous)
 
 ---
 

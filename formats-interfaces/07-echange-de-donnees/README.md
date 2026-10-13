@@ -93,6 +93,10 @@ nombre d'interfaces = n × (n − 1) / 2        (n = nombre de systèmes)
 
 Avec 10 systèmes, il faut déjà **45 interfaces** à développer et à maintenir. Et si un partenaire change de logiciel, il doit refaire ses 9 interfaces !
 
+<div class="demo" data-demo="pivot"></div>
+
+*Faites varier le nombre de systèmes et comparez les deux architectures : le nombre de liaisons point à point croît avec le carré du nombre de systèmes, celui du format pivot reste égal au nombre de systèmes.*
+
 ### Le format pivot : INTERLIS
 
 L'idée d'un **format pivot** (ou format d'échange commun) est que chaque système ne possède qu'**une seule interface**, de et vers ce format. Le nombre d'interfaces devient égal à *n*.
@@ -101,7 +105,7 @@ L'idée d'un **format pivot** (ou format d'échange commun) est que chaque syst�
 
 *Figure : chaque système n'a qu'une interface, vers le format pivot.*
 
-En Suisse, ce rôle est joué par **INTERLIS**, à la fois langage de description de modèles de données et format de transfert. La loi sur la géoinformation (LGéo) et son ordonnance en font le format de référence pour l'échange des géodonnées de base relevant du droit fédéral, notamment la MO (modèle DM.01-AV-CH).
+En Suisse, ce rôle est joué par **INTERLIS**, à la fois langage de description de modèles de données et format de transfert. La législation sur la géoinformation en fait le langage de référence des modèles de géodonnées de base (LGéo art. 5, OGéo art. 9 et 10, OGéo-swisstopo art. 5 ; voir le [chapitre 6](../06-interoperabilite-normes/README.md#le-cadre-legal-suisse-lgeo-modeles-minimaux-interlis)), notamment pour la MO (modèle DM.01-AV-CH).
 
 !!! tip "Pour aller plus loin"
     INTERLIS fait l'objet d'un cours séparé. Retenez ici seulement l'idée : un **modèle commun et un format commun** remplacent une multitude d'accords bilatéraux.
@@ -180,9 +184,41 @@ L'élaboration complète d'une interface nécessite **plusieurs itérations**. A
 !!! tip "Bon réflexe"
     Comptez les objets avant et après la conversion, par classe. Une différence non expliquée signale presque toujours une règle de transformation oubliée ou un filtre trop strict.
 
+Le schema mapping règle avant tout le niveau **sémantique** de l'interopérabilité (voir le [chapitre 6](../06-interoperabilite-normes/README.md#les-niveaux-dinteroperabilite)) : faire en sorte que les deux systèmes donnent **le même sens** aux mêmes données. En pratique, les règles sont saisies dans un outil : l'algorithme **Refactoriser les champs** de QGIS, une requête `ogr2ogr -sql` ou un projet FME (voir le [chapitre 9](../09-reformatage-etl/README.md)).
+
+### 🧵 Fil rouge : le schema mapping de la couche « bâtiments »
+
+La couche `batiments` du fil rouge (chapitre 3) est elle-même le résultat d'un schema mapping, réalisé pour ce cours à partir de **swissBUILDINGS3D 3.0** (couche `Floor`, feuille de carte 1203 Yverdon). Voici les cinq étapes, appliquées pour de vrai :
+
+**1. Analyser les structures.** En ouvrant les données source, on constate que : les géométries sont des **triangles 3D** (TIN), plusieurs par bâtiment ; les attributs sont en **allemand** ; l'attribut de hauteur `GESAMTHOEHE` est **vide** pour tous les objets ; la feuille couvre bien plus que notre kilomètre carré (3'094 bâtiments).
+
+**2. Identifier les règles de transformation.**
+
+| Source : swissBUILDINGS3D (`Floor`) | Règle | Cible : `batiments` |
+|---|---|---|
+| `UUID` | renommer | `uuid` |
+| `OBJEKTART` : `Gebaeude Einzelhaus` / `Hochhaus` / `Im Bau` | **traduire les valeurs** (énumération) | `genre` : Bâtiment / Immeuble de grande hauteur / En construction |
+| `NAME_KOMPLETT` | renommer ; chaîne vide → `NULL` | `nom` |
+| `GESAMTHOEHE` (vide) | **calculer** : altitude max − altitude min de la géométrie 3D | `hauteur` |
+| altitude min de la géométrie 3D | **calculer** | `altitude_sol` |
+| géométrie : triangles 3D | passer en **2D** et **fusionner** les triangles d'un même bâtiment | MultiPolygon 2D, MN95 |
+| feuille 1203 entière | **filtrer** sur la tuile 2538-1180 | 405 bâtiments |
+
+**3. Convertir un jeu de données test.** Les règles ont été appliquées avec GDAL (`ogr2ogr` et une requête SQL) ; c'est en voyant le résultat qu'on a découvert que `GESAMTHOEHE` était vide, ce qui a ajouté une règle de calcul.
+
+**4. Contrôler.** 405 objets en sortie ; hauteurs de 4,7 à 47,3 m (plausible pour Yverdon) ; superposition visuelle avec l'orthophoto (figure du chapitre 3).
+
+**5. Itérer.** Les valeurs de `genre` ont d'abord été laissées en allemand, puis traduites dans une seconde passe.
+
+<div class="demo" data-demo="etl"></div>
+
+*À vous : configurez les règles du mapping pour cinq vrais bâtiments de la tuile, puis exécutez. Le mini-ETL signale les erreurs (champ obligatoire vide, valeur non traduite, texte dans un champ numérique). Les valeurs sources sont réelles (swissBUILDINGS3D, © swisstopo).*
+
 ## Incompatibilités possibles lors d'un transfert
 
 Il est fréquent de rencontrer des incompatibilités en construisant une interface. Voici les cas les plus typiques.
+
+<div class="demo" data-demo="incompat"></div>
 
 ### Texte vs numérique
 
@@ -225,6 +261,18 @@ VD0200000005              1234          → VD0200000005 / 1234   (autre commune
 
 *Valeurs d'exemple ; la structure exacte des identifiants est définie dans le modèle DM.01-AV-CH.*
 
+## Échanger aujourd'hui : quelques évolutions
+
+Les principes de ce chapitre restent valables, mais les pratiques évoluent :
+
+- **Mises à jour incrémentales** : plutôt que de retransmettre tout un jeu de données, on n'envoie que les objets **créés, modifiés ou supprimés** depuis la dernière livraison. INTERLIS 2 le permet grâce aux identifiants stables des objets et des corbeilles de données (`TID`, `BID`).
+- **Téléchargement et API** : de plus en plus de données sont échangées par des **portails de téléchargement**, des **catalogues STAC** et des **API** (voir le [chapitre 8](../08-geoservices/README.md)), qui combinent les avantages des échanges en ligne et hors ligne : on télécharge un fichier à jour au moment où l'on en a besoin.
+- **Validation systématique** : à la réception, les données sont contrôlées automatiquement (par exemple avec **ilivalidator** pour INTERLIS) avant d'être intégrées. Un échange sans contrôle n'est pas un échange fiable.
+
+## Testez-vous
+
+<div class="demo" data-demo="quiz" data-quiz="echange"></div>
+
 ## À retenir
 
 - On distingue les échanges **hors ligne** (copie figée à un instant t) et **en ligne** (accès direct et à jour, mais dépendant du réseau).
@@ -232,6 +280,7 @@ VD0200000005              1234          → VD0200000005 / 1234   (autre commune
 - Une interface se caractérise par le **modèle**, le **format** et le **statut** (*de facto* / *de jure*) des données échangées.
 - Le **schema mapping** établit la correspondance entre modèles : analyser, définir les règles, tester sur un extrait, contrôler (p. ex. avec ilivalidator), itérer.
 - Les incompatibilités typiques concernent les **types d'attributs**, les **types géométriques**, `SURFACE`/`AREA` et les **règles d'intégrité** (identifiants uniques, domaines de numérotation).
+- Le schema mapping règle le niveau **sémantique** : le fil rouge l'a montré (traduction des valeurs, calcul d'un attribut manquant, conversion de la géométrie 3D en 2D).
 
 ## Sources
 
