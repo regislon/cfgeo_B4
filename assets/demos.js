@@ -237,7 +237,269 @@
     apply();
   }
 
-  const demos = { pixels: demoPixels, compression: demoCompression, taille: demoTaille };
+  // ---------------------------------------------------------------- Bibliothèques externes
+  // Chargées uniquement sur les pages qui contiennent une démo cartographique.
+  const LIBS = {
+    maplibreJs: "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js",
+    maplibreCss: "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css",
+    pmtilesJs: "https://unpkg.com/pmtiles@3.2.1/dist/pmtiles.js",
+  };
+
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src="${src}"]`)) return resolve();
+      const s = el("script", { src });
+      s.onload = resolve;
+      s.onerror = () => reject(new Error("impossible de charger " + src));
+      document.head.appendChild(s);
+    });
+  }
+
+  function loadCss(href) {
+    if (!document.querySelector(`link[href="${href}"]`)) document.head.appendChild(el("link", { rel: "stylesheet", href }));
+  }
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  // ---------------------------------------------------------------- PMTiles
+  // Carte MapLibre lisant un fichier PMTiles : limites des tuiles affichées,
+  // journal des tuiles demandées et des requêtes HTTP partielles, mode ralenti.
+  async function demoPmtiles(root) {
+    loadCss(LIBS.maplibreCss);
+    await loadScript(LIBS.maplibreJs);
+    await loadScript(LIBS.pmtilesJs);
+    const url = new URL(root.dataset.src, location.href).href;
+    const fileSize = parseInt(root.dataset.size || "0", 10);
+
+    const mapDiv = el("div", { class: "demo-map" });
+    root.appendChild(mapDiv); // la carte doit être dans la page avant sa création (mesure de la taille)
+    const slow = el("input", { type: "checkbox" });
+    slow.checked = true;
+    const bounds = el("input", { type: "checkbox" });
+    bounds.checked = true;
+    const zoomInfo = el("span", { class: "demo-strong" });
+    const stats = el("div", { class: "demo-stats" });
+    const log = el("ol", { class: "demo-log", reversed: "" });
+    const reset = el("button", { type: "button", class: "demo-btn", text: "Recommencer" });
+
+    let tiles = 0, requests = 0, bytes = 0;
+    const seen = new Set();
+
+    function addLog(html) {
+      const li = el("li", { html });
+      log.prepend(li);
+      while (log.children.length > 60) log.lastChild.remove();
+    }
+    function updateStats() {
+      stats.innerHTML =
+        `<b>${tiles}</b> tuile${tiles > 1 ? "s" : ""} demandée${tiles > 1 ? "s" : ""} · ` +
+        `<b>${requests}</b> requête${requests > 1 ? "s" : ""} HTTP partielle${requests > 1 ? "s" : ""} · ` +
+        `<b>${humanSize(bytes)}</b> téléchargés` +
+        (fileSize ? ` sur ${humanSize(fileSize)} (${fmt((100 * bytes) / fileSize, 0)} % du fichier)` : "");
+    }
+
+    // Source qui journalise chaque lecture d'octets (requête HTTP « Range »)
+    class LoggingSource {
+      constructor(u) { this.inner = new pmtiles.FetchSource(u); }
+      getKey() { return this.inner.getKey(); }
+      async getBytes(offset, length, signal, etag) {
+        const r = await this.inner.getBytes(offset, length, signal, etag);
+        requests++;
+        bytes += r.data.byteLength;
+        addLog(`<span class="demo-req">HTTP Range</span> octets ${fmt(offset)} – ${fmt(offset + length - 1)} (${humanSize(r.data.byteLength)})`);
+        updateStats();
+        return r;
+      }
+    }
+
+    // Un protocole « pmtiles:// » par page ; chaque (re)création de la démo remplace son archive
+    const protocol = new pmtiles.Protocol();
+    const archive = new pmtiles.PMTiles(new LoggingSource(url));
+    protocol.add(archive);
+    if (!maplibregl.__cfgeoHandlers) {
+      maplibregl.__cfgeoHandlers = new Map();
+      maplibregl.addProtocol("pmtiles", async (params, abort) => {
+        const m = params.url.match(/\/(\d+)\/(\d+)\/(\d+)$/);
+        const h = maplibregl.__cfgeoHandlers.get(params.url.replace(/\/\d+\/\d+\/\d+$/, "")) ||
+          maplibregl.__cfgeoHandlers.get(params.url);
+        if (m && h) await h.onTile(+m[1], +m[2], +m[3]);
+        return (h ? h.protocol : protocol).tile(params, abort);
+      });
+    }
+    maplibregl.__cfgeoHandlers.set("pmtiles://" + url, {
+      protocol,
+      onTile: async (z, x, y) => {
+        const key = `${z}/${x}/${y}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          tiles++;
+          addLog(`<span class="demo-tile">Tuile</span> z ${z} · x ${x} · y ${y}`);
+          updateStats();
+        }
+        if (slow.checked) await sleep(350);
+      },
+    });
+
+    const header = await archive.getHeader();
+    const center = root.dataset.center
+      ? root.dataset.center.split(",").map(Number)
+      : [(header.minLon + header.maxLon) / 2, (header.minLat + header.maxLat) / 2];
+    const startZoom = parseFloat(root.dataset.zoom || "14");
+
+    const map = new maplibregl.Map({
+      container: mapDiv,
+      center,
+      zoom: startZoom,
+      minZoom: 10,
+      maxZoom: 19,
+      attributionControl: { compact: true },
+      style: {
+        version: 8,
+        sources: {
+          fond: {
+            type: "raster",
+            tiles: ["https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-grau/default/current/3857/{z}/{x}/{y}.jpeg"],
+            tileSize: 256,
+            attribution: "© swisstopo",
+          },
+          fr: { type: "vector", url: "pmtiles://" + url, attribution: "swissBUILDINGS3D, swissTLM3D, OFT © swisstopo" },
+        },
+        layers: [
+          { id: "fond", type: "raster", source: "fond", paint: { "raster-opacity": 0.3 } },
+          { id: "commune", type: "line", source: "fr", "source-layer": "commune", paint: { "line-color": "#6a3d9a", "line-width": 2, "line-dasharray": [3, 2] } },
+          { id: "routes", type: "line", source: "fr", "source-layer": "routes", paint: { "line-color": "#555", "line-width": ["interpolate", ["linear"], ["zoom"], 13, 0.8, 18, 4] } },
+          {
+            id: "batiments", type: "fill", source: "fr", "source-layer": "batiments",
+            paint: {
+              "fill-color": ["interpolate", ["linear"], ["coalesce", ["get", "hauteur"], 8], 5, "#fdd49e", 15, "#ef6548", 30, "#990000"],
+              "fill-outline-color": "#7f0000",
+            },
+          },
+          { id: "arrets", type: "circle", source: "fr", "source-layer": "arrets_tp", paint: { "circle-radius": 6, "circle-color": "#2166ac", "circle-stroke-color": "#fff", "circle-stroke-width": 2 } },
+          { id: "tuile", type: "line", source: "fr", "source-layer": "tuile", paint: { "line-color": "#00796b", "line-width": 3 } },
+        ],
+      },
+    });
+    map.showTileBoundaries = true;
+    // Attribution repliée au départ (MapLibre l'ouvre par défaut en mode compact)
+    map.on("load", () => mapDiv.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show"));
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }));
+
+    const showZoom = () => { zoomInfo.textContent = "niveau de zoom " + fmt(map.getZoom(), 1); };
+    map.on("zoom", showZoom);
+    map.on("click", "batiments", (e) => {
+      const p = e.features[0].properties;
+      new maplibregl.Popup()
+        .setLngLat(e.lngLat)
+        .setHTML(`<b>${p.genre || "Bâtiment"}</b>${p.nom ? "<br>" + p.nom : ""}<br>hauteur : ${p.hauteur ? fmt(+p.hauteur, 1) + " m" : "?"}`)
+        .addTo(map);
+    });
+    map.on("mouseenter", "batiments", () => { map.getCanvas().style.cursor = "pointer"; });
+    map.on("mouseleave", "batiments", () => { map.getCanvas().style.cursor = ""; });
+    bounds.addEventListener("change", () => { map.showTileBoundaries = bounds.checked; });
+
+    // Recommencer = nouvelle carte et nouvelle archive : le cache est vide, tout est relu
+    reset.addEventListener("click", () => {
+      map.remove();
+      root.querySelectorAll(":scope > :not(.demo-keep)").forEach((n) => n.remove());
+      demoPmtiles(root);
+    });
+
+    showZoom();
+    updateStats();
+    root.append(
+      el("div", { class: "demo-row" }, [
+        el("label", {}, [slow, el("span", { text: " Ralentir le chargement" })]),
+        el("label", {}, [bounds, el("span", { text: " Afficher les limites des tuiles" })]),
+        reset,
+        zoomInfo,
+      ]),
+      stats,
+      el("details", { class: "demo-details", open: "" }, [el("summary", { text: "Journal : tuiles et requêtes HTTP (la plus récente en haut)" }), log])
+    );
+  }
+
+  // ---------------------------------------------------------------- Quiz
+  const QUIZZES = {
+    "formats-vecteur": [
+      {
+        q: "Vous envoyez un plan de situation à un bureau d'architectes qui travaille avec AutoCAD.",
+        a: ["DXF", "GeoPackage", "GeoParquet", "PMTiles"], ok: 0,
+        e: "DXF est le format d'échange du monde DAO/CAO. Attention : il ne transmet ni système de coordonnées, ni vraie table d'attributs.",
+      },
+      {
+        q: "Vous transmettez à un collègue les couches d'un projet QGIS (bâtiments, routes, arrêts) pour qu'il continue le travail.",
+        a: ["Shapefile", "GeoPackage", "KML", "CSV"], ok: 1,
+        e: "Un seul fichier, plusieurs couches, système de coordonnées inclus, aucune limite sur les noms de champs : GeoPackage est le format de travail courant.",
+      },
+      {
+        q: "Un développeur web veut afficher une cinquantaine d'arrêts de bus sur la carte de son site, en JavaScript.",
+        a: ["GML", "INTERLIS", "GeoJSON", "File Geodatabase"], ok: 2,
+        e: "GeoJSON est lu nativement par les navigateurs et les bibliothèques web. Pour un petit jeu de données, sa lourdeur n'est pas un problème.",
+      },
+      {
+        q: "Vous livrez au canton des données de la mensuration officielle.",
+        a: ["GeoPackage", "DXF", "Shapefile", "INTERLIS"], ok: 3,
+        e: "Pour les géodonnées de base en Suisse, la législation impose un modèle de données décrit en INTERLIS et un transfert dans ce format.",
+      },
+      {
+        q: "Vous voulez publier une carte web interactive des 3 millions de bâtiments de Suisse, sans installer de serveur cartographique.",
+        a: ["GeoJSON", "PMTiles", "KML", "GeoPackage"], ok: 1,
+        e: "PMTiles contient des tuiles vectorielles prêtes à afficher, lues par morceaux sur un simple serveur web. Rappel : ce sont des données pour l'affichage, simplifiées selon le zoom.",
+      },
+      {
+        q: "Un analyste veut calculer la surface bâtie moyenne par commune sur ces 3 millions de bâtiments, avec des requêtes SQL.",
+        a: ["GeoParquet", "PMTiles", "KML", "DXF"], ok: 0,
+        e: "GeoParquet stocke les données par colonnes et compressées : idéal pour l'analyse de gros volumes avec DuckDB, Python ou d'autres outils de données.",
+      },
+      {
+        q: "Un client veut visualiser le tracé de sa randonnée dans Google Earth.",
+        a: ["GeoParquet", "KML / KMZ", "INTERLIS", "FlatGeobuf"], ok: 1,
+        e: "KML est le format natif de Google Earth (standard OGC). Les coordonnées doivent être en WGS84.",
+      },
+      {
+        q: "Votre partenaire utilise un ancien logiciel qui ne lit que « le format SIG classique ».",
+        a: ["Shapefile", "GeoParquet", "PMTiles", "GeoPackage"], ok: 0,
+        e: "Le Shapefile reste le plus petit dénominateur commun. Pensez à envoyer tous les fichiers (.shp, .shx, .dbf, .prj, .cpg) et vérifiez les noms de champs (10 caractères).",
+      },
+    ],
+  };
+
+  function demoQuiz(root) {
+    const qs = QUIZZES[root.dataset.quiz] || [];
+    let answered = 0, good = 0;
+    const score = el("div", { class: "demo-stats" });
+    const showScore = () => {
+      score.innerHTML = answered < qs.length
+        ? `Réponses : ${answered} / ${qs.length}`
+        : `<b>Score : ${good} / ${qs.length}</b>${good === qs.length ? " — parfait !" : ""}`;
+    };
+    qs.forEach((item, i) => {
+      const box = el("div", { class: "demo-quiz-q" });
+      const fb = el("div", { class: "demo-quiz-fb" });
+      const btns = item.a.map((label, k) => {
+        const b = el("button", { type: "button", class: "demo-btn", text: label });
+        b.addEventListener("click", () => {
+          if (box.dataset.done) return;
+          box.dataset.done = "1";
+          answered++;
+          const right = k === item.ok;
+          if (right) good++;
+          b.classList.add(right ? "demo-ok" : "demo-ko");
+          btns[item.ok].classList.add("demo-ok");
+          fb.innerHTML = (right ? "✅ " : "❌ ") + item.e;
+          showScore();
+        });
+        return b;
+      });
+      box.append(el("p", { html: `<b>${i + 1}.</b> ${item.q}` }), el("div", { class: "demo-row" }, btns), fb);
+      root.appendChild(box);
+    });
+    root.appendChild(score);
+    showScore();
+  }
+
+  const demos = { pixels: demoPixels, compression: demoCompression, taille: demoTaille, pmtiles: demoPmtiles, quiz: demoQuiz };
 
   function init() {
     document.querySelectorAll(".demo[data-demo]").forEach((root) => {

@@ -10,7 +10,7 @@
 - Comparer les familles de stockage (fichier simple, multiple, base de données)
 - Distinguer codage binaire, texte (ASCII) et XML/JSON d'un format vectoriel
 - Citer les caractéristiques et limites des principaux formats (DXF, Shapefile, GeoPackage, GeoJSON, KML, GML, FlatGeobuf, GeoParquet, PMTiles…)
-- Savoir quels formats GDAL lit et écrit, et qui les définit (OGC, ISO, IETF, éditeurs, communautés)
+- Savoir qui définit les formats (OGC, ISO, IETF, éditeurs, communautés) et pourquoi GDAL les rend lisibles dans la plupart des logiciels
 - Anticiper les pertes d'information lors d'une conversion
 - Choisir entre vecteur et raster selon le besoin
 
@@ -24,6 +24,27 @@ Les logiciels de DAO/CAO (AutoCAD, par exemple) comme les SIG (QGIS, ArcGIS) rep
 
     Par abus de langage, on parle parfois du « format vecteur ». L'expression est incorrecte : il existe de **très nombreux formats** capables de décrire des données vectorielles, chacun avec ses possibilités et ses limites.
 
+## Fil rouge : le même kilomètre carré, en vecteur
+
+Au [chapitre 2](../02-raster/README.md#fil-rouge-un-kilometre-carre-a-yverdon-les-bains), nous avons décrit la tuile **2538-1180**, à Yverdon-les-Bains, avec des **pixels**. Décrivons maintenant le même territoire avec des **objets**.
+
+![Le kilomètre carré d'Yverdon en vecteur : bâtiments en rouge, routes en gris, arrêts de bus en bleu, seuls puis superposés à l'orthophoto](img/fil-rouge-vecteur.png){ width="340" } ![Les mêmes objets superposés à l'orthophoto SWISSIMAGE](img/fil-rouge-vecteur-sur-ortho.jpg){ width="340" }
+
+*La tuile 2538-1180 en vecteur, seule puis superposée à l'orthophoto du chapitre 2. Sources : swissBUILDINGS3D 3.0, swissTLM3D, arrêts des transports publics (OFT), SWISSIMAGE, © swisstopo.*
+
+| Couche | Primitive | Objets | Attributs (exemples) | Source |
+|---|---|---|---|---|
+| `arrets_tp` | **point** | 6 | nom, moyen de transport | Office fédéral des transports, via geo.admin.ch |
+| `routes` | **ligne** | 309 | nom de rue, type de route | swissTLM3D, via l'API geo.admin.ch |
+| `batiments` | **surface** | 405 | genre, nom, hauteur, altitude au sol | swissBUILDINGS3D 3.0 (emprise au sol) |
+| `commune` | **surface** | 1 | n° OFS, nom, habitants | swissBOUNDARIES3D |
+| `tuile` | **surface** | 1 | nom | emprise de la tuile 2538-1180 |
+
+Toutes ces couches sont réunies dans **un seul fichier** GeoPackage : [`yverdon_2538-1180.gpkg`](donnees/yverdon_2538-1180.gpkg) (440 Ko). Ouvrez-le dans QGIS, ou sans installation dans [GeoLibre](https://web.geolibre.app) (*Add Data › Vector Layer*).
+
+!!! note "Comment ce jeu de données a été préparé"
+    Il illustre lui-même le contenu du cours : les bâtiments proviennent d'un modèle **3D** (planchers en triangles) ramené en **2D** et fusionné par bâtiment ; leur **hauteur** a été calculée à partir de la géométrie 3D (altitude maximale moins altitude minimale) ; les routes et arrêts ont été obtenus par une requête à l'**API de geo.admin.ch** puis **découpés** selon la tuile ; le tout a été converti et réuni avec GDAL (`ogr2ogr`).
+
 ## Primitives et géométries
 
 ### Les primitives de base
@@ -33,6 +54,9 @@ Tous les objets vectoriels sont construits à partir de **primitives géométriq
 - le **point** (une paire ou un triplet de coordonnées) ;
 - la **ligne** (polyligne), suite de points reliés par des segments ;
 - la **surface** (polygone), délimitée par une ligne fermée, avec d'éventuels trous (îlots).
+
+!!! example "🧵 Fil rouge : les trois primitives"
+    Les **arrêts de bus** sont des points, les **routes** des lignes, les **bâtiments** des surfaces. Le choix de la primitive est une décision de **modélisation** : à une autre échelle, un bâtiment pourrait n'être qu'un point (une adresse), et une route une surface (la chaussée de la mensuration officielle).
 
 Selon les formats et les logiciels, on trouve aussi des géométries plus complexes : **arcs de cercle**, courbes de Bézier, splines, ainsi que des **géométries multiples** (un objet composé de plusieurs parties, par exemple une commune constituée de plusieurs enclaves). Les coordonnées peuvent porter une altitude **Z** et une valeur de mesure **M**.
 
@@ -78,6 +102,9 @@ Les changements de format représentent souvent une part importante du travail e
 
 Contrairement au raster, qui ne stocke qu'une valeur par pixel et par bande, un objet vectoriel peut porter un **nombre quelconque d'attributs** en plus de sa géométrie (numéro de parcelle, propriétaire, surface, date…). Il est aussi possible de lier aux objets des données stockées dans d'autres tables.
 
+!!! example "🧵 Fil rouge : les attributs d'un bâtiment"
+    Chaque bâtiment porte un **genre** (bâtiment, immeuble de grande hauteur, en construction), parfois un **nom** (« Salle omnisports des Isles »), une **hauteur** et une **altitude au sol**. Le plus haut bâtiment de la tuile est un immeuble de grande hauteur de **47,3 m**. Comparez : au chapitre 2, l'orthophoto ne permettait de connaître que la **couleur** de chaque toit.
+
 L'organisation du stockage peut prendre des formes très différentes selon le niveau d'exigence. On distingue les catégories suivantes, par ordre croissant de complexité :
 
 | Catégorie | Caractéristiques | Exemples |
@@ -116,35 +143,25 @@ Derrière chaque format, il y a un **responsable** qui en publie (ou non) la sp�
 
 Un standard de jure ou communautaire est **publié et ouvert** : n'importe qui peut écrire un logiciel qui le lit. Un format d'éditeur peut être bien documenté (Shapefile, DXF), partiellement documenté, ou fermé (File Geodatabase, dont la lecture repose sur un travail de rétro-ingénierie).
 
-## GDAL, le traducteur universel
+## GDAL, le moteur caché des logiciels
 
-**GDAL** (*Geospatial Data Abstraction Library*, avec sa partie vecteur historiquement appelée **OGR**) est une bibliothèque libre qui sait lire et écrire **plus de 200 formats** raster et vecteur. Elle est au cœur de la plupart des logiciels de géomatique : **QGIS**, **GeoLibre**, **PostGIS**, les bibliothèques Python (GeoPandas, rasterio), et elle est utilisée en partie par ArcGIS et FME.
+On n'utilise presque jamais **GDAL** directement, mais on s'en sert tous les jours sans le savoir. GDAL (*Geospatial Data Abstraction Library*) est une **bibliothèque libre** : un composant logiciel qui sait lire et écrire **plus de 200 formats** raster et vecteur.
 
-Chaque format est géré par un **pilote** (*driver*). La commande `ogrinfo --formats` liste les pilotes vecteur disponibles et leurs capacités :
+Plutôt que de programmer eux-mêmes la lecture de chaque format, la plupart des logiciels de géomatique **intègrent GDAL** :
 
-```text
-$ ogrinfo --formats
-  ESRI Shapefile -vector- (rw+uv): ESRI Shapefile (*.shp, *.dbf, *.shz, *.shp.zip)
-  GPKG -raster,vector- (rw+uvs): GeoPackage (*.gpkg, *.gpkg.zip)
-  FlatGeobuf -vector- (rw+v): FlatGeobuf (*.fgb)
-  Parquet -vector- (rw+v): (Geo)Parquet (*.parquet)
-  PMTiles -vector- (rw+v): ProtoMap Tiles (*.pmtiles)
-  Interlis 2 -vector- (rov): Interlis 2 (*.xtf, *.xml, *.ili)
-  ...
-```
-
-| Lettre | Signification |
+| Logiciel | Type |
 |---|---|
-| `r` | lecture (*read*) |
-| `w` | écriture (*write*) |
-| `+` | mise à jour d'un fichier existant |
-| `v` | lecture via des chemins virtuels (fichier sur le web, dans un zip…) |
-| `o` | ouverture directe d'un fichier |
+| **QGIS** | SIG de bureau |
+| **GRASS GIS**, **SAGA** | SIG de bureau, analyse |
+| **ArcGIS Pro** (en partie) | SIG de bureau |
+| **GeoLibre** | SIG dans le navigateur |
+| **MapServer**, **GeoServer** (via une extension) | serveurs cartographiques (WMS, WFS) |
+| **PostGIS** (pour le raster) | base de données spatiale |
+| **GeoPandas**, **rasterio** (Python), **sf**, **terra** (R) | programmation |
+| **OpenDroneMap**, **FME** (certains lecteurs)… | et bien d'autres |
 
-!!! note "INTERLIS et GDAL"
-    Dans les versions récentes de GDAL (3.11), les pilotes INTERLIS sont en **lecture seule** (`rov`). Pour produire des fichiers INTERLIS, on utilise les outils dédiés, comme **ili2db** (voir [chapitre 9](../09-reformatage-etl/README.md#outils-interlis-ili2db-ilivalidator)).
-
-Savoir qu'un format est géré par GDAL est donc très pratique : cela garantit qu'il est utilisable dans la grande majorité des logiciels, et qu'on peut le convertir avec `ogr2ogr` (voir [chapitre 9](../09-reformatage-etl/README.md)).
+!!! tip "Ce qu'il faut retenir"
+    Si un format est géré par GDAL, il s'ouvrira dans **presque tous** ces logiciels. C'est pour cela que QGIS, GeoLibre ou GeoServer acceptent tous à peu près les mêmes formats : ils partagent le même « moteur ». À l'inverse, un format que GDAL ne sait pas écrire (comme INTERLIS, en lecture seule) nécessite des **outils spécialisés** (voir [chapitre 9](../09-reformatage-etl/README.md)).
 
 ## Les principaux formats vectoriels
 
@@ -207,6 +224,9 @@ Un « shapefile » est en réalité un **ensemble de fichiers** portant le même
     - Problèmes d'**encodage** des caractères accentués si le `.cpg` est absent.
 
     Pour ces raisons, on lui préfère aujourd'hui le **GeoPackage** pour le travail courant.
+
+!!! example "🧵 Fil rouge : un GeoPackage ou vingt fichiers ?"
+    Le fil rouge tient dans **un seul** GeoPackage de 440 Ko. Exporté en Shapefile, il devient **5 shapefiles** (un par couche, puisqu'un shapefile n'accepte qu'un type de géométrie) et **20 fichiers** au total. Il suffit d'en oublier un en l'envoyant…
 
 ### GeoPackage
 
@@ -314,6 +334,11 @@ Avec l'augmentation des volumes et la généralisation du stockage dans le cloud
 !!! tip "Formats « cloud-native »"
     Ces formats, comme le COG pour le raster, sont conçus pour être **lus directement sur un serveur web, par morceaux**, sans télécharger tout le fichier. Leur diffusion et leur utilisation en ligne sont traitées au [chapitre 8](../08-geoservices/README.md#formats-cloud-native-lire-sans-tout-telecharger).
 
+<div class="demo" data-demo="pmtiles" data-src="donnees/yverdon_2538-1180.pmtiles" data-size="465499" data-center="6.6343,46.7741" data-zoom="15"></div>
+
+*🧵 Fil rouge en PMTiles ([`yverdon_2538-1180.pmtiles`](donnees/yverdon_2538-1180.pmtiles), 465 Ko, zooms 10 à 18). Les lignes rouges montrent la **grille des tuiles** ; le journal liste chaque tuile demandée et chaque **requête HTTP partielle** envoyée au serveur. Zoomez et déplacez la carte : seules les tuiles visibles sont téléchargées. Dézoomez au niveau 10 : que deviennent les bâtiments ? Cliquez sur un bâtiment pour voir ses attributs. Fond : carte nationale, © swisstopo.*
+
+
 !!! example "🧪 Un même jeu de données, plusieurs formats"
 
     Les **300 communes du canton de Vaud** (swissBOUNDARIES3D, état 2026, © swisstopo), exportées avec GDAL (`ogr2ogr`) dans plusieurs formats. Les données sont identiques : seul le format change.
@@ -342,10 +367,10 @@ Avec l'augmentation des volumes et la généralisation du stockage dans le cloud
 
 ## Synthèse : GDAL, normalisation et capacités
 
-| Format | Extension | GDAL | Défini par | OGC |
+| Format | Extension | Lisible dans QGIS & co (GDAL) | Défini par | OGC |
 |---|---|---|---|---|
 | Shapefile | `.shp` + `.shx` + `.dbf`… | ✅ lecture / écriture | Esri (1998), standard de fait | ❌ |
-| File Geodatabase | dossier `.gdb` | ✅ lecture / écriture (pilote OpenFileGDB) | Esri, format fermé | ❌ |
+| File Geodatabase | dossier `.gdb` | ✅ lecture / écriture | Esri, format fermé | ❌ |
 | DXF | `.dxf` | ✅ lecture / écriture | Autodesk, standard de fait | ❌ |
 | GeoPackage | `.gpkg` | ✅ lecture / écriture | OGC (2014) | ✅ |
 | GML | `.gml` + `.xsd` | ✅ lecture / écriture | OGC, ISO 19136 | ✅ |
@@ -353,12 +378,12 @@ Avec l'augmentation des volumes et la généralisation du stockage dans le cloud
 | GeoJSON | `.geojson`, `.json` | ✅ lecture / écriture | IETF (RFC 7946) | ❌ (mais utilisé par OGC API) |
 | CSV + WKT | `.csv` | ✅ lecture / écriture | — (WKT : OGC Simple Features) | 〰️ |
 | GPX | `.gpx` | ✅ lecture / écriture | Topografix | ❌ |
-| INTERLIS 1 / 2 | `.itf`, `.xtf` + `.ili` | ⚠️ lecture seule | SNV / eCH (norme suisse) | ❌ |
+| INTERLIS 1 / 2 | `.itf`, `.xtf` + `.ili` | ⚠️ lecture seule (écriture : ili2db) | SNV / eCH (norme suisse) | ❌ |
 | FlatGeobuf | `.fgb` | ✅ lecture / écriture | Communauté libre | ❌ |
 | GeoParquet | `.parquet` | ✅ lecture / écriture | Groupe de travail OGC | 🟡 en cours |
-| PMTiles | `.pmtiles` | ✅ lecture / écriture (GDAL ≥ 3.8) | Protomaps, communauté libre | ❌ |
+| PMTiles | `.pmtiles` | ✅ lecture / écriture | Protomaps, communauté libre | ❌ |
 
-*Capacités GDAL relevées avec `ogrinfo --formats` (GDAL 3.11).*
+*Selon GDAL 3.11.*
 
 | Format | Fichiers | Couches par fichier | Système de coordonnées | Noms de champs | Index spatial | Codage | Modifiable |
 |---|---|---|---|---|---|---|---|
@@ -397,6 +422,9 @@ Avec l'augmentation des volumes et la généralisation du stockage dans le cloud
 | Carte web sans serveur cartographique | PMTiles |
 | Analyse de très gros volumes, cloud | GeoParquet |
 | Données multi-utilisateurs, centralisées | Base de données spatiale (PostGIS) |
+
+<div class="demo" data-demo="quiz" data-quiz="formats-vecteur"></div>
+
 
 ## Vecteur vs raster
 

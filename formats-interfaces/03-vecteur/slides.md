@@ -24,6 +24,28 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+## 🧵 Fil rouge : le même km², en vecteur
+
+![w:420](img/fil-rouge-vecteur.png) ![w:420](img/fil-rouge-vecteur-sur-ortho.jpg)
+
+Tuile 2538-1180 (Yverdon) · chapitre 2 : des **pixels** → ici : des **objets**
+
+---
+
+## 🧵 Un GeoPackage, cinq couches
+
+| Couche | Primitive | Objets | Attributs |
+|---|---|---|---|
+| `arrets_tp` | point | 6 | nom, moyen de transport |
+| `routes` | ligne | 309 | nom de rue, type |
+| `batiments` | surface | 405 | genre, nom, **hauteur** |
+| `commune` | surface | 1 | n° OFS, habitants |
+| `tuile` | surface | 1 | nom |
+
+`yverdon_2538-1180.gpkg` · 440 Ko · en Shapefile : **20 fichiers**
+
+---
+
 <!-- _class: lead -->
 
 # Géométries et attributs
@@ -104,19 +126,13 @@ Complexité et possibilités (relations, multi-utilisateurs) croissantes ↓
 
 ---
 
-## GDAL, le traducteur universel
+## GDAL, le moteur caché des logiciels
 
-- Bibliothèque libre, **200+ formats** raster et vecteur
-- Au cœur de **QGIS**, GeoLibre, PostGIS, GeoPandas…
-- Un **pilote** (*driver*) par format · `ogrinfo --formats`
-
-```text
-GPKG       (rw+uvs)   FlatGeobuf (rw+v)   Parquet (rw+v)
-PMTiles    (rw+v)     Interlis 2 (rov)  ← lecture seule !
-```
-
-`r` lecture · `w` écriture · `+` mise à jour · `v` fichier distant / zip
-
+- Bibliothèque libre qui lit et écrit **200+ formats**
+- **Intégrée** dans : QGIS · GRASS · SAGA · ArcGIS Pro (en partie) · GeoLibre · MapServer · GeoServer · PostGIS · GeoPandas · R…
+- → ces logiciels lisent **les mêmes formats**
+- Format géré par GDAL = s'ouvre **presque partout**
+- INTERLIS : lecture seule → écriture avec **ili2db**
 ---
 
 <!-- _class: lead -->
@@ -227,6 +243,17 @@ AC1018
 
 ---
 
+## ▶ Démo : le fil rouge en PMTiles
+
+- Carte interactive sur le site : **grille des tuiles** visible
+- Journal : chaque **tuile** demandée, chaque **requête HTTP partielle**
+- Mode ralenti : les tuiles arrivent **par lots**
+- À l'ouverture : ~50 Ko lus sur 465 Ko (**11 %** du fichier)
+
+▶ [Ouvrir la démo](https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/#formats-recents-flatgeobuf-geoparquet-et-pmtiles)
+
+---
+
 ## 🧪 Un jeu de données, plusieurs formats
 
 300 communes vaudoises (swissBOUNDARIES3D 2026)
@@ -279,6 +306,14 @@ Shapefile : `einwohnerzahl` → `einwohnerz` · À ouvrir dans QGIS ou **GeoLibr
 | Gros volumes web / analyse | FlatGeobuf / GeoParquet |
 | Carte web sans serveur | PMTiles |
 | Multi-utilisateurs | PostGIS |
+
+---
+
+## ❓ Quiz : quel format choisir ?
+
+8 situations concrètes : architecte, collègue QGIS, site web, mensuration officielle, carte de 3 millions de bâtiments, analyse SQL, Google Earth, ancien logiciel…
+
+▶ [Faire le quiz sur le site](https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/#quel-format-choisir)
 
 ---
 
