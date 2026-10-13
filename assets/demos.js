@@ -283,7 +283,10 @@
     const reset = el("button", { type: "button", class: "demo-btn", text: "Recommencer" });
 
     let tiles = 0, requests = 0, bytes = 0;
-    const seen = new Set();
+    const seen = new Set();      // tuiles chargées (z/x/y)
+    const pending = new Set();   // tuiles demandées, en attente
+    const SLOW_MS = 2000;
+    let queue = Promise.resolve();
 
     function addLog(html) {
       const li = el("li", { html });
@@ -330,23 +333,80 @@
       protocol,
       onTile: async (z, x, y) => {
         const key = `${z}/${x}/${y}`;
+        if (!seen.has(key)) { pending.add(key); updateGrid(); }
+        // Mode ralenti : les tuiles passent une par une dans une file, une toutes les 2 secondes
+        if (slow.checked) {
+          const turn = queue.then(() => sleep(SLOW_MS));
+          queue = turn;
+          await turn;
+        }
+        pending.delete(key);
         if (!seen.has(key)) {
           seen.add(key);
           tiles++;
           addLog(`<span class="demo-tile">Tuile</span> z ${z} · x ${x} · y ${y}`);
           updateStats();
         }
-        if (slow.checked) await sleep(350);
+        updateGrid();
       },
     });
 
     const header = await archive.getHeader();
+
+    // Grille des tuiles dessinée par nos soins (plus visible que la grille de débogage de MapLibre)
+    const lon2x = (lon, z) => Math.floor(((lon + 180) / 360) * 2 ** z);
+    const lat2y = (lat, z) => {
+      const r = (lat * Math.PI) / 180;
+      return Math.floor(((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * 2 ** z);
+    };
+    const x2lon = (x, z) => (x / 2 ** z) * 360 - 180;
+    const y2lat = (y, z) => {
+      const n = Math.PI - (2 * Math.PI * y) / 2 ** z;
+      return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+    };
+    let map = null;
+    const labels = new Map();
+    function updateGrid() {
+      if (!map || !map.getSource("grille")) return;
+      const show = bounds.checked;
+      // Les tuiles vectorielles font 512 px : niveau de tuile = partie entière du zoom, limité au contenu du fichier
+      const z = Math.min(header.maxZoom, Math.max(header.minZoom, Math.floor(map.getZoom())));
+      const b = map.getBounds();
+      const w = Math.max(b.getWest(), header.minLon), e = Math.min(b.getEast(), header.maxLon);
+      const s = Math.max(b.getSouth(), header.minLat), n = Math.min(b.getNorth(), header.maxLat);
+      const feats = [];
+      const keep = new Set();
+      if (show && w < e && s < n) {
+        for (let x = lon2x(w, z); x <= lon2x(e, z); x++) {
+          for (let y = lat2y(n, z); y <= lat2y(s, z); y++) {
+            const key = `${z}/${x}/${y}`;
+            const etat = seen.has(key) ? "chargee" : pending.has(key) ? "attente" : "vide";
+            const [x0, x1, y0, y1] = [x2lon(x, z), x2lon(x + 1, z), y2lat(y, z), y2lat(y + 1, z)];
+            feats.push({
+              type: "Feature",
+              properties: { etat },
+              geometry: { type: "Polygon", coordinates: [[[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]] },
+            });
+            keep.add(key);
+            if (!labels.has(key)) {
+              const div = el("div", { class: "demo-tile-label" });
+              labels.set(key, { div, marker: new maplibregl.Marker({ element: div, anchor: "top-left" }).setLngLat([x0, y0]).addTo(map) });
+            }
+            const lab = labels.get(key);
+            lab.div.textContent = `${key}${etat === "attente" ? " ⏳" : etat === "chargee" ? " ✓" : ""}`;
+            lab.div.dataset.etat = etat;
+          }
+        }
+      }
+      for (const [key, lab] of labels) if (!keep.has(key)) { lab.marker.remove(); labels.delete(key); }
+      map.getSource("grille").setData({ type: "FeatureCollection", features: feats });
+    }
     const center = root.dataset.center
       ? root.dataset.center.split(",").map(Number)
       : [(header.minLon + header.maxLon) / 2, (header.minLat + header.maxLat) / 2];
     const startZoom = parseFloat(root.dataset.zoom || "14");
 
-    const map = new maplibregl.Map({
+    map = new maplibregl.Map({
       container: mapDiv,
       center,
       zoom: startZoom,
@@ -363,9 +423,17 @@
             attribution: "© swisstopo",
           },
           fr: { type: "vector", url: "pmtiles://" + url, attribution: "swissBUILDINGS3D, swissTLM3D, OFT © swisstopo" },
+          grille: { type: "geojson", data: { type: "FeatureCollection", features: [] } },
         },
         layers: [
           { id: "fond", type: "raster", source: "fond", paint: { "raster-opacity": 0.3 } },
+          {
+            id: "grille-fond", type: "fill", source: "grille",
+            paint: {
+              "fill-color": ["match", ["get", "etat"], "chargee", "#2e7d32", "attente", "#ff9800", "#000000"],
+              "fill-opacity": ["match", ["get", "etat"], "chargee", 0.15, "attente", 0.35, 0],
+            },
+          },
           { id: "commune", type: "line", source: "fr", "source-layer": "commune", paint: { "line-color": "#6a3d9a", "line-width": 2, "line-dasharray": [3, 2] } },
           { id: "routes", type: "line", source: "fr", "source-layer": "routes", paint: { "line-color": "#555", "line-width": ["interpolate", ["linear"], ["zoom"], 13, 0.8, 18, 4] } },
           {
@@ -377,10 +445,19 @@
           },
           { id: "arrets", type: "circle", source: "fr", "source-layer": "arrets_tp", paint: { "circle-radius": 6, "circle-color": "#2166ac", "circle-stroke-color": "#fff", "circle-stroke-width": 2 } },
           { id: "tuile", type: "line", source: "fr", "source-layer": "tuile", paint: { "line-color": "#00796b", "line-width": 3 } },
+          { id: "grille-liseré", type: "line", source: "grille", paint: { "line-color": "#ffffff", "line-width": 8 } },
+          {
+            id: "grille-bord", type: "line", source: "grille",
+            paint: {
+              "line-color": ["match", ["get", "etat"], "attente", "#e65100", "chargee", "#2e7d32", "#c62828"],
+              "line-width": 4,
+            },
+          },
         ],
       },
     });
-    map.showTileBoundaries = true;
+    map.on("load", updateGrid);
+    map.on("moveend", updateGrid);
     // Attribution repliée au départ (MapLibre l'ouvre par défaut en mode compact)
     map.on("load", () => mapDiv.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show"));
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }));
@@ -396,7 +473,7 @@
     });
     map.on("mouseenter", "batiments", () => { map.getCanvas().style.cursor = "pointer"; });
     map.on("mouseleave", "batiments", () => { map.getCanvas().style.cursor = ""; });
-    bounds.addEventListener("change", () => { map.showTileBoundaries = bounds.checked; });
+    bounds.addEventListener("change", updateGrid);
 
     // Recommencer = nouvelle carte et nouvelle archive : le cache est vide, tout est relu
     reset.addEventListener("click", () => {
@@ -409,7 +486,7 @@
     updateStats();
     root.append(
       el("div", { class: "demo-row" }, [
-        el("label", {}, [slow, el("span", { text: " Ralentir le chargement" })]),
+        el("label", {}, [slow, el("span", { text: " Ralentir (une tuile toutes les 2 s)" })]),
         el("label", {}, [bounds, el("span", { text: " Afficher les limites des tuiles" })]),
         reset,
         zoomInfo,
@@ -419,8 +496,454 @@
     );
   }
 
+  // ---------------------------------------------------------------- Chapitre 1 : outils
+  const hex2 = (b) => b.toString(16).toUpperCase().padStart(2, "0");
+  const hexBytes = (arr) => Array.from(arr, hex2).join(" ");
+
+  // ---------------------------------------------------------------- Bits
+  // Interrupteurs cliquables : un octet (entier) ou trois octets (couleur RVB).
+  function demoBits(root) {
+    const mode = el("select", {}, [
+      el("option", { value: "1", text: "Un octet (entier de 0 à 255)" }),
+      el("option", { value: "3", text: "Trois octets (couleur RVB)" }),
+    ]);
+    const preset = el("button", { type: "button", class: "demo-btn", text: "🧵 Pixel du fil rouge (#CCD3E6)" });
+    const zero = el("button", { type: "button", class: "demo-btn", text: "Tout à 0" });
+    const grid = el("div", { class: "demo-bits" });
+    const out = el("div", { class: "demo-stats" });
+    const swatch = el("div", { class: "demo-swatch" });
+    let bytes = [42];
+
+    function render() {
+      grid.innerHTML = "";
+      const names = bytes.length === 3 ? ["Rouge", "Vert", "Bleu"] : ["Octet"];
+      bytes.forEach((val, k) => {
+        const row = el("div", { class: "demo-bitrow" }, [el("span", { class: "demo-bitname", text: names[k] })]);
+        for (let i = 7; i >= 0; i--) {
+          const on = (val >> i) & 1;
+          const b = el("button", { type: "button", class: "demo-bit" + (on ? " on" : ""), title: `2^${i} = ${2 ** i}` }, [
+            el("span", { class: "demo-bitval", text: on ? "1" : "0" }),
+            el("span", { class: "demo-bitw", text: String(2 ** i) }),
+          ]);
+          b.addEventListener("click", () => { bytes[k] ^= 1 << i; render(); });
+          row.appendChild(b);
+        }
+        row.appendChild(el("span", { class: "demo-bitres", html: `= <b>${val}</b> · hexa <b>${hex2(val)}</b>` }));
+        grid.appendChild(row);
+      });
+      if (bytes.length === 3) {
+        const [r, g, b] = bytes;
+        swatch.style.background = `rgb(${r},${g},${b})`;
+        out.innerHTML = `Couleur <b>#${hexBytes(bytes).replace(/ /g, "")}</b> · rgb(${r}, ${g}, ${b}) · 3 octets = 24 bits → ${fmt(2 ** 24)} couleurs possibles`;
+      } else {
+        const v = bytes[0];
+        swatch.style.background = `rgb(${v},${v},${v})`;
+        out.innerHTML = `Binaire <b>${v.toString(2).padStart(8, "0")}</b> = décimal <b>${v}</b> = hexa <b>${hex2(v)}</b> · comme niveau de gris : ${v === 0 ? "noir" : v === 255 ? "blanc" : "gris"}`;
+      }
+    }
+    mode.addEventListener("change", () => { bytes = mode.value === "3" ? [204, 211, 230] : [42]; render(); });
+    preset.addEventListener("click", () => { mode.value = "3"; bytes = [204, 211, 230]; render(); });
+    zero.addEventListener("click", () => { bytes = bytes.map(() => 0); render(); });
+    root.append(el("div", { class: "demo-row" }, [mode, preset, zero]), el("div", { class: "demo-bitwrap" }, [grid, swatch]), out);
+    render();
+  }
+
+  // ---------------------------------------------------------------- Exercices de conversion
+  // Générateur d'exercices aléatoires avec vérification et correction détaillée.
+  function demoExercices(root) {
+    const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+    const bin8 = (n) => n.toString(2).padStart(8, "0");
+    const clean = (str) => str.replace(/[\s'_]/g, "").toUpperCase();
+
+    // Tableau des poids pour un octet
+    const weights = (n) => {
+      const bits = bin8(n).split("");
+      const cells = bits.map((b, i) => 2 ** (7 - i));
+      return `<table class="demo-table"><tr><th>Poids</th>${cells.map((w) => `<td>${w}</td>`).join("")}</tr>
+        <tr><th>Bit</th>${bits.map((b) => `<td><b>${b}</b></td>`).join("")}</tr>
+        <tr><th>Valeur</th>${bits.map((b, i) => `<td>${b === "1" ? cells[i] : "·"}</td>`).join("")}</tr></table>`;
+    };
+    const divisions = (n) => {
+      const rows = [];
+      let q = n;
+      while (q > 0) { rows.push(`<tr><td>${q} / 2</td><td>${Math.floor(q / 2)}</td><td><b>${q % 2}</b></td></tr>`); q = Math.floor(q / 2); }
+      return `<table class="demo-table"><tr><th>Division</th><th>Quotient</th><th>Reste</th></tr>${rows.join("")}</table>
+        Lecture des restes de bas en haut : <b>${n.toString(2)}</b>, soit <b>${bin8(n)}</b> sur 8 bits.`;
+    };
+
+    const TYPES = {
+      b2d: () => {
+        const n = rnd(1, 255);
+        return {
+          q: `Convertissez <b>${bin8(n)}</b>₍₂₎ en décimal.`,
+          ok: (r) => parseInt(clean(r), 10) === n,
+          sol: `Somme des poids des bits à 1 : ${bin8(n).split("").map((b, i) => (b === "1" ? 2 ** (7 - i) : null)).filter((x) => x !== null).join(" + ")} = <b>${n}</b>${weights(n)}`,
+        };
+      },
+      d2b: () => {
+        const n = rnd(1, 255);
+        return {
+          q: `Convertissez <b>${n}</b>₍₁₀₎ en binaire sur 8 bits.`,
+          ok: (r) => /^[01]+$/.test(clean(r)) && parseInt(clean(r), 2) === n,
+          sol: divisions(n),
+        };
+      },
+      bits: () => {
+        const items = [
+          ["les 26 lettres de l'alphabet", 26], ["les 2'136 communes de Suisse", 2136], ["les 26 cantons", 26],
+          ["les 7 jours de la semaine", 7], ["les 300 communes vaudoises", 300], ["les 405 bâtiments de la tuile du fil rouge", 405],
+          ["les 12 mois de l'année", 12], ["les 1'000 numéros de parcelle d'un domaine de numérotation", 1000],
+        ];
+        const [label, n] = items[rnd(0, items.length - 1)];
+        const k = Math.ceil(Math.log2(n));
+        return {
+          q: `Combien de bits faut-il au minimum pour attribuer un numéro différent à ${label} (${fmt(n)}) ?`,
+          ok: (r) => parseInt(clean(r), 10) === k,
+          sol: `Il faut 2<sup>k</sup> ≥ ${fmt(n)} : 2<sup>${k - 1}</sup> = ${fmt(2 ** (k - 1))} ne suffit pas, 2<sup>${k}</sup> = ${fmt(2 ** k)} suffit → <b>${k} bits</b>.`,
+        };
+      },
+      h2d: () => {
+        const n = rnd(16, 255);
+        const h = hex2(n);
+        const d = [parseInt(h[0], 16), parseInt(h[1], 16)];
+        return {
+          q: `Convertissez l'octet hexadécimal <b>${h}</b> en décimal (par exemple une composante de couleur <code>#${h}${h}${h}</code>).`,
+          ok: (r) => parseInt(clean(r), 10) === n,
+          sol: `${h[0]} = ${d[0]} et ${h[1]} = ${d[1]} → ${d[0]} × 16 + ${d[1]} = <b>${n}</b>. En binaire : ${d[0].toString(2).padStart(4, "0")} ${d[1].toString(2).padStart(4, "0")}.`,
+        };
+      },
+      d2h: () => {
+        const n = rnd(16, 255);
+        return {
+          q: `Écrivez <b>${n}</b>₍₁₀₎ en hexadécimal (2 chiffres).`,
+          ok: (r) => clean(r).replace(/^0X|^#/, "") === hex2(n),
+          sol: `${n} = ${Math.floor(n / 16)} × 16 + ${n % 16} → chiffres ${Math.floor(n / 16).toString(16).toUpperCase()} et ${(n % 16).toString(16).toUpperCase()} → <b>${hex2(n)}</b>.`,
+        };
+      },
+    };
+    const LABELS = { b2d: "Binaire → décimal", d2b: "Décimal → binaire", bits: "Nombre de bits", h2d: "Hexa → décimal", d2h: "Décimal → hexa" };
+
+    const type = el("select", {}, [el("option", { value: "mix", text: "Mélange" }), ...Object.entries(LABELS).map(([v, t]) => el("option", { value: v, text: t }))]);
+    const next = el("button", { type: "button", class: "demo-btn", text: "Nouvel exercice" });
+    const question = el("p", { class: "demo-ex-q" });
+    const answer = el("input", { type: "text", class: "demo-ex-a", autocomplete: "off", placeholder: "Votre réponse" });
+    const check = el("button", { type: "button", class: "demo-btn", text: "Vérifier" });
+    const showSol = el("button", { type: "button", class: "demo-btn", text: "Voir la correction" });
+    const feedback = el("div", { class: "demo-quiz-fb" });
+    const score = el("div", { class: "demo-stats" });
+    let ex = null, good = 0, total = 0, done = false;
+
+    function newEx() {
+      const keys = Object.keys(TYPES);
+      const k = type.value === "mix" ? keys[rnd(0, keys.length - 1)] : type.value;
+      ex = TYPES[k]();
+      done = false;
+      question.innerHTML = `<span class="demo-ex-tag">${LABELS[k]}</span> ${ex.q}`;
+      answer.value = "";
+      answer.classList.remove("demo-ok", "demo-ko");
+      feedback.innerHTML = "";
+      answer.focus({ preventScroll: true });
+    }
+    function verify() {
+      if (!ex || !answer.value.trim()) return;
+      const right = ex.ok(answer.value);
+      if (!done) { total++; if (right) good++; done = true; }
+      answer.classList.toggle("demo-ok", right);
+      answer.classList.toggle("demo-ko", !right);
+      feedback.innerHTML = right ? `✅ Juste ! ${ex.sol}` : `❌ Pas tout à fait. Réessayez ou affichez la correction.`;
+      score.textContent = `Score : ${good} / ${total}`;
+    }
+    next.addEventListener("click", newEx);
+    type.addEventListener("change", newEx);
+    check.addEventListener("click", verify);
+    answer.addEventListener("keydown", (e) => { if (e.key === "Enter") verify(); });
+    showSol.addEventListener("click", () => { if (ex) feedback.innerHTML = `💡 ${ex.sol}`; });
+
+    root.append(
+      el("div", { class: "demo-row" }, [el("span", { text: "Type : " }), type, next]),
+      question,
+      el("div", { class: "demo-row" }, [answer, check, showSol]),
+      feedback,
+      score
+    );
+    newEx();
+    score.textContent = "Score : 0 / 0";
+  }
+
+  // ---------------------------------------------------------------- Nombres à virgule
+  function demoFloat(root) {
+    const input = el("input", { type: "text", value: "2538500.12", inputmode: "decimal" });
+    const presets = [
+      ["Altitude 433,17 m", "433.17"],
+      ["Coordonnée N 1'180'500,12", "1180500.12"],
+      ["Coordonnée E 2'538'500,12", "2538500.12"],
+    ].map(([t, v]) => {
+      const b = el("button", { type: "button", class: "demo-btn", text: "🧵 " + t });
+      b.addEventListener("click", () => { input.value = v; calc(); });
+      return b;
+    });
+    const table = el("div");
+    function bytesOf(v, size) {
+      const buf = new ArrayBuffer(size), dv = new DataView(buf);
+      size === 4 ? dv.setFloat32(0, v, true) : dv.setFloat64(0, v, true);
+      return new Uint8Array(buf);
+    }
+    // Valeur représentable voisine (k = +1 ou -1) en Float32 et Float64
+    function next32(f, k) {
+      const dv = new DataView(new ArrayBuffer(4));
+      dv.setFloat32(0, f);
+      const sign = f < 0 ? -1 : 1;
+      dv.setUint32(0, dv.getUint32(0) + k * sign);
+      return dv.getFloat32(0);
+    }
+    function next64(f, k) {
+      const dv = new DataView(new ArrayBuffer(8));
+      dv.setFloat64(0, f);
+      const sign = f < 0 ? -1n : 1n;
+      dv.setBigUint64(0, dv.getBigUint64(0) + BigInt(k) * sign);
+      return dv.getFloat64(0);
+    }
+    // Longueur lisible (le nombre est supposé en mètres)
+    function len(x) {
+      x = Math.abs(x);
+      if (x >= 1) return fmt(x, 2) + " m";
+      if (x >= 0.01) return fmt(x * 100, 1) + " cm";
+      if (x >= 1e-6) return fmt(x * 1000, x >= 1e-4 ? 2 : 4) + " mm";
+      if (x >= 1e-12) return fmt(x * 1e9, 3) + " nanomètre";
+      if (x > 0) return fmt(x * 1e12, 3) + " picomètre";
+      return "0";
+    }
+    const num = (x, d) => fmt(x, d);
+    function calc() {
+      const v = parseFloat(input.value.replace(/'/g, "").replace(",", "."));
+      if (!isFinite(v)) { table.textContent = "Saisissez un nombre."; return; }
+      const f32 = Math.fround(v);
+      const s32 = Math.abs(next32(f32, 1) - f32);
+      const s64 = Math.abs(next64(v, 1) - v);
+      const dec = s32 >= 1 ? 1 : s32 >= 0.01 ? 3 : 6;
+      // Règle graduée : 5 graduations Float32 autour du nombre saisi
+      const ticks = [-2, -1, 0, 1, 2].map((k) => (k === 0 ? f32 : k < 0 ? next32(next32(f32, -1), k + 1) : next32(next32(f32, 1), k - 1)));
+      const lo = ticks[0], hi = ticks[4];
+      const pos = (x) => 10 + (80 * (x - lo)) / (hi - lo); // marge pour les étiquettes
+      const ruler = `
+        <div class="demo-ruler">
+          ${ticks.map((t) => `<div class="demo-tick${t === f32 ? " demo-tick-on" : ""}" style="left:${pos(t)}%"><span>${num(t, dec)}</span></div>`).join("")}
+          <div class="demo-mark" style="left:${pos(v)}%"><span>votre nombre<br><b>${num(v, dec + 2)}</b></span></div>
+        </div>`;
+      table.innerHTML = `
+        <p><b>Float32</b> : autour de ce nombre, seules les valeurs de la règle ci-dessous existent, <b>espacées de ${len(s32)}</b>.
+        Votre nombre tombe entre deux graduations : il est <b>arrondi à la plus proche</b>, ${num(f32, dec)}.</p>
+        <p>Pourquoi cet espacement ? Votre nombre est compris entre <b>${num(2 ** Math.floor(Math.log2(Math.abs(v) || 1)), 0)}</b> et <b>${num(2 ** (Math.floor(Math.log2(Math.abs(v) || 1)) + 1), 0)}</b> :
+        dans cette plage, un Float32 ne dispose que de 8'388'608 graduations (2<sup>23</sup>), soit une tous les ${len(s32)}. Plus le nombre est grand, plus la plage est large et plus les graduations s'écartent.</p>
+        ${ruler}
+        <table class="demo-table">
+          <tr><th></th><th>Float32 (4 octets)</th><th>Float64 (8 octets)</th></tr>
+          <tr><td>Valeur réellement stockée</td><td><b>${num(f32, dec)}</b></td><td><b>${num(v, 6)}</b>…</td></tr>
+          <tr><td>Espacement des graduations</td><td class="${s32 >= 0.01 ? "demo-bad" : ""}">${len(s32)}</td><td>${len(s64)}</td></tr>
+          <tr><td>Erreur d'arrondi (au pire la moitié de l'espacement)</td><td class="${Math.abs(f32 - v) >= 0.01 ? "demo-bad" : ""}">${len(f32 - v)}</td><td>moins de ${len(s64 / 2)}</td></tr>
+          <tr><td>Les octets écrits dans le fichier</td><td><code>${hexBytes(bytesOf(v, 4))}</code></td><td><code>${hexBytes(bytesOf(v, 8))}</code></td></tr>
+        </table>
+        <p>${Math.abs(f32 - v) >= 0.01
+          ? `⚠️ En <b>Float32</b>, ce nombre perd <b>${len(f32 - v)}</b> : inacceptable pour une coordonnée. En <b>Float64</b>, les graduations sont espacées de ${len(s64)} : l'arrondi est invisible.`
+          : `✅ En <b>Float32</b>, l'arrondi (${len(f32 - v)}) est négligeable pour ce nombre : 4 octets suffisent.`}</p>`;
+    }
+    input.addEventListener("input", calc);
+    root.append(el("label", { class: "demo-row" }, [el("span", { text: "Nombre : " }), input]), el("div", { class: "demo-row" }, presets), table);
+    calc();
+  }
+
+  // ---------------------------------------------------------------- Unités
+  function demoUnites(root) {
+    const input = el("input", { type: "number", min: "0", step: "1", value: "65004150" });
+    const presets = [
+      ["🧵 Tuile SWISSIMAGE", 65004150],
+      ["🧵 GeoPackage du fil rouge", 438272],
+      ["Disque « 1 To »", 1e12],
+      ["Clé USB « 64 Go »", 64e9],
+    ].map(([t, v]) => {
+      const b = el("button", { type: "button", class: "demo-btn", text: t });
+      b.addEventListener("click", () => { input.value = v; calc(); });
+      return b;
+    });
+    const out = el("div");
+    function calc() {
+      const n = Math.max(0, parseFloat(input.value) || 0);
+      const si = ["ko", "Mo", "Go", "To"].map((u, i) => [u, n / 1000 ** (i + 1)]);
+      const bi = ["Kio", "Mio", "Gio", "Tio"].map((u, i) => [u, n / 1024 ** (i + 1)]);
+      const cell = ([u, v]) => `<td>${v >= 0.01 ? fmt(v, v < 10 ? 2 : 1) : "&lt; 0,01"} ${u}</td>`;
+      out.innerHTML = `
+        <table class="demo-table">
+          <tr><th>Décimal (SI) — fabricants, macOS</th>${si.map(cell).join("")}</tr>
+          <tr><th>Binaire (CEI) — Windows (affiché « ko, Mo, Go »)</th>${bi.map(cell).join("")}</tr>
+        </table>
+        <p>${fmt(n)} octets = ${fmt(n * 8)} bits</p>`;
+    }
+    input.addEventListener("input", calc);
+    root.append(el("label", { class: "demo-row" }, [el("span", { text: "Taille en octets : " }), input]), el("div", { class: "demo-row" }, presets), out);
+    calc();
+  }
+
+  // ---------------------------------------------------------------- Texte
+  function demoTexte(root) {
+    const input = el("input", { type: "text", value: "Yverdon-les-Bains, Faïencerie", class: "demo-wide" });
+    const out = el("div");
+    const latin1 = (str) => {
+      const b = [];
+      for (const ch of str) { const c = ch.codePointAt(0); b.push(c < 256 ? c : null); }
+      return b;
+    };
+    function chips(str, encode) {
+      return Array.from(str).map((ch) => {
+        const bytes = encode(ch);
+        const bad = bytes.some((x) => x === null);
+        const multi = bytes.length > 1;
+        return `<span class="demo-chip${bad ? " demo-chip-bad" : multi ? " demo-chip-multi" : ""}"><span class="demo-chip-c">${ch === " " ? "␣" : ch}</span><span class="demo-chip-b">${bad ? "??" : bytes.map(hex2).join(" ")}</span></span>`;
+      }).join("");
+    }
+    function calc() {
+      const str = input.value;
+      const utf8 = new TextEncoder().encode(str);
+      const lat = latin1(str);
+      const ascii = Array.from(str).map((ch) => (ch.codePointAt(0) < 128 ? ch.codePointAt(0) : null));
+      const nOk = (a) => a.filter((x) => x !== null).length;
+      const asciiBad = ascii.some((x) => x === null), latBad = lat.some((x) => x === null);
+      // Lecture avec le mauvais codage : octets UTF-8 interprétés comme du Windows-1252/Latin-1
+      const moji = new TextDecoder("windows-1252").decode(utf8);
+      const back = latBad ? null : new TextDecoder("utf-8").decode(new Uint8Array(lat));
+      out.innerHTML = `
+        <p><b>ASCII</b> : ${asciiBad ? "<span class='demo-bad'>impossible (caractères hors ASCII en rouge)</span>" : nOk(ascii) + " octets"}</p>
+        <div class="demo-chips">${chips(str, (c) => [c.codePointAt(0) < 128 ? c.codePointAt(0) : null])}</div>
+        <p><b>Latin-1 / Windows-1252</b> : ${latBad ? "<span class='demo-bad'>impossible pour certains caractères</span>" : lat.length + " octets"}</p>
+        <div class="demo-chips">${chips(str, (c) => latin1(c))}</div>
+        <p><b>UTF-8</b> : ${utf8.length} octets (en bleu : caractères sur plusieurs octets)</p>
+        <div class="demo-chips">${chips(str, (c) => Array.from(new TextEncoder().encode(c)))}</div>
+        <p>⚠️ Texte UTF-8 lu comme du Windows-1252 : <b class="demo-bad">${moji}</b></p>
+        ${back !== null ? `<p>⚠️ Texte Latin-1 lu comme de l'UTF-8 : <b class="demo-bad">${back}</b></p>` : ""}`;
+    }
+    input.addEventListener("input", calc);
+    root.append(el("label", { class: "demo-row" }, [el("span", { text: "Texte : " }), input]), out);
+    calc();
+  }
+
+  // ---------------------------------------------------------------- Fichier texte / binaire
+  // Les mêmes octets vus par un éditeur de texte, un éditeur hexadécimal et un logiciel qui connaît le format.
+  const SHP_HEADER = "00 00 27 0A 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 CE 9E E8 03 00 00 05 00 00 00 70 34 80 D7 3D 5D 43 41 20 75 02 9A 72 01 32 41 58 B1 BF 8C 0E 5F 43 41 00 DE 02 A9 7F 05 32 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+  const DXF_TEXT = "  0\nPOINT\n  8\n0\n 10\n2538235\n 20\n1180434\n";
+
+  function demoFichier(root) {
+    const files = {
+      dxf: {
+        label: "arrets.dxf (texte)",
+        bytes: new TextEncoder().encode(DXF_TEXT),
+        fields: [
+          [0, 9, "Code 0 → nouvelle entité : POINT", "POINT"],
+          [10, 15, "Code 8 → calque", "0"],
+          [16, 27, "Code 10 → coordonnée X (écrite en caractères)", "2'538'235"],
+          [28, 39, "Code 20 → coordonnée Y (écrite en caractères)", "1'180'434"],
+        ],
+      },
+      shp: {
+        label: "batiments.shp (binaire)",
+        bytes: Uint8Array.from(SHP_HEADER.split(" "), (h) => parseInt(h, 16)),
+        fields: [
+          [0, 3, "Code du fichier (entier 32 bits)", "9'994"],
+          [24, 27, "Longueur (entier 32 bits, en mots de 2 octets)", "52'894 → 105'788 octets"],
+          [28, 31, "Version (entier 32 bits)", "1'000"],
+          [32, 35, "Type de géométrie (entier 32 bits)", "5 = polygone"],
+          [36, 43, "X min (Float64)", "2'538'107,68"],
+          [44, 51, "Y min (Float64)", "1'180'018,60"],
+          [52, 59, "X max (Float64)", "2'539'037,10"],
+          [60, 67, "Y max (Float64)", "1'181'055,66"],
+        ],
+      },
+    };
+    let current = "shp";
+    const tabs = el("div", { class: "demo-row" });
+    const views = el("div", { class: "demo-views" });
+    const textView = el("pre", { class: "demo-pre" });
+    const hexView = el("pre", { class: "demo-pre" });
+    const specView = el("div");
+    views.append(
+      el("div", {}, [el("b", { text: "1. Éditeur de texte" }), textView]),
+      el("div", {}, [el("b", { text: "2. Éditeur hexadécimal" }), hexView]),
+      el("div", {}, [el("b", { text: "3. Logiciel qui connaît le format" }), specView])
+    );
+    const dec1252 = new TextDecoder("windows-1252");
+    function show(i) {
+      root.querySelectorAll("[data-i]").forEach((n) => n.classList.toggle("demo-hl", i !== null && n.dataset.i.split(",").includes(String(i))));
+    }
+    function render() {
+      const f = files[current];
+      const fieldOf = (pos) => f.fields.findIndex(([a, b]) => pos >= a && pos <= b);
+      let txt = "", hx = "";
+      f.bytes.forEach((b, pos) => {
+        const k = fieldOf(pos);
+        let ch = b === 10 ? "↵\n" : dec1252.decode(new Uint8Array([b]));
+        if (b !== 10 && (b < 32 || b === 127 || b === 0x81 || b === 0x8d || b === 0x8f || b === 0x90 || b === 0x9d)) ch = "·";
+        const attr = k >= 0 ? ` data-i="${k}" class="demo-f"` : "";
+        txt += `<span${attr}>${ch.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</span>`;
+        hx += `<span${attr}>${hex2(b)}</span>` + ((pos + 1) % 8 === 0 ? "\n" : " ");
+      });
+      textView.innerHTML = txt;
+      hexView.innerHTML = hx;
+      specView.innerHTML = `<table class="demo-table">${f.fields
+        .map(([a, b, what, val], k) => `<tr data-i="${k}" class="demo-f"><td>${a}–${b}</td><td>${what}</td><td><b>${val}</b></td></tr>`)
+        .join("")}</table>`;
+      root.querySelectorAll(".demo-f").forEach((n) => {
+        n.addEventListener("mouseenter", () => show(n.dataset.i));
+        n.addEventListener("mouseleave", () => show(null));
+      });
+      tabs.querySelectorAll("button").forEach((b) => b.classList.toggle("demo-ok", b.dataset.f === current));
+    }
+    for (const [key, f] of Object.entries(files)) {
+      const b = el("button", { type: "button", class: "demo-btn", text: f.label });
+      b.dataset.f = key;
+      b.addEventListener("click", () => { current = key; render(); });
+      tabs.appendChild(b);
+    }
+    root.append(tabs, views, el("p", { class: "demo-stats", text: "Survolez une zone pour voir les mêmes octets dans les trois vues." }));
+    render();
+  }
+
   // ---------------------------------------------------------------- Quiz
   const QUIZZES = {
+    codage: [
+      {
+        q: "Combien de valeurs différentes peut-on coder avec un octet ?",
+        a: ["8", "255", "256", "1'024"], ok: 2,
+        e: "Un octet = 8 bits → 2⁸ = 256 valeurs, de 0 à 255.",
+      },
+      {
+        q: "La couleur d'un pixel s'écrit #CCD3E6. Que vaut la composante rouge en décimal ?",
+        a: ["204", "211", "230", "12"], ok: 0,
+        e: "Le premier octet, CC, vaut 12 × 16 + 12 = 204.",
+      },
+      {
+        q: "Combien d'octets occupe le mot « Faïencerie » codé en UTF-8 ?",
+        a: ["10", "11", "20", "Impossible en UTF-8"], ok: 1,
+        e: "10 caractères, dont le « ï » qui occupe 2 octets en UTF-8 (C3 AF) : 11 octets.",
+      },
+      {
+        q: "Un fichier affiche « GenÃ¨ve » au lieu de « Genève ». Que s'est-il passé ?",
+        a: ["Le fichier est corrompu", "Un texte UTF-8 a été lu avec un autre codage (Latin-1)", "Le fichier est binaire", "Le nom est mal orthographié dans la source"], ok: 1,
+        e: "Les 2 octets UTF-8 du « è » ont été interprétés comme 2 caractères Latin-1. Pour un shapefile, c'est souvent le fichier .cpg qui manque.",
+      },
+      {
+        q: "Pourquoi ne faut-il pas stocker des coordonnées MN95 en Float32 ?",
+        a: ["Le Float32 n'accepte pas les nombres négatifs", "Un Float32 occupe trop de place", "Avec environ 7 chiffres significatifs, la précision tombe à 25 cm vers 2'500'000", "Le Float32 n'existe pas dans les SIG"], ok: 2,
+        e: "Une coordonnée MN95 a déjà 7 chiffres avant la virgule : en Float32, deux valeurs voisines sont séparées de 25 cm. On utilise le Float64.",
+      },
+      {
+        q: "Vous ouvrez un fichier .shp dans le Bloc-notes : il affiche des symboles incompréhensibles. Le fichier est-il abîmé ?",
+        a: ["Oui, il faut le retélécharger", "Non : c'est un fichier binaire, ses octets sont des nombres et non des caractères", "Oui, son encodage est faux", "Non, mais il faut l'ouvrir en UTF-8"], ok: 1,
+        e: "Un fichier binaire n'est pas fait pour être lu comme du texte. QGIS, qui connaît la spécification du Shapefile, le lit parfaitement.",
+      },
+      {
+        q: "Un disque vendu « 1 To » apparaît comme « 931 Go » dans Windows. Pourquoi ?",
+        a: ["Une partie est réservée au système", "Windows compte en puissances de 2 : ce sont 931 Gio", "Le disque est défectueux", "Le fabricant a menti"], ok: 1,
+        e: "10¹² octets / 2³⁰ ≈ 931 Gio. Rien n'a disparu : c'est une question d'unité.",
+      },
+    ],
     "formats-vecteur": [
       {
         q: "Vous envoyez un plan de situation à un bureau d'architectes qui travaille avec AutoCAD.",
@@ -499,7 +1022,10 @@
     showScore();
   }
 
-  const demos = { pixels: demoPixels, compression: demoCompression, taille: demoTaille, pmtiles: demoPmtiles, quiz: demoQuiz };
+  const demos = {
+    pixels: demoPixels, compression: demoCompression, taille: demoTaille, pmtiles: demoPmtiles, quiz: demoQuiz,
+    bits: demoBits, float: demoFloat, unites: demoUnites, texte: demoTexte, fichier: demoFichier, exercices: demoExercices,
+  };
 
   function init() {
     document.querySelectorAll(".demo[data-demo]").forEach((root) => {

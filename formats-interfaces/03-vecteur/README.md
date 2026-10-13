@@ -336,7 +336,7 @@ Avec l'augmentation des volumes et la généralisation du stockage dans le cloud
 
 <div class="demo" data-demo="pmtiles" data-src="donnees/yverdon_2538-1180.pmtiles" data-size="465499" data-center="6.6343,46.7741" data-zoom="15"></div>
 
-*🧵 Fil rouge en PMTiles ([`yverdon_2538-1180.pmtiles`](donnees/yverdon_2538-1180.pmtiles), 465 Ko, zooms 10 à 18). Les lignes rouges montrent la **grille des tuiles** ; le journal liste chaque tuile demandée et chaque **requête HTTP partielle** envoyée au serveur. Zoomez et déplacez la carte : seules les tuiles visibles sont téléchargées. Dézoomez au niveau 10 : que deviennent les bâtiments ? Cliquez sur un bâtiment pour voir ses attributs. Fond : carte nationale, © swisstopo.*
+*🧵 Fil rouge en PMTiles ([`yverdon_2538-1180.pmtiles`](donnees/yverdon_2538-1180.pmtiles), 465 Ko, zooms 10 à 18). Le quadrillage montre la **grille des tuiles**, avec le numéro z/x/y de chaque tuile : **rouge** = pas encore demandée, **orange** = en attente, **vert** = chargée ; le journal liste chaque tuile demandée et chaque **requête HTTP partielle** envoyée au serveur. En mode ralenti, les tuiles arrivent **une par une, toutes les 2 secondes** : observez l'ordre de chargement. Zoomez et déplacez la carte : seules les tuiles visibles sont téléchargées. Dézoomez au niveau 10 : que deviennent les bâtiments ? Cliquez sur un bâtiment pour voir ses attributs. Fond : carte nationale, © swisstopo.*
 
 
 !!! example "🧪 Un même jeu de données, plusieurs formats"
@@ -365,7 +365,7 @@ Avec l'augmentation des volumes et la généralisation du stockage dans le cloud
     6. Exportez le GeoPackage en CSV (géométrie en WKT), en GML et en KML (QGIS : *Exporter › Sauvegarder les entités sous…*). Ouvrez le CSV dans un éditeur de texte : reconnaissez-vous le WKT ? Pourquoi ces trois formats sont-ils les plus volumineux ?
     7. Le fichier PMTiles contient-il « les communes » au même titre que les autres ? Que perd-on ?
 
-## Synthèse : GDAL, normalisation et capacités
+## Synthèse : GDAL et normalisation
 
 | Format | Extension | Lisible dans QGIS & co (GDAL) | Défini par | OGC |
 |---|---|---|---|---|
@@ -382,21 +382,6 @@ Avec l'augmentation des volumes et la généralisation du stockage dans le cloud
 | FlatGeobuf | `.fgb` | ✅ lecture / écriture | Communauté libre | ❌ |
 | GeoParquet | `.parquet` | ✅ lecture / écriture | Groupe de travail OGC | 🟡 en cours |
 | PMTiles | `.pmtiles` | ✅ lecture / écriture | Protomaps, communauté libre | ❌ |
-
-*Selon GDAL 3.11.*
-
-| Format | Fichiers | Couches par fichier | Système de coordonnées | Noms de champs | Index spatial | Codage | Modifiable |
-|---|---|---|---|---|---|---|---|
-| Shapefile | 3 à 7 | 1 | `.prj` séparé, facultatif | 10 caractères | facultatif | binaire | oui |
-| GeoPackage | 1 | plusieurs | inclus | libres | oui | binaire (SQLite) | oui |
-| GeoJSON | 1 | 1 | WGS84 imposé | libres | non | texte (JSON) | oui |
-| KML | 1 | plusieurs (dossiers) | WGS84 imposé | libres | non | texte (XML) | oui |
-| GML | 1 (+ schéma `.xsd`) | plusieurs | inclus | libres | non | texte (XML) | oui |
-| DXF | 1 | calques | **aucun** | — | non | texte ou binaire | oui |
-| FlatGeobuf | 1 | 1 | inclus | libres | oui | binaire | non (on régénère) |
-| GeoParquet | 1 | 1 | inclus | libres | statistiques par bloc | binaire (colonnes) | non (on régénère) |
-| PMTiles | 1 | plusieurs | Web Mercator imposé | libres | index des tuiles | binaire | non |
-| INTERLIS 2 | 1 (+ modèle `.ili`) | plusieurs (thèmes, classes) | défini par le modèle | libres | non | texte (XML) | via outils dédiés |
 
 !!! warning "Pièges classiques lors d'une conversion"
     - **Noms de champs tronqués** vers le Shapefile (10 caractères) : `einwohnerzahl` devient `einwohnerz`, et deux champs peuvent même entrer en collision.
