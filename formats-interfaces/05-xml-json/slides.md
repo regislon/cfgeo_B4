@@ -23,6 +23,22 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+## 🧵 Un arrêt de bus, cinq encodages
+
+« Yverdon-les-Bains, Faïencerie » (fil rouge, chapitre 3)
+
+| Format | Langage | Coordonnées | Taille |
+|---|---|---|---|
+| GML | XML | **MN95** `2538964 1180177` | 369 o |
+| KML | XML | WGS84 `6.639541,46.769964` | 280 o |
+| GPX | XML | WGS84 `lat=… lon=…` | 244 o |
+| INTERLIS 2 (XTF) | XML | **MN95** `<C1>` `<C2>` | 596 o |
+| GeoJSON | JSON | WGS84 `[6.639541, 46.769964]` | **174 o** |
+
+Même information, emballages différents · ▶ [voir les 5 fichiers](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#fil-rouge-un-arret-de-bus-cinq-encodages)
+
+---
+
 ## XML : un métalangage
 
 - Standard du **W3C** (1998), fichier **texte** structuré **en arbre**
@@ -144,6 +160,16 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+## ▶ À vous : bien formé ?
+
+- Éditeur en ligne : le **KML de l'arrêt**, vérifié **en direct**
+- Boutons « Casser » : balise non fermée, `&` non échappé, guillemets, imbrication, majuscule
+- **Arbre** du document : élément racine, enfants, attributs, texte
+
+▶ [Ouvrir l'éditeur XML](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#a-vous-de-jouer-bien-forme)
+
+---
+
 <!-- _class: lead -->
 
 # Formats géographiques XML
@@ -200,6 +226,17 @@ Valide ⇒ bien formé, mais pas l'inverse
 - **WGS84 uniquement** : longitude, latitude, altitude
 - Couleurs **`aabbggrr`** : `73ff0000` = **bleu** semi-transparent
 - **KMZ** = archive **ZIP** (Deflate) : `doc.kml` + images
+
+---
+
+## ▶ Couleur HTML ↔ KML
+
+| | Ordre | Bleu à 45 % |
+|---|---|---|
+| HTML / QGIS | rouge · vert · bleu | `#0000ff` + 45 % |
+| **KML** | **alpha · bleu · vert · rouge** | `73ff0000` |
+
+▶ [Convertisseur de couleurs](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#kml-keyhole-markup-language)
 
 ---
 
@@ -284,6 +321,33 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+## ▶ Le piège [lat, lon]
+
+- `[6.639541, 46.769964]` → Yverdon-les-Bains ✅
+- `[46.769964, 6.639541]` → **Corne de l'Afrique** (Éthiopie / Somalie) ❌
+- GeoJSON = **longitude d'abord**, toujours
+
+▶ [GeoJSON sur une carte](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#geojson)
+
+---
+
+## JSON-FG (OGC, 2025)
+
+- Extension de GeoJSON : **reste un GeoJSON valide**
+- `"place"` + `"coordRefSys"` → géométrie dans **un autre système**, p. ex. **MN95**
+- `"geometry"` reste en WGS84 pour les logiciels « GeoJSON seulement »
+- Ajoute aussi le **temps** (`"time"`) et le type d'objet
+
+---
+
+## JSON, le langage des API
+
+- OGC API, **STAC**, API geo.admin.ch → réponses **JSON**
+- Indenté (174 o) ou **compact** (149 o) : même contenu
+- **NDJSON / GeoJSONSeq** : un objet par ligne → lecture en flux des gros fichiers
+
+---
+
 <!-- _class: exercice -->
 
 # Exercice : GeoJSON et systèmes de coordonnées
@@ -307,6 +371,24 @@ Valide ⇒ bien formé, mais pas l'inverse
 - L'équivalent du **XSD** pour JSON
 - Exemple réel : schémas XML **et** JSON du cadastre **RDPPF**
   schemas.geo.admin.ch/V_D/OeREB/2.0/
+
+---
+
+## ▶ Bien formé **et** valide ?
+
+- GeoJSON de l'arrêt vérifié par un **JSON Schema**
+- `"Pointt"`, latitude supprimée, `"moyen": "Avion"` → **bien formé ✅ mais non valide ❌**
+- Virgule en trop, guillemet manquant → **mal formé ❌**
+
+▶ [Ouvrir le validateur](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#a-vous-de-jouer-bien-forme-et-valide)
+
+---
+
+## ❓ Testez-vous
+
+7 questions : élément racine, `&`, « Pointt », ordre des coordonnées, couleur KML, MN95, schémas
+
+▶ [Faire le quiz](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#testez-vous)
 
 ---
 

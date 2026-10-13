@@ -9,7 +9,101 @@
 - Lire et écrire un document XML et JSON
 - Distinguer document bien formé et document valide
 - Comprendre le rôle d'un schéma (XSD, JSON Schema)
-- Reconnaître les formats géographiques basés sur XML (GML, KML, GPX, INTERLIS 2) et sur JSON (GeoJSON)
+- Reconnaître les formats géographiques basés sur XML (GML, KML, GPX, INTERLIS 2) et sur JSON (GeoJSON, JSON-FG)
+- Détecter et corriger une erreur de syntaxe dans un fichier XML ou JSON
+
+## Fil rouge : un arrêt de bus, cinq encodages
+
+Au [chapitre 3](../03-vecteur/README.md#fil-rouge-le-meme-kilometre-carre-en-vecteur), la tuile d'Yverdon contient six arrêts de bus. Prenons l'un d'eux, **« Yverdon-les-Bains, Faïencerie »**, et écrivons-le dans les cinq formats de ce chapitre. L'information est **la même** partout : un nom, un moyen de transport, une position. Seul l'« emballage » change.
+
+=== "GML (XML)"
+
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <ArretTP gml:id="arret.1" xmlns="https://exemple.ch/arrets" xmlns:gml="http://www.opengis.net/gml/3.2">
+      <nom>Yverdon-les-Bains, Faïencerie</nom>
+      <moyen>Bus</moyen>
+      <position>
+        <gml:Point gml:id="p1" srsName="urn:ogc:def:crs:EPSG::2056">
+          <gml:pos>2538964 1180177</gml:pos>
+        </gml:Point>
+      </position>
+    </ArretTP>
+    ```
+
+=== "KML (XML)"
+
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <kml xmlns="http://www.opengis.net/kml/2.2">
+      <Placemark>
+        <name>Yverdon-les-Bains, Faïencerie</name>
+        <description>Bus</description>
+        <Point>
+          <coordinates>6.639541,46.769964</coordinates>
+        </Point>
+      </Placemark>
+    </kml>
+    ```
+
+=== "GPX (XML)"
+
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <gpx version="1.1" creator="CFGeo B4" xmlns="http://www.topografix.com/GPX/1/1">
+      <wpt lat="46.769964" lon="6.639541">
+        <name>Yverdon-les-Bains, Faïencerie</name>
+        <type>Bus</type>
+      </wpt>
+    </gpx>
+    ```
+
+=== "INTERLIS 2 / XTF (XML)"
+
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+      <HEADERSECTION SENDER="CFGeo-B4" VERSION="2.3">
+        <MODELS><MODEL NAME="Arrets_V1" VERSION="1" URI="https://exemple.ch"/></MODELS>
+      </HEADERSECTION>
+      <DATASECTION>
+        <Arrets_V1.Transports BID="b1">
+          <Arrets_V1.Transports.Arret TID="1">
+            <Nom>Yverdon-les-Bains, Faïencerie</Nom>
+            <Moyen>Bus</Moyen>
+            <Position><COORD><C1>2538964.000</C1><C2>1180177.000</C2></COORD></Position>
+          </Arrets_V1.Transports.Arret>
+        </Arrets_V1.Transports>
+      </DATASECTION>
+    </TRANSFER>
+    ```
+
+    *Exemple simplifié : le modèle `Arrets_V1` est fictif. Un vrai transfert INTERLIS suit un modèle `.ili` publié.*
+
+=== "GeoJSON (JSON)"
+
+    ```json
+    {
+      "type": "Feature",
+      "properties": { "nom": "Yverdon-les-Bains, Faïencerie", "moyen": "Bus" },
+      "geometry": { "type": "Point", "coordinates": [6.639541, 46.769964] }
+    }
+    ```
+
+| Format | Langage | Coordonnées | Ordre | Taille |
+|---|---|---|---|---|
+| GML | XML | MN95 (déclaré par `srsName`) | E N | 369 octets |
+| KML | XML | WGS84 imposé | lon,lat | 280 octets |
+| GPX | XML | WGS84 imposé | attributs `lat` et `lon` | 244 octets |
+| INTERLIS 2 (XTF) | XML | défini par le modèle (ici MN95) | `C1` = E, `C2` = N | 596 octets |
+| GeoJSON | JSON | WGS84 imposé | [lon, lat] | **174 octets** |
+
+Quelques observations, détaillées dans la suite du chapitre :
+
+- les quatre formats XML commencent par le même **prologue** `<?xml version="1.0" encoding="UTF-8"?>` : le « ï » de Faïencerie y est codé en **UTF-8** sur 2 octets (voir [chapitre 1](../01-codage-binaire/README.md#le-codage-du-texte)) ;
+- chaque format XML a **ses propres balises**, définies par son **espace de noms** (`xmlns`) : `<name>` en KML et GPX, `<nom>` dans notre GML, `<Nom>` dans le modèle INTERLIS ;
+- GML et INTERLIS gardent les coordonnées **MN95** ; KML, GPX et GeoJSON imposent le **WGS84** ;
+- GeoJSON est le plus **compact** : pas de balises fermantes.
 
 ## XML : balises, éléments, attributs
 
@@ -196,6 +290,12 @@ Tout document valide est bien formé, mais l'inverse n'est pas vrai : `<ferme><v
 !!! tip "Outils de vérification"
     Un navigateur web ou un éditeur comme VS Code ou Notepad++ (extension XML Tools) détecte les erreurs de forme. Pour la validation contre un schéma, on utilise un validateur XSD (extension d'éditeur, `xmllint --schema`, ou pour INTERLIS l'outil ilivalidator).
 
+### À vous de jouer : bien formé ?
+
+<div class="demo" data-demo="editeur" data-format="xml"></div>
+
+*Modifiez le fichier KML de l'arrêt : le navigateur vérifie en direct s'il est **bien formé** et affiche son **arbre** d'éléments (cliquez sur un nœud pour le retrouver dans le texte). Les boutons « Casser » introduisent des erreurs typiques : à vous de les retrouver et de les corriger.*
+
 ## Formats géographiques basés sur XML
 
 ### GML (Geography Markup Language)
@@ -249,6 +349,10 @@ Points à connaître :
 - **Coordonnées en WGS84 uniquement**, en degrés décimaux, dans l'ordre **longitude, latitude, altitude**. Des données MN95 doivent être reprojetées avant export.
 - Les **couleurs** sont écrites en hexadécimal dans l'ordre **`aabbggrr`** (alpha, bleu, vert, rouge), et non `rrggbb` comme en HTML. Ici `73ff0000` = alpha `73` (≈ 45 % d'opacité), bleu `ff`, vert `00`, rouge `00` : un trait **bleu** semi-transparent.
 - Un fichier **KMZ** est une **archive ZIP** (compression *Deflate*) contenant un fichier `doc.kml` et éventuellement des images ou icônes. On peut le renommer en `.zip` pour l'ouvrir.
+
+<div class="demo" data-demo="couleurkml"></div>
+
+*Choisissez une couleur et une opacité : le convertisseur affiche l'écriture HTML (`#rrggbb`) et l'écriture KML (`aabbggrr`), où l'ordre des octets est inversé (voir l'hexadécimal au [chapitre 1](../01-codage-binaire/README.md#lhexadecimal)).*
 
 !!! tip "Exercice"
     Mettez ces notions en pratique avec l'exercice [Lire et modifier un fichier KML](../exercices/ex06-kml/README.md).
@@ -313,6 +417,13 @@ Le format de transfert d'**INTERLIS 2**, la norme suisse d'échange de géodonn�
 | Schéma | DTD, **XSD** (très mûr) | **JSON Schema** |
 | Usage typique | Échanges normalisés, documents (GML, INTERLIS, Office) | API web, applications JavaScript, GeoJSON |
 
+### JSON, le langage des API
+
+La plupart des services web modernes répondent en JSON : les **OGC API** et le catalogue **STAC** de swisstopo (voir [chapitre 8](../08-geoservices/README.md)), l'API de geo.admin.ch qui nous a servi à obtenir les arrêts de bus du fil rouge, etc. Deux variantes sont utiles à connaître :
+
+- **JSON indenté ou compact** : les espaces et retours à la ligne ne servent qu'à la lisibilité. Le GeoJSON de l'arrêt pèse 174 octets indenté, **149 octets** sur une seule ligne. Les API renvoient généralement la version compacte.
+- **JSON délimité par lignes** (*NDJSON*, ou *GeoJSONSeq* pour le géographique) : un objet JSON complet **par ligne**, sans tableau englobant. Un logiciel peut ainsi lire un très gros fichier ligne par ligne, sans le charger entièrement en mémoire.
+
 ## GeoJSON
 
 **GeoJSON** est un format JSON pour les données géographiques vectorielles, normalisé par l'IETF dans la **RFC 7946** (2016). C'est le format vectoriel le plus courant sur le web (Leaflet, OpenLayers, API REST).
@@ -343,6 +454,30 @@ Le format de transfert d'**INTERLIS 2**, la norme suisse d'échange de géodonn�
 !!! warning "GeoJSON = WGS84, longitude d'abord"
     Selon la RFC 7946, les coordonnées GeoJSON sont **toujours en WGS84** (EPSG:4326), en degrés décimaux, dans l'ordre **[longitude, latitude]** (éventuellement suivi de l'altitude). L'ancien membre `"crs"`, qui permettait d'indiquer un autre système (p. ex. MN95), est **obsolète** depuis 2016. Certains logiciels écrivent encore des GeoJSON en MN95 avec un membre `"crs"` : ces fichiers ne sont pas conformes et peuvent être mal interprétés par d'autres outils.
 
+<div class="demo" data-demo="geojsoncarte"></div>
+
+*Modifiez les coordonnées ou les propriétés : le point se déplace sur la carte. Cliquez ensuite sur « Inverser longitude et latitude », l'erreur la plus fréquente avec GeoJSON : où se retrouve l'arrêt de bus d'Yverdon ?*
+
+### JSON-FG : GeoJSON avec d'autres systèmes de coordonnées
+
+Pour lever la principale limite de GeoJSON, l'OGC a adopté en 2025 le standard **JSON-FG** (*Features and Geometries JSON*, partie 1, version 1.0). Un fichier JSON-FG **reste un GeoJSON valide**, mais peut ajouter :
+
+- un membre `"place"` contenant la géométrie dans **un autre système de coordonnées**, par exemple le **MN95**, déclaré par `"coordRefSys"` ;
+- des informations **temporelles** (`"time"`) et le type d'objet (`"featureType"`).
+
+```json
+{
+  "type": "Feature",
+  "featureType": "ArretTP",
+  "coordRefSys": "http://www.opengis.net/def/crs/EPSG/0/2056",
+  "place": { "type": "Point", "coordinates": [2538964, 1180177] },
+  "geometry": { "type": "Point", "coordinates": [6.639541, 46.769964] },
+  "properties": { "nom": "Yverdon-les-Bains, Faïencerie", "moyen": "Bus" }
+}
+```
+
+*Exemple simplifié.* Un logiciel qui ne connaît que GeoJSON lit `"geometry"` (WGS84) et ignore le reste ; un logiciel compatible JSON-FG utilise `"place"`, en MN95.
+
 !!! tip "Exercice"
     L'exercice [GeoJSON et systèmes de coordonnées](../exercices/ex07-geojson/README.md) compare un GeoJSON en WGS84 et un GeoJSON en MN95.
 
@@ -369,6 +504,12 @@ Exemple de schéma minimal :
 
 Un objet `{"nom": "Yverdon-les-Bains", "npa": 1400}` est valide ; `{"nom": "Yverdon-les-Bains"}` ne l'est pas (`npa` manque).
 
+### À vous de jouer : bien formé **et** valide ?
+
+<div class="demo" data-demo="editeur" data-format="json"></div>
+
+*Le GeoJSON de l'arrêt est vérifié à deux niveaux : la **syntaxe** (bien formé) et le **contenu**, par un JSON Schema simplifié d'un arrêt de bus (affiché sous l'éditeur). Essayez par exemple de remplacer `"Point"` par `"Pointt"`, de supprimer la latitude ou d'écrire `"moyen": "Avion"` : le fichier reste **bien formé**, mais n'est plus **valide**.*
+
 !!! example "Exemple réel : le cadastre RDPPF"
     Pour le cadastre des restrictions de droit public à la propriété foncière (RDPPF / ÖREB), la Confédération publie à la fois les schémas **XML** (XSD) et **JSON** (JSON Schema) des extraits : <https://schemas.geo.admin.ch/V_D/OeREB/2.0/>. Un même contenu peut ainsi être échangé dans les deux formats, chacun vérifiable par son schéma.
 
@@ -378,10 +519,16 @@ Un objet `{"nom": "Yverdon-les-Bains", "npa": 1400}` est valide ; `{"nom": "Yver
 - **Bien formé** = syntaxe correcte ; **valide** = bien formé **et** conforme à un schéma (DTD ou, aujourd'hui, **XSD**).
 - Formats géo XML : **GML** (ISO 19136, tout système de coordonnées), **KML** (WGS84, couleurs `aabbggrr`, KMZ = ZIP), **GPX**, **INTERLIS 2 / XTF**.
 - JSON : objets `{}`, tableaux `[]`, types natifs, plus léger que XML ; validé par **JSON Schema**.
-- **GeoJSON** (RFC 7946) : WGS84, **[lon, lat]**, le membre `"crs"` est obsolète.
+- **GeoJSON** (RFC 7946) : WGS84, **[lon, lat]**, le membre `"crs"` est obsolète. **JSON-FG** (OGC, 2025) ajoute d'autres systèmes de coordonnées.
+
+## Testez-vous
+
+<div class="demo" data-demo="quiz" data-quiz="xmljson"></div>
 
 ## Sources
 
+- [Features and Geometries JSON (JSON-FG) – OGC](https://www.ogc.org/standards/json-fg/)
+- [GeoJSON Text Sequences – RFC 8142 (IETF)](https://datatracker.ietf.org/doc/html/rfc8142)
 - [16] *JSON*, EduTech Wiki, Université de Genève : <https://edutechwiki.unige.ch/fr/JSON>
 - W3C, *Extensible Markup Language (XML) 1.0* : <https://www.w3.org/TR/xml/>
 - W3C, *XML Schema* : <https://www.w3.org/XML/Schema>

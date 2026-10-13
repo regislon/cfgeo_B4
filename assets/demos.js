@@ -905,8 +905,320 @@
     render();
   }
 
+  // ---------------------------------------------------------------- Chapitre 5 : XML et JSON
+  const ARRET_KML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n  <Placemark>\n    <name>Yverdon-les-Bains, Faïencerie</name>\n    <description>Bus</description>\n    <Point>\n      <coordinates>6.639541,46.769964</coordinates>\n    </Point>\n  </Placemark>\n</kml>";
+  const ARRET_GEOJSON = "{\n  \"type\": \"Feature\",\n  \"properties\": { \"nom\": \"Yverdon-les-Bains, Faïencerie\", \"moyen\": \"Bus\" },\n  \"geometry\": { \"type\": \"Point\", \"coordinates\": [6.639541, 46.769964] }\n}";
+  const ARRET_SCHEMA = {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    title: "Arrêt de transport public (GeoJSON simplifié)",
+    type: "object",
+    required: ["type", "properties", "geometry"],
+    properties: {
+      type: { const: "Feature" },
+      properties: {
+        type: "object",
+        required: ["nom", "moyen"],
+        properties: {
+          nom: { type: "string", minLength: 1 },
+          moyen: { enum: ["Bus", "Train", "Tram", "Bateau", "Funiculaire"] },
+        },
+      },
+      geometry: {
+        type: "object",
+        required: ["type", "coordinates"],
+        properties: {
+          type: { const: "Point" },
+          coordinates: {
+            type: "array", minItems: 2, maxItems: 3,
+            items: [{ type: "number", minimum: -180, maximum: 180 }, { type: "number", minimum: -90, maximum: 90 }],
+          },
+        },
+      },
+    },
+  };
+  const AJV_URL = "https://cdn.jsdelivr.net/npm/ajv@8.17.1/+esm";
+  const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  // Messages de validation JSON Schema en français (mots-clés les plus courants)
+  function frMsg(er) {
+    const p = er.params || {};
+    switch (er.keyword) {
+      case "const": return "doit valoir exactement";
+      case "enum": return "valeur non autorisée ; valeurs possibles";
+      case "required": return `propriété obligatoire manquante : « ${p.missingProperty} »`;
+      case "minItems": return `doit contenir au moins ${p.limit} élément(s)`;
+      case "maxItems": return `doit contenir au plus ${p.limit} élément(s)`;
+      case "type": return `doit être de type ${p.type}`;
+      case "minimum": return `doit être ≥ ${p.limit}`;
+      case "maximum": return `doit être ≤ ${p.limit}`;
+      case "minLength": return "ne doit pas être vide";
+      default: return er.message;
+    }
+  }
+
+  // Position (ligne, colonne) d'un index dans un texte
+  function lineCol(text, pos) {
+    const before = text.slice(0, pos).split("\n");
+    return [before.length, before[before.length - 1].length + 1];
+  }
+
+  // ---------------------------------------------------------------- Éditeur XML / JSON
+  function demoEditeur(root) {
+    const isXml = root.dataset.format !== "json";
+    const initial = isXml ? ARRET_KML : ARRET_GEOJSON;
+    const ta = el("textarea", { class: "demo-code", spellcheck: "false", rows: isXml ? "11" : "6" });
+    ta.value = initial;
+    const badges = el("div", { class: "demo-row" });
+    const msg = el("div", { class: "demo-quiz-fb" });
+    const tree = el("div", { class: "demo-tree" });
+    const breaks = isXml
+      ? [
+          ["Balise non fermée", (t) => t.replace("</name>", "")],
+          ["« & » non échappé", (t) => t.replace("<description>Bus</description>", "<description>Bus & car</description>")],
+          ["Attribut sans guillemets", (t) => t.replace('xmlns="http://www.opengis.net/kml/2.2"', "xmlns=http://www.opengis.net/kml/2.2")],
+          ["Mauvaise imbrication", (t) => t.replace("</Point>\n  </Placemark>", "</Placemark>\n  </Point>")],
+          ["Majuscule", (t) => t.replace("</name>", "</Name>")],
+        ]
+      : [
+          ["Virgule en trop", (t) => t.replace('"moyen": "Bus" }', '"moyen": "Bus", }')],
+          ["Guillemet manquant", (t) => t.replace('"nom": "Yverdon', '"nom": Yverdon')],
+          ["Type « Pointt »", (t) => t.replace('"Point"', '"Pointt"')],
+          ["Latitude supprimée", (t) => t.replace(", 46.769964]", "]")],
+          ["Moyen « Avion »", (t) => t.replace('"Bus"', '"Avion"')],
+        ];
+    const btns = breaks.map(([label, f]) => {
+      const b = el("button", { type: "button", class: "demo-btn", text: "Casser : " + label });
+      b.addEventListener("click", () => { ta.value = f(ta.value); check(); });
+      return b;
+    });
+    const reset = el("button", { type: "button", class: "demo-btn", text: "Réinitialiser" });
+    reset.addEventListener("click", () => { ta.value = initial; check(); });
+
+    let validate = null;
+    if (!isXml) {
+      import(AJV_URL).then((m) => {
+        const Ajv = m.default || m.Ajv;
+        validate = new Ajv({ allErrors: true, strict: false }).compile(ARRET_SCHEMA);
+        check();
+      }).catch(() => { validate = false; check(); });
+    }
+
+    const badge = (ok, txt) => `<span class="demo-badge ${ok === null ? "" : ok ? "demo-badge-ok" : "demo-badge-ko"}">${ok === null ? "…" : ok ? "✅" : "❌"} ${txt}</span>`;
+
+    function selectElement(tag, n) {
+      const re = new RegExp("<" + tag + "(?=[\\s>/])", "g");
+      let m, k = 0;
+      while ((m = re.exec(ta.value))) { if (k++ === n) { ta.focus(); ta.setSelectionRange(m.index, m.index + tag.length + 1); return; } }
+    }
+    function renderTree(doc) {
+      const counts = {};
+      const walk = (node) => {
+        const name = node.nodeName;
+        const n = (counts[name] = (counts[name] || 0) + 1) - 1;
+        const attrs = [...node.attributes].map((a) => ` <span class="demo-tree-attr">${esc(a.name)}="${esc(a.value)}"</span>`).join("");
+        const li = el("li");
+        const head = el("span", { class: "demo-tree-el", html: `&lt;${esc(name)}&gt;${attrs}` });
+        head.addEventListener("click", (e) => { e.stopPropagation(); selectElement(name, n); });
+        li.appendChild(head);
+        const kids = el("ul");
+        for (const c of node.childNodes) {
+          if (c.nodeType === 1) kids.appendChild(walk(c));
+          else if (c.nodeType === 3 && c.textContent.trim()) kids.appendChild(el("li", { class: "demo-tree-txt", text: "« " + c.textContent.trim() + " »" }));
+        }
+        if (kids.children.length) li.appendChild(kids);
+        return li;
+      };
+      tree.innerHTML = "<b>Arbre du document</b> (élément, <span class='demo-tree-attr'>attribut</span>, <span class='demo-tree-txt'>texte</span>) :";
+      tree.appendChild(el("ul", { class: "demo-tree-root" }, [walk(doc.documentElement)]));
+    }
+
+    function check() {
+      const text = ta.value;
+      if (isXml) {
+        const doc = new DOMParser().parseFromString(text, "application/xml");
+        const err = doc.querySelector("parsererror");
+        if (err) {
+          const raw = (err.textContent || "").replace(/\s+/g, " ").trim();
+          // Chrome : « error on line 5 at column 23: … » ; Firefox : « XML Parsing Error: … Line Number 5, Column 23 »
+          const m = /error on line (\d+) at column (\d+): ([^]*?)(Below is|$)/i.exec(raw) || /Line Number (\d+), Column (\d+)/i.exec(raw);
+          const detail = m ? `ligne ${m[1]}, colonne ${m[2]}${m[3] && !/^\d/.test(m[3]) ? " — " + m[3].trim() : ""}` : raw;
+          badges.innerHTML = badge(false, "Bien formé");
+          msg.innerHTML = `Erreur de syntaxe XML : <code>${esc(detail.slice(0, 220))}</code>`;
+          tree.innerHTML = "<i>Document mal formé : impossible de construire l'arbre. Un logiciel refuserait ce fichier.</i>";
+        } else {
+          badges.innerHTML = badge(true, "Bien formé");
+          msg.innerHTML = "Le document est bien formé : cliquez sur un nœud de l'arbre pour le retrouver dans le texte.";
+          renderTree(doc);
+        }
+        return;
+      }
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        const m = /position (\d+)/.exec(e.message);
+        const where = m ? ` (ligne ${lineCol(text, +m[1]).join(", colonne ")})` : "";
+        badges.innerHTML = badge(false, "Bien formé") + badge(false, "Valide");
+        msg.innerHTML = `Erreur de syntaxe JSON${where} : <code>${esc(e.message)}</code>`;
+        return;
+      }
+      if (validate === null) { badges.innerHTML = badge(true, "Bien formé") + badge(null, "Valide (chargement du validateur…)"); msg.textContent = ""; return; }
+      if (validate === false) { badges.innerHTML = badge(true, "Bien formé"); msg.textContent = "Validateur indisponible (pas de connexion ?)."; return; }
+      const ok = validate(data);
+      badges.innerHTML = badge(true, "Bien formé") + badge(ok, "Valide selon le schéma");
+      msg.innerHTML = ok
+        ? "Le document est bien formé et respecte le schéma."
+        : "Bien formé, mais <b>non valide</b> :<ul>" + validate.errors.map((er) => `<li><code>${esc(er.instancePath || "/")}</code> : ${esc(frMsg(er))}${er.params && er.params.allowedValues ? " (" + esc(er.params.allowedValues.join(", ")) + ")" : ""}${er.params && er.params.allowedValue ? " (« " + esc(er.params.allowedValue) + " »)" : ""}</li>`).join("") + "</ul>";
+    }
+    ta.addEventListener("input", check);
+    root.append(ta, badges, msg, el("div", { class: "demo-row" }, [...btns, reset]));
+    if (isXml) root.appendChild(tree);
+    else root.appendChild(el("details", { class: "demo-details" }, [el("summary", { text: "Le JSON Schema utilisé" }), el("pre", { class: "demo-pre", text: JSON.stringify(ARRET_SCHEMA, null, 2) })]));
+    check();
+  }
+
+  // ---------------------------------------------------------------- Couleur KML / HTML
+  function demoCouleurKml(root) {
+    const color = el("input", { type: "color", value: "#0000ff" });
+    const alpha = el("input", { type: "range", min: "0", max: "255", value: "115" });
+    const kmlIn = el("input", { type: "text", value: "73ff0000", class: "demo-ex-a", maxlength: "8" });
+    const swatch = el("div", { class: "demo-swatch demo-checker" }, [el("div", { class: "demo-swatch-fill" })]);
+    const out = el("div");
+    function show(r, g, b, a) {
+      swatch.firstChild.style.background = `rgba(${r},${g},${b},${a / 255})`;
+      const html = `#${hex2(r)}${hex2(g)}${hex2(b)}`;
+      const kml = `${hex2(a)}${hex2(b)}${hex2(g)}${hex2(r)}`.toLowerCase();
+      out.innerHTML = `
+        <table class="demo-table">
+          <tr><th></th><th>Ordre</th><th>Valeur</th></tr>
+          <tr><td>HTML / CSS / QGIS</td><td>rouge · vert · bleu</td><td><code>${html}</code> + opacité ${fmt((100 * a) / 255, 0)} %</td></tr>
+          <tr><td><b>KML</b></td><td><b>alpha · bleu · vert · rouge</b></td><td><code><span class="demo-r">${kml.slice(0, 2)}</span>${kml.slice(2, 4)}${kml.slice(4, 6)}${kml.slice(6, 8)}</code></td></tr>
+        </table>
+        <pre class="demo-pre">&lt;LineStyle&gt;&lt;color&gt;${kml}&lt;/color&gt;&lt;width&gt;4&lt;/width&gt;&lt;/LineStyle&gt;</pre>`;
+      return kml;
+    }
+    function fromPicker() {
+      const v = color.value;
+      kmlIn.value = show(parseInt(v.slice(1, 3), 16), parseInt(v.slice(3, 5), 16), parseInt(v.slice(5, 7), 16), +alpha.value);
+    }
+    function fromKml() {
+      const v = kmlIn.value.trim();
+      if (!/^[0-9a-fA-F]{8}$/.test(v)) return;
+      const [a, b, g, r] = [0, 2, 4, 6].map((i) => parseInt(v.slice(i, i + 2), 16));
+      color.value = `#${hex2(r)}${hex2(g)}${hex2(b)}`.toLowerCase();
+      alpha.value = a;
+      show(r, g, b, a);
+    }
+    color.addEventListener("input", fromPicker);
+    alpha.addEventListener("input", fromPicker);
+    kmlIn.addEventListener("input", fromKml);
+    root.append(
+      el("div", { class: "demo-row" }, [el("span", { text: "Couleur : " }), color, el("span", { text: " Opacité : " }), alpha, swatch]),
+      el("div", { class: "demo-row" }, [el("span", { text: "… ou saisissez une couleur KML : " }), kmlIn]),
+      out
+    );
+    fromKml();
+  }
+
+  // ---------------------------------------------------------------- GeoJSON sur une carte
+  function demoGeojsonCarte(root) {
+    lazyDemo(root, "Charger la carte", async () => {
+      loadCss(LIBS.maplibreCss);
+      await loadScript(LIBS.maplibreJs);
+      const wrap = el("div", { class: "demo-split" });
+      const ta = el("textarea", { class: "demo-code", spellcheck: "false", rows: "8" });
+      ta.value = ARRET_GEOJSON;
+      const mapDiv = el("div", { class: "demo-map demo-map-small" });
+      wrap.append(ta, mapDiv);
+      root.appendChild(wrap);
+      const msg = el("div", { class: "demo-quiz-fb" });
+      const swap = el("button", { type: "button", class: "demo-btn", text: "⇄ Inverser longitude et latitude" });
+      const reset = el("button", { type: "button", class: "demo-btn", text: "Réinitialiser" });
+      root.append(el("div", { class: "demo-row" }, [swap, reset]), msg);
+
+      const map = new maplibregl.Map({
+        container: mapDiv,
+        style: "https://demotiles.maplibre.org/style.json",
+        center: [6.6395, 46.77],
+        zoom: 13,
+        attributionControl: { compact: true },
+      });
+      map.addControl(new maplibregl.NavigationControl({ showCompass: false }));
+      const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false });
+      map.on("load", () => {
+        mapDiv.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show");
+        map.addSource("swisstopo", {
+          type: "raster", tileSize: 256, bounds: [5.9, 45.8, 10.5, 47.8], minzoom: 7,
+          tiles: ["https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg"],
+          attribution: "© swisstopo",
+        });
+        map.addLayer({ id: "swisstopo", type: "raster", source: "swisstopo" });
+        map.addSource("pt", { type: "geojson", data: JSON.parse(ARRET_GEOJSON) });
+        map.addLayer({ id: "pt", type: "circle", source: "pt", paint: { "circle-radius": 9, "circle-color": "#2166ac", "circle-stroke-color": "#fff", "circle-stroke-width": 3 } });
+        update(false);
+      });
+      function update(fly = true) {
+        let data;
+        try { data = JSON.parse(ta.value); } catch (e) { msg.innerHTML = `❌ JSON mal formé : <code>${esc(e.message)}</code>`; return; }
+        const c = data && data.geometry && data.geometry.coordinates;
+        if (!Array.isArray(c) || c.length < 2 || typeof c[0] !== "number" || typeof c[1] !== "number") { msg.textContent = "❌ Géométrie illisible : il faut \"coordinates\": [longitude, latitude]."; return; }
+        if (Math.abs(c[1]) > 85) { msg.innerHTML = `❌ Latitude ${c[1]} impossible à afficher (valeur hors de −85° à 85°).`; return; }
+        map.getSource("pt") && map.getSource("pt").setData(data);
+        const inCH = c[0] > 5.9 && c[0] < 10.5 && c[1] > 45.8 && c[1] < 47.8;
+        popup.setLngLat(c).setHTML(`<b>${esc((data.properties && data.properties.nom) || "?")}</b><br>lon ${c[0]} · lat ${c[1]}`).addTo(map);
+        msg.innerHTML = inCH
+          ? "✅ Le point est en Suisse, à Yverdon-les-Bains."
+          : `⚠️ Le point n'est plus en Suisse ! Avec <code>[${c[0]}, ${c[1]}]</code>, la longitude vaut ${c[0]}° et la latitude ${c[1]}° : ${Math.abs(c[0] - 46.77) < 1 && Math.abs(c[1] - 6.64) < 1 ? "l'arrêt se retrouve dans la <b>Corne de l'Afrique</b>, entre l'Éthiopie et la Somalie. C'est l'erreur classique de l'ordre [latitude, longitude]." : "vérifiez l'ordre et les valeurs des coordonnées."}`;
+        if (fly) map.flyTo({ center: c, zoom: inCH ? 13 : 4, duration: 1500 });
+      }
+      ta.addEventListener("input", () => update(true));
+      swap.addEventListener("click", () => {
+        ta.value = ta.value.replace(/"coordinates"\s*:\s*\[\s*([-\d.]+)\s*,\s*([-\d.]+)/, (m, a, b) => `"coordinates": [${b}, ${a}`);
+        update(true);
+      });
+      reset.addEventListener("click", () => { ta.value = ARRET_GEOJSON; update(true); });
+    });
+  }
+
   // ---------------------------------------------------------------- Quiz
   const QUIZZES = {
+    xmljson: [
+      {
+        q: "Combien d'éléments racines un document XML bien formé peut-il avoir ?",
+        a: ["Aucun", "Exactement un", "Au moins deux", "Autant qu'on veut"], ok: 1,
+        e: "Un document XML a toujours un seul élément racine qui contient tous les autres (par exemple &lt;kml&gt;).",
+      },
+      {
+        q: "Un fichier XML contient <code>&lt;nom&gt;Bus &amp; car&lt;/nom&gt;</code>. Est-il bien formé ?",
+        a: ["Oui", "Non : le « & » doit s'écrire &amp;", "Non : il manque un attribut", "Oui, mais seulement en UTF-8"], ok: 1,
+        e: "Les caractères réservés &lt; et &amp; doivent être remplacés par des entités : <code>&amp;lt;</code> et <code>&amp;amp;</code>.",
+      },
+      {
+        q: "Un GeoJSON contient \"type\": \"Pointt\". Que dira un vérificateur ?",
+        a: ["Mal formé", "Bien formé mais non valide", "Bien formé et valide", "Le fichier est binaire"], ok: 1,
+        e: "La syntaxe JSON est correcte (bien formé), mais « Pointt » n'est pas un type de géométrie autorisé par le schéma (non valide).",
+      },
+      {
+        q: "Dans quel ordre GeoJSON écrit-il les coordonnées ?",
+        a: ["[latitude, longitude]", "[longitude, latitude]", "[Nord, Est] en MN95", "Au choix, avec le membre « crs »"], ok: 1,
+        e: "RFC 7946 : toujours WGS84, longitude d'abord. Le membre « crs » est obsolète depuis 2016.",
+      },
+      {
+        q: "Quelle couleur correspond au code KML ff0000ff ?",
+        a: ["Bleu opaque", "Rouge opaque", "Rouge transparent", "Vert opaque"], ok: 1,
+        e: "KML = aabbggrr : alpha ff (opaque), bleu 00, vert 00, rouge ff. C'est du rouge opaque, soit #ff0000 en HTML.",
+      },
+      {
+        q: "Quel format de ce chapitre peut conserver des coordonnées MN95 de manière standard ?",
+        a: ["KML", "GPX", "GML", "GeoJSON (RFC 7946)"], ok: 2,
+        e: "GML déclare son système de coordonnées (srsName) ; INTERLIS et JSON-FG le permettent aussi. KML, GPX et GeoJSON imposent le WGS84.",
+      },
+      {
+        q: "À quoi sert un schéma XSD ou un JSON Schema ?",
+        a: ["À compresser le fichier", "À décrire la structure attendue pour vérifier qu'un document est valide", "À afficher le fichier sur une carte", "À choisir l'encodage des caractères"], ok: 1,
+        e: "Le schéma décrit les éléments ou propriétés autorisés, leur type et leur ordre : c'est l'équivalent d'un modèle de données.",
+      },
+    ],
     codage: [
       {
         q: "Combien de valeurs différentes peut-on coder avec un octet ?",
@@ -1334,6 +1646,7 @@
     pixels: demoPixels, compression: demoCompression, taille: demoTaille, pmtiles: demoPmtiles, quiz: demoQuiz,
     bits: demoBits, float: demoFloat, unites: demoUnites, texte: demoTexte, fichier: demoFichier, exercices: demoExercices,
     las: demoLas, ifc: demoIfc,
+    editeur: demoEditeur, couleurkml: demoCouleurKml, geojsoncarte: demoGeojsonCarte,
   };
 
   function init() {
