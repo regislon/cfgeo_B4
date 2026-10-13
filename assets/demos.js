@@ -1180,8 +1180,215 @@
     });
   }
 
+  // ---------------------------------------------------------------- Chapitre 6 : normes et interopérabilité
+  const DEGRES = {
+    norme: ["Norme / standard ouvert", "#2e7d32"],
+    communaute: ["Spécification ouverte communautaire", "#1565c0"],
+    defacto: ["Standard de fait", "#ef6c00"],
+    ferme: ["Format fermé", "#c62828"],
+  };
+  const CH = "https://regislon.github.io/cfgeo_B4/formats-interfaces/";
+  // Dates : uniquement celles qui ont été vérifiées ; sinon champ vide
+  const NORMES = [
+    ["GeoTIFF", "raster", "OGC", "norme", "spécification 1995 · standard OGC 2019", "02-raster"],
+    ["COG", "raster", "OGC", "norme", "standard OGC 2023", "02-raster"],
+    ["LAS", "nuage de points", "ASPRS", "norme", "version 1.4 : 2011", "04-3d-nuages-de-points"],
+    ["COPC", "nuage de points", "Communauté (Hobu)", "communaute", "version 1.0 : 2021", "04-3d-nuages-de-points"],
+    ["E57", "nuage de points", "ASTM (E2807)", "norme", "", "04-3d-nuages-de-points"],
+    ["IFC", "BIM", "buildingSMART / ISO 16739", "norme", "", "04-3d-nuages-de-points"],
+    ["CityGML", "3D", "OGC", "norme", "1.0 : 2008 · 3.0 : 2021", "04-3d-nuages-de-points"],
+    ["3D Tiles", "3D web", "OGC (Community Standard)", "norme", "", "04-3d-nuages-de-points"],
+    ["Shapefile", "vecteur", "Esri", "defacto", "description publiée en 1998", "03-vecteur"],
+    ["File Geodatabase", "vecteur", "Esri", "ferme", "", "03-vecteur"],
+    ["DXF", "vecteur (DAO)", "Autodesk", "defacto", "", "03-vecteur"],
+    ["DWG", "vecteur (DAO)", "Autodesk", "ferme", "", "03-vecteur"],
+    ["GeoPackage", "vecteur et raster", "OGC", "norme", "standard OGC 2014", "03-vecteur"],
+    ["FlatGeobuf", "vecteur", "Communauté", "communaute", "version stable 2020", "03-vecteur"],
+    ["GeoParquet", "vecteur", "OGC (groupe de travail)", "communaute", "1.0 : 2023 · normalisation OGC en cours", "03-vecteur"],
+    ["PMTiles", "tuiles", "Protomaps (communauté)", "communaute", "", "03-vecteur"],
+    ["WKT / WKB", "géométrie", "OGC / ISO 19125", "norme", "", "03-vecteur"],
+    ["INTERLIS", "modèle et transfert", "SNV / eCH (Suisse)", "norme", "INTERLIS 1 : 1991 · SN 612030 : 1998", "03-vecteur"],
+    ["XML", "langage", "W3C", "norme", "1998", "05-xml-json"],
+    ["JSON", "langage", "IETF (RFC 8259) / ECMA", "norme", "", "05-xml-json"],
+    ["GML", "vecteur (XML)", "OGC / ISO 19136", "norme", "ISO 19136 : 2007", "05-xml-json"],
+    ["KML", "vecteur (XML)", "OGC", "norme", "standard OGC 2008", "05-xml-json"],
+    ["GPX", "traces GPS (XML)", "Topografix", "communaute", "", "05-xml-json"],
+    ["GeoJSON", "vecteur (JSON)", "IETF (RFC 7946)", "norme", "2016", "05-xml-json"],
+    ["JSON-FG", "vecteur (JSON)", "OGC", "norme", "approuvé 2025 · publié 2026", "05-xml-json"],
+    ["WMS", "service", "OGC / ISO 19128", "norme", "ISO 19128 : 2005", "08-geoservices"],
+    ["WMTS", "service", "OGC", "norme", "", "08-geoservices"],
+    ["WFS", "service", "OGC / ISO 19142", "norme", "", "08-geoservices"],
+    ["OGC API", "services", "OGC", "norme", "", "08-geoservices"],
+    ["STAC", "catalogue", "OGC (Community Standard)", "norme", "approuvé et publié en 2025", "08-geoservices"],
+    ["UTF-8", "codage du texte", "IETF (RFC 3629) / Unicode", "norme", "RFC 3629 : 2003", "01-codage-binaire"],
+    ["IEEE 754", "nombres à virgule", "IEEE", "norme", "1985", "01-codage-binaire"],
+  ];
+
+  function demoNormes(root) {
+    const orgs = [...new Set(NORMES.map((n) => n[2].split(/[ /(]/)[0]))].sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
+    const fOrg = el("select", {}, [el("option", { value: "", text: "Tous les organismes" }), ...orgs.map((o) => el("option", { value: o, text: o }))]);
+    const fDeg = el("select", {}, [el("option", { value: "", text: "Tous les degrés" }), ...Object.entries(DEGRES).map(([k, [t]]) => el("option", { value: k, text: t }))]);
+    const grid = el("div", { class: "demo-cards" });
+    const fiche = el("div", { class: "demo-ifc-info", html: "Cliquez sur un format pour sa fiche." });
+    const count = el("span", { class: "demo-stats" });
+    function render() {
+      grid.innerHTML = "";
+      const list = NORMES.filter((n) => (!fOrg.value || n[2].startsWith(fOrg.value)) && (!fDeg.value || n[3] === fDeg.value));
+      count.textContent = ` ${list.length} format(s)`;
+      list.forEach(([nom, type, org, deg, date, ch]) => {
+        const c = el("button", { type: "button", class: "demo-card", style: `border-left-color:${DEGRES[deg][1]}` }, [
+          el("b", { text: nom }), el("span", { text: org }),
+        ]);
+        c.addEventListener("click", () => {
+          fiche.innerHTML = `<b>${nom}</b> · ${type}<br>Défini par : <b>${org}</b><br>Degré : <span style="color:${DEGRES[deg][1]};font-weight:700">${DEGRES[deg][0]}</span>` +
+            (date ? `<br>Dates : ${date}` : "") + `<br><a href="${CH}${ch}/">Voir le chapitre</a>`;
+        });
+        grid.appendChild(c);
+      });
+    }
+    fOrg.addEventListener("change", render);
+    fDeg.addEventListener("change", render);
+    const legend = el("div", { class: "demo-row" }, Object.values(DEGRES).map(([t, col]) =>
+      el("span", { class: "demo-legend" }, [el("span", { class: "demo-dot", style: `background:${col}` }), el("span", { text: " " + t })])));
+    root.append(el("div", { class: "demo-row" }, [fOrg, fDeg, count]), legend, grid, fiche);
+    render();
+  }
+
+  // ---------------------------------------------------------------- Trier les formats
+  function demoTrier(root) {
+    const items = [
+      ["GeoPackage", "norme", "Standard ouvert de l'OGC (2014)."],
+      ["Shapefile", "defacto", "Défini par Esri seul ; tout le monde l'a adopté parce qu'Esri dominait le marché."],
+      ["File Geodatabase", "ferme", "Format d'Esri dont la spécification n'est pas publiée : d'autres logiciels le lisent par rétro-ingénierie."],
+      ["GeoJSON", "norme", "Normalisé par l'IETF (RFC 7946)."],
+      ["DXF", "defacto", "Défini et documenté par Autodesk ; imposé par la domination d'AutoCAD."],
+      ["DWG", "ferme", "Format natif d'AutoCAD, non publié ; lu par d'autres grâce à la rétro-ingénierie."],
+      ["FlatGeobuf", "communaute", "Spécification ouverte développée par une communauté de logiciel libre, non normalisée."],
+      ["INTERLIS", "norme", "Norme suisse (SNV, eCH), imposée par la législation sur la géoinformation."],
+      ["KML", "norme", "Créé par Keyhole/Google, devenu standard OGC en 2008."],
+      ["PMTiles", "communaute", "Spécification ouverte publiée par Protomaps, sans organisme de normalisation."],
+    ];
+    const rows = items.map(([nom, ok, why]) => {
+      const sel = el("select", {}, [el("option", { value: "", text: "— choisir —" }), ...Object.entries(DEGRES).map(([k, [t]]) => el("option", { value: k, text: t }))]);
+      const fb = el("span", { class: "demo-trier-fb" });
+      return { nom, ok, why, sel, fb, row: el("div", { class: "demo-trier-row" }, [el("b", { text: nom }), sel, fb]) };
+    });
+    const check = el("button", { type: "button", class: "demo-btn", text: "Vérifier" });
+    const score = el("div", { class: "demo-stats" });
+    check.addEventListener("click", () => {
+      let good = 0;
+      rows.forEach((r) => {
+        const right = r.sel.value === r.ok;
+        if (right) good++;
+        r.sel.classList.toggle("demo-ok", right);
+        r.sel.classList.toggle("demo-ko", !right);
+        r.fb.innerHTML = r.sel.value ? (right ? "✅ " : `❌ ${DEGRES[r.ok][0]} — `) + r.why : "";
+      });
+      score.textContent = `Score : ${good} / ${rows.length}`;
+    });
+    root.append(el("p", { text: "Classez chaque format selon son degré d'ouverture, puis vérifiez." }), ...rows.map((r) => r.row), el("div", { class: "demo-row" }, [check]), score);
+  }
+
+  // ---------------------------------------------------------------- Frise : comment naît un standard
+  function demoFrise(root) {
+    const FRISES = [
+      {
+        titre: "JSON-FG (OGC Standard)",
+        etapes: [
+          ["Rédaction", "Un groupe de travail de l'OGC (Standards Working Group) rédige une extension de GeoJSON."],
+          ["2024 · consultation publique", "L'OGC publie le projet (« candidate Standard ») et demande l'avis de tous ; les commentaires sont ouverts jusqu'au 24 juin 2024."],
+          ["2 juin 2025 · soumission", "Le texte corrigé est soumis aux membres de l'OGC."],
+          ["25 août 2025 · approbation", "Les membres de l'OGC approuvent le standard par un vote."],
+          ["30 avril 2026 · publication", "JSON-FG Partie 1 : Core, version 1.0, est publié et librement accessible."],
+        ],
+      },
+      {
+        titre: "STAC (OGC Community Standard)",
+        etapes: [
+          ["Origine", "STAC est développé hors de l'OGC, par une communauté, sur GitHub (radiantearth/stac-spec)."],
+          ["2023 · consultation", "L'OGC demande l'avis public sur l'adoption de STAC comme Community Standard."],
+          ["2025 · seconde consultation", "Consultation publique sur les projets OGC 25-004 (STAC 1.1.0) et 25-005 (STAC API 1.0.0)."],
+          ["9 septembre 2025 · approbation", "Les membres de l'OGC approuvent les deux documents."],
+          ["14 octobre 2025 · publication", "STAC devient un OGC Community Standard ; la communauté continue de faire évoluer la spécification."],
+        ],
+      },
+      {
+        titre: "Norme ISO (étapes générales)",
+        etapes: [
+          ["Proposition", "Un membre propose un nouveau sujet (New Work Item Proposal), soumis au vote."],
+          ["Projet de travail (WD)", "Un groupe d'experts rédige le texte."],
+          ["Projet de comité (CD)", "Le comité technique (p. ex. ISO/TC 211) discute et vote."],
+          ["Projet de norme (DIS, FDIS)", "Consultation et vote des organismes nationaux, dont la SNV pour la Suisse."],
+          ["Norme internationale (IS)", "La norme est publiée ; elle est payante et révisée périodiquement."],
+        ],
+      },
+    ];
+    const tabs = el("div", { class: "demo-row" });
+    const line = el("div", { class: "demo-frise" });
+    const detail = el("div", { class: "demo-ifc-info" });
+    function show(k) {
+      const f = FRISES[k];
+      tabs.querySelectorAll("button").forEach((b, i) => b.classList.toggle("demo-ok", i === k));
+      line.innerHTML = "";
+      f.etapes.forEach(([quand, quoi], i) => {
+        const step = el("button", { type: "button", class: "demo-step" }, [el("span", { class: "demo-step-n", text: String(i + 1) }), el("span", { text: quand })]);
+        step.addEventListener("click", () => {
+          line.querySelectorAll(".demo-step").forEach((s) => s.classList.remove("on"));
+          step.classList.add("on");
+          detail.innerHTML = `<b>${quand}</b><br>${quoi}`;
+        });
+        line.appendChild(step);
+      });
+      line.firstChild.click();
+    }
+    FRISES.forEach((f, k) => {
+      const b = el("button", { type: "button", class: "demo-btn", text: f.titre });
+      b.addEventListener("click", () => show(k));
+      tabs.appendChild(b);
+    });
+    root.append(tabs, line, detail);
+    show(0);
+  }
+
   // ---------------------------------------------------------------- Quiz
   const QUIZZES = {
+    interop: [
+      {
+        q: "Deux systèmes échangent des fichiers GeoPackage sans erreur, mais l'un appelle « Hochhaus » ce que l'autre appelle « immeuble ». Quel niveau d'interopérabilité pose problème ?",
+        a: ["Technique", "Syntaxique", "Sémantique", "Juridique"], ok: 2,
+        e: "Les fichiers sont lus correctement (technique et syntaxe OK), mais le sens des valeurs diffère : c'est la sémantique, réglée par des modèles de données et des listes de valeurs.",
+      },
+      {
+        q: "Le shapefile est lu par tous les SIG. Est-ce un exemple d'interopérabilité au sens strict ?",
+        a: ["Oui, puisque tout le monde le lit", "Non, c'est un standard de fait : Esri seul en fixe les règles", "Non, c'est un format fermé", "Oui, c'est une norme ISO"], ok: 1,
+        e: "Un standard de fait permet de communiquer, mais dépend d'un acteur dominant. L'interopérabilité repose sur un standard ouvert, comme GeoPackage.",
+      },
+      {
+        q: "Quel texte désigne INTERLIS comme langage de description des modèles de géodonnées en Suisse ?",
+        a: ["La LGéo, art. 1", "L'OGéo-swisstopo, art. 5", "La norme ISO 19136", "Le règlement d'eCH"], ok: 1,
+        e: "La LGéo exige des modèles (art. 5), l'OGéo prescrit les modèles minimaux et un langage normalisé (art. 9 et 10), et l'OGéo-swisstopo (art. 5) désigne INTERLIS (SN 612030 ou eCH-0031).",
+      },
+      {
+        q: "Les géodonnées de swisstopo sont en données ouvertes. Que faut-il faire pour les réutiliser dans un rapport ?",
+        a: ["Rien du tout", "Payer une licence", "Mentionner la source (© swisstopo)", "Demander une autorisation écrite"], ok: 2,
+        e: "Les données ouvertes de swisstopo sont gratuites et réutilisables, à condition de mentionner la source.",
+      },
+      {
+        q: "Une norme CEN a-t-elle la même portée qu'une norme ISO pour la Suisse ?",
+        a: ["Oui, toutes deux sont des recommandations", "Non : la SNV doit reprendre les normes CEN", "Non : les normes ISO sont obligatoires, pas les CEN", "La Suisse n'est pas concernée"], ok: 1,
+        e: "Membre du CEN, la SNV doit adopter les normes CEN, alors que les normes ISO sont des recommandations.",
+      },
+      {
+        q: "Qu'est-ce qu'un « Community Standard » de l'OGC, comme STAC ou 3D Tiles ?",
+        a: ["Un standard rédigé par l'ISO", "Une spécification née hors de l'OGC, largement adoptée, puis approuvée par ses membres", "Un format fermé", "Un brouillon sans valeur"], ok: 1,
+        e: "L'OGC reconnaît ainsi des spécifications développées par des communautés : STAC a été approuvé en septembre 2025 et publié en octobre 2025.",
+      },
+      {
+        q: "Un fichier GeoPackage (format ouvert) contient des données de clients. Peut-on le publier librement ?",
+        a: ["Oui, le format est ouvert", "Non : format ouvert ≠ données libres, il faut le droit de diffuser les données", "Oui, s'il est zippé", "Oui, si on le convertit en GeoJSON"], ok: 1,
+        e: "Le format et la licence sont deux questions distinctes : c'est le niveau juridique de l'interopérabilité.",
+      },
+    ],
     xmljson: [
       {
         q: "Combien d'éléments racines un document XML bien formé peut-il avoir ?",
@@ -1647,6 +1854,7 @@
     bits: demoBits, float: demoFloat, unites: demoUnites, texte: demoTexte, fichier: demoFichier, exercices: demoExercices,
     las: demoLas, ifc: demoIfc,
     editeur: demoEditeur, couleurkml: demoCouleurKml, geojsoncarte: demoGeojsonCarte,
+    normes: demoNormes, trier: demoTrier, frise: demoFrise,
   };
 
   function init() {

@@ -10,6 +10,9 @@
 - Distinguer compatibilité, standard de fait et interopérabilité
 - Distinguer norme, standard ouvert, norme à distribution restreinte et format propriétaire
 - Situer les organismes de normalisation (ISO, CEN, SNV, eCH, OGC) et leurs principales productions en géoinformation
+- Distinguer les niveaux d'interopérabilité : technique, syntaxique, sémantique, organisationnel et juridique
+- Connaître le cadre légal suisse (LGéo, OGéo, modèles de géodonnées minimaux) et le rôle des licences
+- Décrire les étapes de l'élaboration d'une norme
 
 ## Qu'est-ce qu'une interface ?
 
@@ -68,6 +71,33 @@ Si la norme est bien écrite, deux systèmes qui la respectent dialoguent sans p
 ??? question "Le shapefile : standard de fait ou interopérabilité ?"
     Le shapefile a été créé par Esri, qui en a publié la description en 1998. Tous les SIG le lisent, mais c'est Esri seul qui en a fixé les règles, et ses limites (noms de champs de 10 caractères, 2 Go, pas de vrai encodage déclaré) n'ont jamais été corrigées. C'est un **standard de fait**. Le **GeoPackage**, standard ouvert de l'OGC, vise l'interopérabilité.
 
+## Les niveaux d'interopérabilité
+
+Deux systèmes qui échangent des fichiers sans erreur ne se « comprennent » pas forcément. Le **cadre européen d'interopérabilité** (*European Interoperability Framework*, EIF) distingue plusieurs **niveaux**, qui doivent tous être réglés pour qu'un échange fonctionne vraiment. L'EIF en compte quatre (juridique, organisationnel, sémantique, technique) ; en géomatique, on isole souvent en plus le niveau **syntaxique**.
+
+| Niveau | Question posée | Exemples de solutions |
+|---|---|---|
+| **Technique** | Les systèmes peuvent-ils se connecter et lire les fichiers ? | Protocoles (HTTP), formats de fichiers, systèmes de coordonnées |
+| **Syntaxique** | La structure des données est-elle correcte ? | XML, JSON, schémas XSD et JSON Schema (chapitre 5) |
+| **Sémantique** | Les deux parties donnent-elles **le même sens** aux données ? | Modèles de données (INTERLIS), catalogues d'objets, listes de valeurs |
+| **Organisationnel** | Qui fournit quoi, à qui, quand et comment ? | Accords entre services, portails, processus de mise à jour |
+| **Juridique** | A-t-on le **droit** d'utiliser et de diffuser les données ? | Lois, conditions d'utilisation, **licences** |
+
+### 🧵 Fil rouge : ce que la préparation de ce cours nous a appris
+
+Assembler les données du kilomètre carré d'Yverdon (chapitres 1 à 5) a fait rencontrer **chacun** de ces niveaux :
+
+| Niveau | Ce qui s'est passé | Solution |
+|---|---|---|
+| Technique | swissTLM3D n'est diffusé qu'en un **fichier national de 3 à 5 Go** : impossible d'en extraire un km² sans tout télécharger. | Passer par l'**API REST** de geo.admin.ch, limitée à **200 objets par requête** : il a fallu enchaîner les requêtes. |
+| Technique | GeoLibre n'affiche la carte nationale qu'en **Web Mercator** (EPSG:3857), pas en MN95. La maquette IFC d'exemple est géoréférencée en **UTM 60 Sud** (EPSG:32760). | Utiliser la pyramide de tuiles en 3857 ; transformer les coordonnées. |
+| Syntaxique | Le DXF exporté déclare l'encodage **Windows-1252** et non UTF-8. | Connaître et déclarer l'encodage (chapitre 1). |
+| Sémantique | Les attributs de swissBUILDINGS3D sont en allemand (`Gebaeude Einzelhaus`, `Hochhaus`) et le champ hauteur est vide. Le nuage de points 2025 contient des classes **14, 15, 26 et 27** absentes de la documentation. | Traduire les valeurs (*schema mapping*, chapitre 7) ; calculer la hauteur ; regrouper les classes inconnues. |
+| Organisationnel | Le WFS libre de la mensuration officielle sur geodienste.ch renvoie les parcelles de **Zoug**, mais **pas celles du canton de Vaud**. | Se rabattre sur d'autres données (swissBUILDINGS3D) ; s'adresser au canton. |
+| Juridique | Les données de swisstopo sont libres, avec **mention de la source** ; la maquette IFC de buildingSMART est sous licence **CC BY 4.0**. | Citer « © swisstopo » et « buildingSMART, CC BY 4.0 » sous chaque figure. |
+
+Le message : l'interopérabilité n'est pas une question abstraite de normes. C'est exactement ce sur quoi on bute **dès qu'on assemble des données de sources différentes**, et le travail du géomaticien consiste en bonne partie à résoudre ces problèmes.
+
 ## Norme, standard, format propriétaire
 
 ### Norme ou standard ?
@@ -124,6 +154,16 @@ Exemples :
 - le **DWG** d'Autodesk (lu par d'autres logiciels grâce à la rétro-ingénierie de l'Open Design Alliance) ;
 - les formats natifs de nombreux instruments (scanners laser, récepteurs GNSS).
 
+### Qui a défini les formats de ce cours ?
+
+<div class="demo" data-demo="normes"></div>
+
+*Tous les formats, services et codages rencontrés dans ce cours. Filtrez par organisme ou par degré d'ouverture, et cliquez sur une carte pour sa fiche. Les dates indiquent l'adoption par l'organisme de normalisation, lorsqu'elle a pu être vérifiée.*
+
+### À vous de jouer : trier les formats
+
+<div class="demo" data-demo="trier"></div>
+
 ## Normalisation en géoinformation
 
 Les organismes de normalisation s'emboîtent du niveau mondial au niveau national :
@@ -172,7 +212,7 @@ La SNV étant membre du CEN, elle doit adopter les normes CEN, et donc les norme
 
 Exemples de normes suisses (SN) en géoinformation :
 
-- **SN 612030** et **SN 612031** : INTERLIS 1 et INTERLIS 2, langage de modélisation et méthode de transfert de données ;
+- **SN 612030** (édition 1998) : INTERLIS 1, langage de modélisation et méthode de transfert de données ; INTERLIS 2 est publié comme standard **eCH-0031** (manuel de référence, version 2.1.0 en 2024 pour INTERLIS 2.4) ;
 - **SN 612040** : adresses de bâtiments ;
 - **SN 612050** : modèle de métadonnées GM03 (profil suisse de l'ISO 19115).
 
@@ -180,7 +220,26 @@ Exemples de normes suisses (SN) en géoinformation :
 
 **eCH** est l'association qui élabore les **standards de cyberadministration** en Suisse (Confédération, cantons, communes, économie privée). Son groupe spécialisé *Géoinformation* publie des standards et recommandations pour l'échange de géodonnées et les géoservices.
 
-Au niveau fédéral, **swisstopo** coordonne l'infrastructure nationale de données géographiques, notamment via son service **KOGIS** (Coordination, Géo-Information et Services), en collaboration avec les cantons. La loi sur la géoinformation (LGéo) impose de décrire les géodonnées de base par des **modèles de géodonnées** (en INTERLIS) : la normalisation a ainsi un ancrage légal en Suisse.
+Au niveau fédéral, **swisstopo** coordonne l'infrastructure nationale de données géographiques, notamment via son service **KOGIS** (Coordination, Géo-Information et Services), en collaboration avec les cantons.
+
+### Le cadre légal suisse : LGéo, modèles minimaux, INTERLIS
+
+En Suisse, l'interopérabilité des **géodonnées de base** (celles qui reposent sur un acte législatif : mensuration officielle, plans d'affectation, cadastre des sites pollués…) n'est pas facultative : elle est inscrite dans la loi.
+
+| Texte | Article | Ce qu'il dit |
+|---|---|---|
+| **LGéo** (RS 510.62) | art. 4 *Harmonisation* | Les exigences doivent être fixées « de telle manière qu'un échange simple et une large utilisation soient possibles », en tenant compte des **normes reconnues** au plan international ou national. |
+| **LGéo** | art. 5 | Le Conseil fédéral fixe les exigences pour les géodonnées de base, notamment les **modèles de géodonnées**, la qualité et l'**échange**. |
+| **OGéo** (RS 510.620) | art. 9 | Le service spécialisé de la Confédération prescrit un **modèle de géodonnées minimal** (MGDM) pour chaque jeu de géodonnées de base. |
+| **OGéo** | art. 10 | Le langage de description des modèles doit correspondre à une **norme reconnue** ; swisstopo le spécifie. |
+| **OGéo-swisstopo** (RS 510.620.1) | art. 5 | Ce langage est **INTERLIS** : norme SN 612030 (INTERLIS 1) ou eCH-0031 (INTERLIS 2). |
+| **OGéo** | art. 34 | Les géodonnées de base sont rendues accessibles par des **géoservices** de consultation et, pour certaines, de téléchargement. |
+
+En pratique :
+
+- les **modèles de géodonnées minimaux** de la Confédération sont publiés en INTERLIS sur [models.geo.admin.ch](https://models.geo.admin.ch) ; ils définissent la **sémantique** commune (classes, attributs, listes de valeurs) ;
+- les cantons diffusent leurs géodonnées de base selon ces modèles, notamment via la plateforme commune [geodienste.ch](https://www.geodienste.ch) ; les conditions d'accès varient d'un canton à l'autre, comme l'a montré le fil rouge ;
+- dans l'Union européenne, la directive **INSPIRE** (2007/2/CE) poursuit le même but à l'échelle européenne, avec des spécifications de données communes et des services harmonisés.
 
 ### Open Geospatial Consortium (OGC)
 
@@ -198,10 +257,18 @@ L'OGC produit deux types de documents :
 - l'**Abstract Specification** : le cadre **conceptuel**, qui décrit les principes de l'interopérabilité (par exemple les *Simple Features* : points, lignes, polygones et systèmes de coordonnées, briques de base de tous les objets géographiques) ;
 - les **OGC Standards** (anciennement *Implementation Specifications*) : les spécifications **techniques** directement implémentables, testées lors de bancs d'essai (*testbeds*) : GML, KML, WMS, WMTS, WFS, WCS, CSW, GeoPackage…
 
-L'OGC accepte aussi des **Community Standards** : des formats nés ailleurs et largement adoptés, comme 3D Tiles, CityJSON ou I3S (chapitre 4).
+L'OGC accepte aussi des **Community Standards** : des formats nés ailleurs et largement adoptés, comme 3D Tiles, CityJSON, I3S (chapitre 4) ou, depuis 2025, le catalogue **STAC** (chapitre 8).
 
 !!! tip "Les OGC API : la nouvelle génération"
     Les services historiques (WMS, WFS…) reposent sur des requêtes et des réponses XML spécifiques. La famille **OGC API** les modernise selon les pratiques actuelles du web : architecture **REST**, réponses en **JSON**/GeoJSON ou HTML, description par OpenAPI. Par exemple **OGC API – Features** succède à WFS, **OGC API – Tiles** à WMTS, **OGC API – Maps** à WMS. Voir le chapitre 8.
+
+### Comment naît un standard : JSON-FG et STAC
+
+Une norme ne naît pas en un jour. Deux exemples récents, rencontrés dans ce cours, montrent les étapes à l'OGC :
+
+<div class="demo" data-demo="frise"></div>
+
+*Les mêmes grandes étapes se retrouvent à l'ISO (proposition, projets de travail et de comité, projet de norme, norme publiée) : rédaction par un groupe d'experts, **consultation publique**, **vote** des membres, puis **publication**. Entre la première version et la norme publiée, il s'écoule souvent plusieurs années.*
 
 ### OGC et ISO : une collaboration étroite
 
@@ -215,6 +282,18 @@ L'OGC et l'ISO/TC 211 collaborent : les standards OGC peuvent être vus comme de
 
 Lorsque les catalogues et les services s'appuient sur ces normes, l'utilisateur peut combiner des données provenant de sources **hétérogènes, distantes et distribuées** : les systèmes deviennent réellement interopérables. C'est le principe des géoportails comme [map.geo.admin.ch](https://map.geo.admin.ch) et du catalogue de métadonnées [geocat.ch](https://www.geocat.ch).
 
+## Licences : le droit d'utiliser les données
+
+L'interopérabilité **juridique** est souvent oubliée : un format ouvert et un service bien documenté ne servent à rien si l'on n'a pas le **droit** d'utiliser les données. Avant toute utilisation, il faut lire les **conditions d'utilisation** :
+
+- **Données ouvertes** (*Open Government Data*, OGD) : depuis 2021, les géodonnées de swisstopo sont **gratuites** et réutilisables, y compris commercialement, à condition de **mentionner la source** (« © swisstopo »). Le portail [opendata.swiss](https://opendata.swiss) recense les données ouvertes des administrations suisses.
+- **Licences Creative Commons** : `CC BY` (attribution obligatoire, comme la maquette IFC de buildingSMART au chapitre 4), `CC BY-SA` (partage dans les mêmes conditions), `CC0` (domaine public)…
+- **Licence ODbL** : celle d'**OpenStreetMap**, qui impose de partager les bases de données dérivées sous la même licence.
+- **Données sous conditions** : certaines géodonnées cantonales ou communales ne sont accessibles qu'aux autorités, sur demande ou contre émolument (OGéo, art. 40 sur la transmission à des tiers).
+
+!!! warning "Format ouvert ≠ données libres"
+    Un fichier GeoPackage (format ouvert) peut contenir des données confidentielles ; un fichier dans un format propriétaire peut contenir des données libres. **Format** et **licence** sont deux questions distinctes.
+
 ## À retenir
 
 - Une **interface** est une jonction entre systèmes, fondée sur des **règles communes**.
@@ -223,6 +302,13 @@ Lorsque les catalogues et les services s'appuient sur ces normes, l'utilisateur 
 - Formats **ouverts** (XML, GML, INTERLIS, IFC, PDF…), **restreints** (shapefile, RAR), **fermés** (File Geodatabase, DWG).
 - **ISO/TC 211** (série 191xx) → **CEN/TC 287** (obligatoire) → **SNV** (INTERLIS) ; **eCH** et **swisstopo/KOGIS** pour la coordination suisse.
 - **OGC** : GML, WMS, WFS, GeoPackage… et la nouvelle famille **OGC API** (REST/JSON).
+- Cinq **niveaux** d'interopérabilité : technique, syntaxique, **sémantique**, organisationnel, **juridique**.
+- En Suisse, la **LGéo** (art. 4 et 5) et l'**OGéo** (art. 9 et 10) imposent des **modèles de géodonnées minimaux** décrits en **INTERLIS** (OGéo-swisstopo, art. 5).
+- **Licence** : toujours vérifier le droit d'utiliser des données ; format ouvert ≠ données libres.
+
+## Testez-vous
+
+<div class="demo" data-demo="quiz" data-quiz="interop"></div>
 
 ## Sources
 
@@ -236,6 +322,13 @@ Lorsque les catalogues et les services s'appuient sur ces normes, l'utilisateur 
 - Open Geospatial Consortium, standards : <https://www.ogc.org/standards/>
 - OGC API : <https://ogcapi.ogc.org>
 - ISO 32000 (PDF), PDF Association : <https://pdfa.org/resource/iso-32000-pdf/>
+- Loi sur la géoinformation (LGéo, RS 510.62) : <https://www.fedlex.admin.ch/eli/cc/2008/388/fr>
+- Ordonnance sur la géoinformation (OGéo, RS 510.620) : <https://www.fedlex.admin.ch/eli/cc/2008/389/fr>
+- Ordonnance de swisstopo sur la géoinformation (OGéo-swisstopo, RS 510.620.1) : <https://www.fedlex.admin.ch/eli/cc/2008/390/fr>
+- Modèles de géodonnées minimaux : <https://models.geo.admin.ch>
+- European Interoperability Framework (Commission européenne) : <https://interoperable-europe.ec.europa.eu/collection/iopeu-monitoring/european-interoperability-framework-detail>
+- JSON-FG (OGC) : <https://www.ogc.org/standards/json-fg/>
+- STAC Community Standard (OGC) : <https://www.ogc.org/standard/stac/>
 
 ---
 

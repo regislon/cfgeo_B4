@@ -271,3 +271,22 @@
 /* GeoJSON + carte */
 .demo-split { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 0.6rem; align-items: stretch; }
 .demo-map-small { height: 320px; }
+
+/* Chapitre 6 : catalogue des normes */
+.demo-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 0.4rem; margin: 0.5rem 0; }
+.demo-card { display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 0.1rem; padding: 0.35rem 0.5rem; cursor: pointer; font: inherit; font-size: 0.68rem; color: var(--md-default-fg-color); background: var(--md-default-bg-color); border: 1px solid var(--md-default-fg-color--lightest); border-left: 5px solid; border-radius: 4px; }
+.demo-card:hover { box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+.demo-card span { opacity: 0.75; }
+
+/* Trier les formats */
+.demo-trier-row { display: grid; grid-template-columns: 8rem 14rem 1fr; gap: 0.5rem; align-items: center; padding: 0.2rem 0; border-bottom: 1px solid var(--md-default-fg-color--lightest); }
+.demo-trier-row select { font: inherit; padding: 0.1rem; border: 2px solid var(--md-default-fg-color--lighter); border-radius: 3px; background: var(--md-default-bg-color); color: var(--md-default-fg-color); }
+.demo-trier-row select.demo-ok { border-color: #2e7d32; }
+.demo-trier-row select.demo-ko { border-color: #c62828; }
+@media (max-width: 700px) { .demo-trier-row { grid-template-columns: 1fr; } }
+
+/* Frise */
+.demo-frise { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.6rem 0; position: relative; }
+.demo-step { flex: 1 1 8rem; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.4rem; cursor: pointer; font: inherit; font-size: 0.68rem; text-align: center; color: var(--md-default-fg-color); background: var(--md-default-bg-color); border: 1px solid var(--md-default-fg-color--lighter); border-top: 4px solid var(--md-default-fg-color--lighter); border-radius: 4px; }
+.demo-step.on { border-top-color: var(--md-accent-fg-color); font-weight: 700; }
+.demo-step-n { display: inline-flex; align-items: center; justify-content: center; width: 1.6em; height: 1.6em; border-radius: 50%; background: var(--md-accent-fg-color); color: #000; font-weight: 700; }

@@ -71,6 +71,31 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+## Les 5 niveaux d'interopérabilité
+
+| Niveau | Question |
+|---|---|
+| **Technique** | Peut-on se connecter, lire le fichier ? |
+| **Syntaxique** | La structure est-elle correcte (XML, JSON) ? |
+| **Sémantique** | Donne-t-on **le même sens** aux données ? |
+| **Organisationnel** | Qui fournit quoi, quand, comment ? |
+| **Juridique** | A-t-on le **droit** de les utiliser ? |
+
+D'après le cadre européen d'interopérabilité (EIF)
+
+---
+
+## 🧵 Ce que le fil rouge nous a appris
+
+- **Technique** : swissTLM3D = fichier national de 3 à 5 Go → API REST, 200 objets par requête
+- **Technique** : carte nationale en 3857 dans GeoLibre ; IFC en UTM 60 Sud
+- **Syntaxique** : DXF en Windows-1252
+- **Sémantique** : `Gebaeude Einzelhaus` à traduire, hauteur vide, classes LiDAR 14/15/26/27 inconnues
+- **Organisationnel** : MO de Zoug par WFS, pas celle de Vaud
+- **Juridique** : © swisstopo, CC BY 4.0 (buildingSMART)
+
+---
+
 ## Norme ou standard ?
 
 - **Norme** : organisme **reconnu** (ISO, CEN, SNV), consensus
@@ -110,6 +135,16 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 - Exemples : File Geodatabase (Esri), DWG (Autodesk)
 - Anciens `.doc`/`.xls` (les `.docx`/`.xlsx` sont ISO/IEC 29500)
 - Formats natifs d'instruments (scanners, GNSS)
+
+---
+
+## ▶ Qui a défini les formats du cours ?
+
+- **32 formats** et services : OGC, ISO, IETF, W3C, ASPRS, buildingSMART, SNV, Esri, Autodesk, communautés…
+- Filtre par organisme et par **degré** : norme ouverte · communautaire · standard de fait · fermé
+- Exercice : **trier 10 formats**
+
+▶ [Ouvrir le catalogue](https://regislon.github.io/cfgeo_B4/formats-interfaces/06-interoperabilite-normes/#qui-a-defini-les-formats-de-ce-cours)
 
 ---
 
@@ -154,7 +189,21 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 - **eCH** : standards de cyberadministration, groupe *Géoinformation*
 - **swisstopo / KOGIS** : coordination de l'infrastructure nationale de géodonnées
-- **LGéo** : modèles de géodonnées obligatoires (INTERLIS)
+- **LGéo / OGéo** : modèles de géodonnées minimaux, décrits en **INTERLIS**
+
+---
+
+## Le cadre légal suisse
+
+| Texte | Contenu |
+|---|---|
+| **LGéo** art. 4 | « échange simple et large utilisation », **normes reconnues** |
+| **LGéo** art. 5 | exigences : **modèles**, qualité, **échange** |
+| **OGéo** art. 9 | **modèle de géodonnées minimal** (MGDM) par la Confédération |
+| **OGéo** art. 10 | langage de description = **norme reconnue** |
+| **OGéo-swisstopo** art. 5 | → **INTERLIS** (SN 612030 ou eCH-0031) |
+
+MGDM : **models.geo.admin.ch** · cantons : **geodienste.ch** · UE : **INSPIRE**
 
 ---
 
@@ -179,6 +228,19 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+## ▶ Comment naît un standard
+
+| | JSON-FG | STAC |
+|---|---|---|
+| Origine | groupe de travail OGC | communauté (GitHub) |
+| Consultation publique | 2024 | 2023 et 2025 |
+| Approbation (vote) | 25 août 2025 | 9 sept. 2025 |
+| Publication | 30 avril 2026 | 14 oct. 2025 |
+
+▶ [Frise interactive (et étapes ISO)](https://regislon.github.io/cfgeo_B4/formats-interfaces/06-interoperabilite-normes/#comment-nait-un-standard-json-fg-et-stac)
+
+---
+
 ## OGC ↔ ISO
 
 | OGC | ISO |
@@ -189,6 +251,25 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 → données **hétérogènes et distribuées** combinables
 ex. map.geo.admin.ch, geocat.ch
+
+---
+
+## Licences : le droit d'utiliser
+
+- **OGD swisstopo** (depuis 2021) : gratuit, réutilisable, **mention de la source**
+- **Creative Commons** : CC BY (attribution), CC BY-SA, CC0
+- **ODbL** (OpenStreetMap) : partage des bases dérivées
+- Données **sous conditions** : autorités, émoluments (OGéo art. 40)
+
+⚠️ **Format ouvert ≠ données libres**
+
+---
+
+## ❓ Testez-vous
+
+7 questions : niveaux, standard de fait, INTERLIS dans la loi, licences, CEN, Community Standards
+
+▶ [Faire le quiz](https://regislon.github.io/cfgeo_B4/formats-interfaces/06-interoperabilite-normes/#testez-vous)
 
 ---
 
