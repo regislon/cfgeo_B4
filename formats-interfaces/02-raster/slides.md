@@ -170,6 +170,7 @@ Carte 1:25'000 scannée à 400 dpi → pixel ≈ 1,6 m
 ---
 
 <!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Résolution et taille de fichier](./#resolution-et-taille-de-fichier)' -->
+<!-- _class: demo -->
 ## Combien pèse un raster ?
 
 `colonnes × lignes × bandes × octets par valeur`
@@ -181,6 +182,8 @@ Carte 1:25'000 scannée à 400 dpi → pixel ≈ 1,6 m
 
 - Pixel 2 × plus fin → **4 × plus** de pixels
 - Suisse à 10 cm ≈ **12 To** en RVB non compressé
+
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/02-raster/#resolution-et-taille-de-fichier"><small>Démo sur la page du cours ↗</small>▶ Calculateur de taille d'un raster</a>
 
 ---
 
@@ -247,6 +250,7 @@ Image couleur basse résolution + image panchromatique fine → couleur fine
 ---
 
 <!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Codage de la couleur](./#codage-de-la-couleur)' -->
+<!-- _class: demo -->
 ## Profondeur de codage
 
 | Bits / pixel | Valeurs | Usage |
@@ -257,7 +261,8 @@ Image couleur basse résolution + image panchromatique fine → couleur fine
 | 24 | 16,7 millions | Couleurs vraies RVB |
 | 32 | RVB + alpha | Transparence |
 
-![h:120](img/16-niveaux-de-gris.gif) ![h:120](img/256-niveaux-de-gris.jpg) ▶ [Démo interactive : pixels et profondeur](https://regislon.github.io/cfgeo_B4/formats-interfaces/02-raster/#codage-de-la-couleur)
+![h:90](img/16-niveaux-de-gris.gif) ![h:90](img/256-niveaux-de-gris.jpg)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/02-raster/#codage-de-la-couleur"><small>Démo sur la page du cours ↗</small>▶ Pixels et profondeur</a>
 
 ---
 
@@ -419,6 +424,7 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 ---
 
 <!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Quelques algorithmes de compression](./#quelques-algorithmes-de-compression)' -->
+<!-- _class: demo -->
 ## JPEG
 
 1. RVB → luminance + chrominance
@@ -430,7 +436,7 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 - Ratio 10:1 à 25:1 sur les photos ; artefacts sur plans et textes
 - ⚠️ Les pertes **s'accumulent** à chaque ré-enregistrement
 
-▶ [Démo interactive : qualité JPEG / WebP](https://regislon.github.io/cfgeo_B4/formats-interfaces/02-raster/#jpeg)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/02-raster/#jpeg"><small>Démo sur la page du cours ↗</small>▶ Qualité JPEG / WebP</a>
 
 ---
 
@@ -568,13 +574,16 @@ SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
 ---
 
 <!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Zarr](./#zarr)' -->
+<!-- _class: demo -->
 ## ▶ Démo : un cube Zarr
 
-![w:560](img/zarr-cube-previsions.jpg)
+![bg right:42% w:480](img/zarr-cube-previsions.jpg)
 
 - Prévision ECMWF AIFS : X, Y + **échéance** (0–360 h) en hauteur
 - Seuls les **blocs** utiles sont téléchargés · requêtes **SQL** (DuckDB) dans le navigateur
 - Démo *zarr-sql-views* (G. Milevski) · données dynamical.org
+
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/02-raster/#zarr"><small>Démo sur la page du cours ↗</small>▶ Le cube Zarr et sa démo en ligne</a>
 
 ---
 

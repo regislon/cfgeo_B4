@@ -26,6 +26,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 ---
 
 <!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 Fil rouge : un arrêt de bus, cinq encodages](./#fil-rouge-un-arret-de-bus-cinq-encodages)' -->
+<!-- _class: demo -->
 ## 🧵 Un arrêt de bus, cinq encodages
 
 « Yverdon-les-Bains, Faïencerie » (fil rouge, chapitre 3)
@@ -38,7 +39,8 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 | INTERLIS 2 (XTF) | XML | **MN95** `<C1>` `<C2>` | 596 o |
 | GeoJSON | JSON | WGS84 `[6.639541, 46.769964]` | **174 o** |
 
-Même information, emballages différents · ▶ [voir les 5 fichiers](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#fil-rouge-un-arret-de-bus-cinq-encodages)
+Même information, emballages différents
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#fil-rouge-un-arret-de-bus-cinq-encodages"><small>Démo sur la page du cours ↗</small>▶ Voir les 5 fichiers</a>
 
 ---
 
@@ -173,13 +175,14 @@ Valide ⇒ bien formé, mais pas l'inverse
 ---
 
 <!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 À vous de jouer : bien formé ?](./#a-vous-de-jouer-bien-forme)' -->
+<!-- _class: demo -->
 ## ▶ À vous : bien formé ?
 
 - Éditeur en ligne : le **KML de l'arrêt**, vérifié **en direct**
 - Boutons « Casser » : balise non fermée, `&` non échappé, guillemets, imbrication, majuscule
 - **Arbre** du document : élément racine, enfants, attributs, texte
 
-▶ [Ouvrir l'éditeur XML](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#a-vous-de-jouer-bien-forme)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#a-vous-de-jouer-bien-forme"><small>Démo sur la page du cours ↗</small>▶ Éditeur XML</a>
 
 ---
 
@@ -248,6 +251,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 ---
 
 <!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 KML (Keyhole Markup Language)](./#kml-keyhole-markup-language)' -->
+<!-- _class: demo -->
 ## ▶ Couleur HTML ↔ KML
 
 | | Ordre | Bleu à 45 % |
@@ -255,7 +259,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 | HTML / QGIS | rouge · vert · bleu | `#0000ff` + 45 % |
 | **KML** | **alpha · bleu · vert · rouge** | `73ff0000` |
 
-▶ [Convertisseur de couleurs](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#kml-keyhole-markup-language)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#kml-keyhole-markup-language"><small>Démo sur la page du cours ↗</small>▶ Convertisseur de couleurs</a>
 
 ---
 
@@ -348,13 +352,14 @@ Valide ⇒ bien formé, mais pas l'inverse
 ---
 
 <!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 GeoJSON](./#geojson)' -->
+<!-- _class: demo -->
 ## ▶ Le piège [lat, lon]
 
 - `[6.639541, 46.769964]` → Yverdon-les-Bains ✅
 - `[46.769964, 6.639541]` → **Corne de l'Afrique** (Éthiopie / Somalie) ❌
 - GeoJSON = **longitude d'abord**, toujours
 
-▶ [GeoJSON sur une carte](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#geojson)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#geojson"><small>Démo sur la page du cours ↗</small>▶ GeoJSON sur une carte</a>
 
 ---
 
@@ -406,22 +411,24 @@ Valide ⇒ bien formé, mais pas l'inverse
 ---
 
 <!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 À vous de jouer : bien formé et valide ?](./#a-vous-de-jouer-bien-forme-et-valide)' -->
+<!-- _class: demo -->
 ## ▶ Bien formé **et** valide ?
 
 - GeoJSON de l'arrêt vérifié par un **JSON Schema**
 - `"Pointt"`, latitude supprimée, `"moyen": "Avion"` → **bien formé ✅ mais non valide ❌**
 - Virgule en trop, guillemet manquant → **mal formé ❌**
 
-▶ [Ouvrir le validateur](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#a-vous-de-jouer-bien-forme-et-valide)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#a-vous-de-jouer-bien-forme-et-valide"><small>Démo sur la page du cours ↗</small>▶ Validateur</a>
 
 ---
 
 <!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 Testez-vous](./#testez-vous)' -->
+<!-- _class: quiz -->
 ## ❓ Testez-vous
 
 7 questions : élément racine, `&`, « Pointt », ordre des coordonnées, couleur KML, MN95, schémas
 
-▶ [Faire le quiz](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#testez-vous)
+<a class="go quiz" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/#testez-vous"><small>Quiz sur la page du cours ↗</small>❓ Faire le quiz</a>
 
 ---
 

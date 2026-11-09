@@ -269,6 +269,7 @@ AC1018
 ---
 
 <!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Formats récents : FlatGeobuf, GeoParquet et PMTiles](./#formats-recents-flatgeobuf-geoparquet-et-pmtiles)' -->
+<!-- _class: demo -->
 ## ▶ Démo : le fil rouge en PMTiles
 
 - Carte interactive sur le site : **grille des tuiles** visible
@@ -276,7 +277,7 @@ AC1018
 - Mode ralenti : les tuiles arrivent **par lots**
 - À l'ouverture : ~50 Ko lus sur 465 Ko (**11 %** du fichier)
 
-▶ [Ouvrir la démo](https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/#formats-recents-flatgeobuf-geoparquet-et-pmtiles)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/#formats-recents-flatgeobuf-geoparquet-et-pmtiles"><small>Démo sur la page du cours ↗</small>▶ Démo</a>
 
 ---
 
@@ -340,11 +341,12 @@ Shapefile : `einwohnerzahl` → `einwohnerz` · À ouvrir dans QGIS ou **GeoLibr
 ---
 
 <!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Quel format choisir ?](./#quel-format-choisir)' -->
+<!-- _class: quiz -->
 ## ❓ Quiz : quel format choisir ?
 
 8 situations concrètes : architecte, collègue QGIS, site web, mensuration officielle, carte de 3 millions de bâtiments, analyse SQL, Google Earth, ancien logiciel…
 
-▶ [Faire le quiz sur le site](https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/#quel-format-choisir)
+<a class="go quiz" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/#quel-format-choisir"><small>Quiz sur la page du cours ↗</small>❓ Faire le quiz</a>
 
 ---
 

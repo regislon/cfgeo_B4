@@ -73,3 +73,63 @@ section.lead footer a:hover,
 section.exercice footer a:hover {
   color: inherit;
 }
+
+/* Slides qui renvoient vers une démo ou un quiz de la page web du cours
+   (<!-- _class: demo --> ou <!-- _class: quiz -->) : bandeau en haut à droite */
+section.demo::before,
+section.quiz::before {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+section.demo::before {
+  content: "🖥 DÉMO SUR LA PAGE WEB";
+  background: #ffc107;
+  color: #1f2a2e;
+}
+
+section.quiz::before {
+  content: "❓ QUIZ SUR LA PAGE WEB";
+  background: #6a1b9a;
+  color: #ffffff;
+}
+
+/* Bouton vers la démo : <a class="go" href="…"><small>…</small>▶ Libellé</a> */
+a.go {
+  display: block;
+  width: fit-content;
+  margin: 8px 0 0;
+  padding: 7px 24px 9px;
+  background: #00796b;
+  color: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 4px 0 #00574d;
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+a.go small {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffe082;
+}
+
+a.go.quiz {
+  background: #6a1b9a;
+  box-shadow: 0 4px 0 #4a148c;
+}
+
+a.go:hover {
+  filter: brightness(1.12);
+}

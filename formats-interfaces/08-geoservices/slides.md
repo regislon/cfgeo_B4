@@ -71,7 +71,7 @@ https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/20
 ![bg right:45% w:500](img/architecture-distribuee.png)
 
 - **Traditionnel** : acquérir, stocker, gérer soi-même les données
-- **SOA** : plus besoin de **posséder** une copie des données
+- **SOA** (*Service-Oriented Architecture*) : plus besoin de **posséder** une copie des données
 - Les données restent chez le producteur → **SIG distribués**
 - Services standardisés → géoportails, SIG
 - Ex. : map.geo.admin.ch, géoportails cantonaux
@@ -174,13 +174,14 @@ https://wmts.geo.admin.ch/EPSG/2056/1.0.0/WMTSCapabilities.xml
 ---
 
 <!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Fil rouge : la tuile d’Yverdon en WMS et en WMTS](./#fil-rouge-la-tuile-dyverdon-en-wms-et-en-wmts)' -->
+<!-- _class: demo -->
 ## 🧵 La tuile d'Yverdon en WMS et en WMTS
 
 - **WMS** : `BBOX=2538000,1180000,2539000,1181000` (MN95) → le serveur **dessine** l'image de la tuile, à la taille demandée
 - **WMTS** : on calcule l'**adresse** de la tuile précalculée qui contient Yverdon : `…/3857/15/16987/11555.jpeg`
 - Changer le zoom → autre tuile ; changer l'emprise WMS → autre image
 
-▶ [Démo : construire la requête](./#fil-rouge-la-tuile-dyverdon-en-wms-et-en-wmts)
+<a class="go" href="./#fil-rouge-la-tuile-dyverdon-en-wms-et-en-wmts"><small>Démo sur la page du cours ↗</small>▶ Construire la requête</a>
 
 ---
 
@@ -302,6 +303,7 @@ Lausanne 144'873 · **Yverdon-les-Bains 30'292** · Montreux 26'955…
 ---
 
 <!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Du « big data » dans le navigateur avec DuckDB](./#du-big-data-dans-le-navigateur-avec-duckdb)' -->
+<!-- _class: demo -->
 ## ▶ DuckDB dans le navigateur
 
 - Base de données d'analyse en **WebAssembly** : SQL sur un Parquet distant
@@ -309,7 +311,7 @@ Lausanne 144'873 · **Yverdon-les-Bains 30'292** · Montreux 26'955…
 - Stockage **par colonnes** + **groupes de lignes** triés par commune
 - Requêtes prêtes à l'emploi **ou** votre propre SQL
 
-▶ [Démo : interroger 216'994 bâtiments](./#du-big-data-dans-le-navigateur-avec-duckdb)
+<a class="go" href="./#du-big-data-dans-le-navigateur-avec-duckdb"><small>Démo sur la page du cours ↗</small>▶ Interroger 216'994 bâtiments</a>
 
 ---
 
@@ -329,13 +331,14 @@ Tuile 2538-1180, même règle (centroïde dans la tuile) :
 ---
 
 <!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 En direct : interroger le fichier mondial sur Amazon S3](./#en-direct-interroger-le-fichier-mondial-sur-amazon-s3)' -->
+<!-- _class: demo -->
 ## ▶ En direct sur Amazon S3
 
 - Lieux (*places*) d'Overture autour d'Yverdon, **directement** dans le fichier mondial
 - Fichier de **713 Mo** → DuckDB lit **≈ 5 Mo (0,7 %)** en ~3 s
 - **2'790 lieux** sur la carte : restaurants, commerces, services…
 
-▶ [Démo : interroger Overture en direct](./#en-direct-interroger-le-fichier-mondial-sur-amazon-s3)
+<a class="go" href="./#en-direct-interroger-le-fichier-mondial-sur-amazon-s3"><small>Démo sur la page du cours ↗</small>▶ Interroger Overture en direct</a>
 
 ---
 
@@ -440,9 +443,10 @@ https://data.geo.admin.ch/api/stac/v1/collections/
 ---
 
 <!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Testez-vous](./#testez-vous)' -->
+<!-- _class: quiz -->
 ## ❓ Testez-vous
 
-▶ [Quiz du chapitre](./#testez-vous)
+<a class="go quiz" href="./#testez-vous"><small>Quiz sur la page du cours ↗</small>❓ Faire le quiz</a>
 
 ---
 

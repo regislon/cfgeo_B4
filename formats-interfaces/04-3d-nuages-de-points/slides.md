@@ -106,6 +106,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 ---
 
 <!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Fil rouge : le kilomètre carré d’Yverdon en nuage de points](./#fil-rouge-le-kilometre-carre-dyverdon-en-nuage-de-points)' -->
+<!-- _class: demo -->
 ## 🧵 Yverdon en nuage de points
 
 Tuile **2538-1180**, swissSURFACE3D 2025 :
@@ -115,7 +116,7 @@ Tuile **2538-1180**, swissSURFACE3D 2025 :
 - Dans l'extrait : sol 52 % · végétation 22 % · bâtiments 18 %
 - En-tête binaire : signature **`LASF`**, coordonnées en **entiers** × 0,01 m + décalage
 
-▶ [Visionneuse : couleur par classe, altitude, intensité](https://regislon.github.io/cfgeo_B4/formats-interfaces/04-3d-nuages-de-points/#fil-rouge-le-kilometre-carre-dyverdon-en-nuage-de-points)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/04-3d-nuages-de-points/#fil-rouge-le-kilometre-carre-dyverdon-en-nuage-de-points"><small>Démo sur la page du cours ↗</small>▶ Visionneuse : couleur par classe, altitude, intensité</a>
 
 ---
 
@@ -208,6 +209,7 @@ Conception → construction → exploitation → démolition
 ---
 
 <!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 IFC](./#ifc)' -->
+<!-- _class: demo -->
 ## ▶ Démo : une maquette IFC dans le navigateur
 
 - Maison d'exemple **buildingSMART** (IFC 4.3, 142 Ko, CC BY 4.0)
@@ -216,7 +218,7 @@ Conception → construction → exploitation → démolition
 - … et sa **ligne dans le fichier texte** : `#285=IFCSLAB('12UVOn4w…', …)`
 - Géoréférencement : `IfcMapConversion` (ici EPSG:32760)
 
-▶ [Ouvrir la visionneuse IFC](https://regislon.github.io/cfgeo_B4/formats-interfaces/04-3d-nuages-de-points/#ifc)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/04-3d-nuages-de-points/#ifc"><small>Démo sur la page du cours ↗</small>▶ Visionneuse IFC</a>
 
 ---
 

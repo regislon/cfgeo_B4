@@ -101,6 +101,7 @@ Un fichier = une suite d'**octets** · un **format** = la convention pour les li
 ---
 
 <!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 L’octet](./#loctet)' -->
+<!-- _class: demo -->
 ## L'octet
 
 - **Octet** (o) = *byte* (B) = **8 bits**
@@ -108,6 +109,8 @@ Un fichier = une suite d'**octets** · un **format** = la convention pour les li
 - 1 octet ≈ 1 caractère ASCII, 1 pixel en niveaux de gris
 - 2 octets → 65'536 valeurs ; 4 octets → ~4,3 milliards
 - ⚠️ **b** = bit, **B** = byte : 100 Mb/s = 12,5 Mo/s
+
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/#loctet"><small>Démo sur la page du cours ↗</small>▶ Les bits d'un octet, à cliquer</a>
 
 ---
 
@@ -148,6 +151,7 @@ Divisions successives par 2, lecture des restes **de bas en haut**
 ---
 
 <!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Entraînez-vous](./#entrainez-vous)' -->
+<!-- _class: demo -->
 ## À vous !
 
 1. 11001000₍₂₎ = ? en décimal
@@ -156,7 +160,7 @@ Divisions successives par 2, lecture des restes **de bas en haut**
 
 <!-- Réponses : 200 ; 01001101 ; 5 bits -->
 
-▶ [Exercices à volonté, corrigés pas à pas](https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/#entrainez-vous)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/#entrainez-vous"><small>Exercice sur la page web ↗</small>▶ Exercices à volonté, corrigés pas à pas</a>
 
 ---
 
@@ -192,6 +196,7 @@ Mêmes noms dans les rasters et les tables attributaires
 ---
 
 <!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Les nombres à virgule](./#les-nombres-a-virgule)' -->
+<!-- _class: demo -->
 ## Nombres à virgule (IEEE 754)
 
 - Signe + **mantisse** (chiffres) + **exposant** (position de la virgule)
@@ -205,6 +210,8 @@ Mêmes noms dans les rasters et les tables attributaires
 
 → coordonnées MN95 en **Float64** (Shapefile, GeoPackage, PostGIS)
 
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/#les-nombres-a-virgule"><small>Démo sur la page du cours ↗</small>▶ Décortiquer un nombre à virgule</a>
+
 ---
 
 <!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Unités informatiques](./#unites-informatiques)' -->
@@ -215,6 +222,7 @@ Mêmes noms dans les rasters et les tables attributaires
 ---
 
 <!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Préfixes décimaux (SI)](./#prefixes-decimaux-si)' -->
+<!-- _class: demo -->
 ## Deux familles de préfixes
 
 | SI (décimal) | Valeur | CEI (binaire) | Valeur |
@@ -225,6 +233,8 @@ Mêmes noms dans les rasters et les tables attributaires
 | To | 10¹² o | **Tio** | 2⁴⁰ o |
 
 - Préfixes binaires (kibi, mébi, gibi…) normalisés par la CEI depuis 1998
+
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/#prefixes-binaires-ceiiec"><small>Démo sur la page du cours ↗</small>▶ Convertisseur ko / Kio</a>
 
 ---
 
@@ -262,6 +272,7 @@ Mêmes noms dans les rasters et les tables attributaires
 ---
 
 <!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Unicode et UTF-8](./#unicode-et-utf-8)' -->
+<!-- _class: demo -->
 ## Le problème d'encodage
 
 UTF-8 lu comme du Latin-1 :
@@ -271,7 +282,7 @@ UTF-8 lu comme du Latin-1 :
 
 Causes typiques : `.cpg` oublié (Shapefile), `encoding` absent (XML), mauvais choix à l'import d'un CSV
 
-▶ [Démo : inspecteur de texte](https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/#le-codage-du-texte)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/#le-codage-du-texte"><small>Démo sur la page du cours ↗</small>▶ Inspecteur de texte</a>
 
 ---
 
@@ -301,6 +312,7 @@ POINT
 ---
 
 <!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Les fichiers binaires](./#les-fichiers-binaires)' -->
+<!-- _class: demo -->
 ## Fichier binaire : des nombres
 
 ```text
@@ -313,7 +325,7 @@ POINT
 - Éditeur de texte : `··'···Îžè···p4€×=]CA u·šr·2AX±¿Œ` 🤯
 - Le fichier n'est **pas abîmé** : QGIS connaît la **spécification**
 
-▶ [Démo : un fichier, trois vues](https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/#fichiers-texte-et-fichiers-binaires)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/#fichiers-texte-et-fichiers-binaires"><small>Démo sur la page du cours ↗</small>▶ Un fichier, trois vues</a>
 
 ---
 
@@ -330,11 +342,12 @@ POINT
 ---
 
 <!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Testez-vous](./#testez-vous)' -->
+<!-- _class: quiz -->
 ## ❓ Testez-vous
 
 7 questions : octets, hexadécimal, UTF-8, « GenÃ¨ve », Float32, fichier .shp « illisible », disque de 931 Go
 
-▶ [Faire le quiz sur le site](https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/#testez-vous)
+<a class="go quiz" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/#testez-vous"><small>Quiz sur la page du cours ↗</small>❓ Faire le quiz</a>
 
 ---
 

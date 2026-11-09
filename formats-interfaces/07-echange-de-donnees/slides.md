@@ -109,13 +109,14 @@ interfaces = n × (n − 1) / 2
 ---
 
 <!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Le format pivot : INTERLIS](./#le-format-pivot-interlis)' -->
+<!-- _class: demo -->
 ## ▶ Point à point ou pivot ?
 
 - Curseur de 2 à 12 systèmes : le schéma dessine **toutes les liaisons**
 - 10 systèmes : **45** interfaces point à point · **10** avec un pivot
 - Un partenaire change de logiciel : **9** interfaces à refaire… ou **1**
 
-▶ [Démo interactive](https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/#interfaces-point-a-point)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/#interfaces-point-a-point"><small>Démo sur la page du cours ↗</small>▶ Démo interactive</a>
 
 ---
 
@@ -221,6 +222,7 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 ---
 
 <!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 À vous : le mini-ETL](./#a-vous-le-mini-etl)' -->
+<!-- _class: demo -->
 ## ▶ Mini-ETL dans le navigateur (style FME)
 
 - **Données initiales** (sources : 5 vrais bâtiments, allemand, hauteur vide) → … → **résultat** (données finales, modèle cible)
@@ -228,7 +230,7 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 - Cliquer sur une flèche : **inspecteur** des objets à cette étape
 - Le résultat **rejette** les objets non conformes et dit pourquoi → itérer jusqu'à **5 / 5 valides**
 
-▶ [Ouvrir le mini-ETL](https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/#a-vous-le-mini-etl)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/#a-vous-le-mini-etl"><small>Démo sur la page du cours ↗</small>▶ Mini-ETL</a>
 
 
 ---
@@ -254,13 +256,14 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 ---
 
 <!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Exercices](./#exercices)' -->
+<!-- _class: demo -->
 ## ▶ Exercice Normat en ligne
 
 - 53 désignations vaudoises → 28 types principaux
 - Signale les **regroupements** (n → 1 = perte d'information)
 - Export **CSV** `att_name_in;att_value_in;att_name_out;att_value_out`
 
-▶ [Faire l'exercice en ligne](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex08-schema-mapping/#version-en-ligne)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex08-schema-mapping/#version-en-ligne"><small>Exercice sur la page web ↗</small>▶ Faire l'exercice en ligne</a>
 
 ---
 
@@ -316,13 +319,14 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 ---
 
 <!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Règles d’intégrité et identifiants](./#regles-dintegrite-et-identifiants)' -->
+<!-- _class: demo -->
 ## ▶ Simulateur d'incompatibilités
 
 - **Texte → numérique** : `12a` dans un champ entier ? 3 stratégies
 - **Identifiants PFP3** : numéro seul (doublons) ou **domaine + numéro**
 - **Polyligne → surface** : tampon autour de l'axe vs surface MO
 
-▶ [Ouvrir le simulateur](https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/#incompatibilites-possibles-lors-dun-transfert)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/#incompatibilites-possibles-lors-dun-transfert"><small>Démo sur la page du cours ↗</small>▶ Simulateur</a>
 
 ---
 
@@ -336,11 +340,12 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 ---
 
 <!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Testez-vous](./#testez-vous)' -->
+<!-- _class: quiz -->
 ## ❓ Testez-vous
 
 7 questions : n(n−1)/2, hauteur calculée, sémantique, regroupements, jeu test, PFP3, incrémental
 
-▶ [Faire le quiz](https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/#testez-vous)
+<a class="go quiz" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/#testez-vous"><small>Quiz sur la page du cours ↗</small>❓ Faire le quiz</a>
 
 ---
 

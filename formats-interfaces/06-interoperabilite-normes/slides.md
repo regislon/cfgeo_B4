@@ -152,13 +152,16 @@ D'après le cadre européen d'interopérabilité (EIF)
 ---
 
 <!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Qui a défini les formats de ce cours ?](./#qui-a-defini-les-formats-de-ce-cours)' -->
+<!-- _class: demo -->
 ## ▶ Qui a défini les formats du cours ?
 
 - **32 formats** et services : OGC, ISO, IETF, W3C, ASPRS, buildingSMART, SNV, Esri, Autodesk, communautés…
 - Filtre par organisme et par **degré** : norme ouverte · communautaire · standard de fait · fermé
 - Exercice : **trier 10 formats**
 
-▶ [Ouvrir le catalogue](https://regislon.github.io/cfgeo_B4/formats-interfaces/06-interoperabilite-normes/#qui-a-defini-les-formats-de-ce-cours)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/06-interoperabilite-normes/#qui-a-defini-les-formats-de-ce-cours"><small>Démo sur la page du cours ↗</small>▶ Catalogue</a>
+
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/06-interoperabilite-normes/#a-vous-de-jouer-trier-les-formats"><small>Démo sur la page du cours ↗</small>▶ Trier les formats</a>
 
 ---
 
@@ -251,6 +254,7 @@ MGDM : **models.geo.admin.ch** · cantons : **geodienste.ch** · UE : **INSPIRE*
 ---
 
 <!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Comment naît un standard : JSON-FG et STAC](./#comment-nait-un-standard-json-fg-et-stac)' -->
+<!-- _class: demo -->
 ## ▶ Comment naît un standard
 
 | | JSON-FG | STAC |
@@ -260,7 +264,7 @@ MGDM : **models.geo.admin.ch** · cantons : **geodienste.ch** · UE : **INSPIRE*
 | Approbation (vote) | 25 août 2025 | 9 sept. 2025 |
 | Publication | 30 avril 2026 | 14 oct. 2025 |
 
-▶ [Frise interactive (et étapes ISO)](https://regislon.github.io/cfgeo_B4/formats-interfaces/06-interoperabilite-normes/#comment-nait-un-standard-json-fg-et-stac)
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/06-interoperabilite-normes/#comment-nait-un-standard-json-fg-et-stac"><small>Démo sur la page du cours ↗</small>▶ Frise interactive (et étapes ISO)</a>
 
 ---
 
@@ -291,11 +295,12 @@ ex. map.geo.admin.ch, geocat.ch
 ---
 
 <!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Testez-vous](./#testez-vous)' -->
+<!-- _class: quiz -->
 ## ❓ Testez-vous
 
 7 questions : niveaux, standard de fait, INTERLIS dans la loi, licences, CEN, Community Standards
 
-▶ [Faire le quiz](https://regislon.github.io/cfgeo_B4/formats-interfaces/06-interoperabilite-normes/#testez-vous)
+<a class="go quiz" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/06-interoperabilite-normes/#testez-vous"><small>Quiz sur la page du cours ↗</small>❓ Faire le quiz</a>
 
 ---
 
