@@ -1798,6 +1798,38 @@
 
   // ---------------------------------------------------------------- Quiz
   const QUIZZES = {
+    geoservices: [
+      {
+        q: "Quel service calcule une nouvelle image pour chaque requête, sur l'emprise exacte demandée ?",
+        a: ["WMS", "WMTS", "WFS", "STAC"], ok: 0,
+        e: "Le WMS dessine l'image à la demande (GetMap avec BBOX, WIDTH, HEIGHT). Le WMTS renvoie des tuiles précalculées, le WFS des objets vectoriels, STAC un catalogue.",
+      },
+      {
+        q: "Dans l'URL …/ch.swisstopo.pixelkarte-farbe/default/current/3857/15/16987/11555.jpeg (la tuile d’Yverdon), que représente 16987 ?",
+        a: ["Le niveau de zoom", "La colonne de la tuile (TileCol, x)", "La ligne de la tuile (TileRow, y)", "L'année de la carte"], ok: 1,
+        e: "Sur geo.admin.ch, l'ordre est niveau / colonne / ligne : {z}/{x}/{y}. Le modèle d'URL du GetCapabilities fait foi.",
+      },
+      {
+        q: "Qu'est-ce qui permet de lire un fichier GeoParquet ou COG sur un simple serveur web, sans serveur cartographique ?",
+        a: ["Une connexion très rapide", "Les requêtes HTTP partielles et l'organisation interne du fichier (index, blocs)", "Un plugin installé sur le serveur", "La compression ZIP"], ok: 1,
+        e: "Le client lit d'abord l'index (en-tête ou pied du fichier), puis demande seulement les plages d'octets utiles (range requests).",
+      },
+      {
+        q: "Comment Overture Maps diffuse-t-il sa carte du monde ?",
+        a: ["Par un WMS et un WFS", "Par une API payante", "Uniquement par des fichiers GeoParquet sur un stockage cloud", "Par des fichiers Shapefile zippés"], ok: 2,
+        e: "Ni WMS, ni WFS, ni API : des fichiers GeoParquet sur Amazon S3 et Azure, que l'on interroge avec DuckDB, GDAL, QGIS ou un navigateur.",
+      },
+      {
+        q: "Avec DuckDB, la requête SELECT avg(height) FROM batiments télécharge…",
+        a: ["tout le fichier", "seulement la colonne height (et les métadonnées du fichier)", "seulement la première ligne", "rien : DuckDB devine le résultat"], ok: 1,
+        e: "Parquet stocke les données par colonnes : DuckDB lit le pied du fichier, puis seulement les blocs de la colonne height, soit quelques centaines de ko sur 6,7 Mo.",
+      },
+      {
+        q: "Dans quel cas un géoservice (WFS, OGC API) reste-t-il préférable à des fichiers cloud-native ?",
+        a: ["Pour de gros volumes stables", "Quand les données changent souvent et que l'accès doit être contrôlé par utilisateur", "Pour réduire les coûts au minimum", "Pour faire des analyses SQL"], ok: 1,
+        e: "Le serveur peut appliquer des droits fins et servir la dernière version de chaque objet ; un fichier se republie en bloc et son accès est « tout ou rien ».",
+      },
+    ],
     echange: [
       {
         q: "Combien d'interfaces faut-il pour relier 8 systèmes deux à deux (point à point) ?",
@@ -2332,6 +2364,260 @@
     });
   }
 
+  // ---------------------------------------------------------------- Chapitre 8 : requêtes WMS / WMTS
+  // Construit une requête GetMap sur la tuile du fil rouge et calcule l'adresse d'une tuile WMTS.
+  const WMS_LAYERS = [
+    ["ch.swisstopo.pixelkarte-farbe", "Carte nationale (couleur)"],
+    ["ch.swisstopo.swissimage", "Orthophoto SWISSIMAGE"],
+    ["ch.swisstopo.landeskarte-farbe-10", "Carte 1:10 000"],
+    ["ch.swisstopo.swisstlm3d-strassen", "Routes swissTLM3D"],
+    ["ch.bfs.gebaeude_wohnungs_register", "Bâtiments RegBL"],
+  ];
+  function demoGetmap(root) {
+    const layer = el("select", {}, WMS_LAYERS.map(([v, t]) => el("option", { value: v, text: t })));
+    const format = el("select", {}, ["image/png", "image/jpeg"].map((v) => el("option", { value: v, text: v })));
+    const size = el("select", {}, ["256", "512"].map((v) => el("option", { value: v, text: v + " px" })));
+    size.value = "512";
+    const bbox = el("input", { type: "text", value: "2538000,1180000,2539000,1181000", size: "34" });
+    const url = el("div", { class: "demo-pre demo-kvp" });
+    const img = el("img", { class: "demo-wms-img", alt: "Réponse du WMS" });
+    const info = el("div", { class: "demo-stats" });
+    function draw() {
+      const p = [["SERVICE", "WMS"], ["VERSION", "1.3.0"], ["REQUEST", "GetMap"], ["LAYERS", layer.value], ["STYLES", ""],
+        ["CRS", "EPSG:2056"], ["BBOX", bbox.value.replace(/\s/g, "")], ["WIDTH", size.value], ["HEIGHT", size.value], ["FORMAT", format.value]];
+      const u = "https://wms.geo.admin.ch/?" + p.map(([k, v]) => `${k}=${encodeURIComponent(v).replace(/%2C/g, ",").replace(/%2F/g, "/").replace(/%3A/g, ":")}`).join("&");
+      url.innerHTML = "https://wms.geo.admin.ch/?" + p.map(([k, v]) => `<span class="demo-kvp-k">${k}</span>=<span class="demo-kvp-v">${esc(v.replace(/\s/g, "")) || "<i>(vide)</i>"}</span>`).join("<b>&amp;</b>");
+      const t0 = performance.now();
+      info.textContent = "Le serveur calcule l'image…";
+      img.onload = () => { info.textContent = `Image reçue en ${fmt((performance.now() - t0) / 1000, 1)} s : le serveur l'a dessinée pour cette emprise exacte (${size.value} × ${size.value} pixels, soit ${fmt(1000 / size.value, 2)} m par pixel pour 1 km).`; };
+      img.onerror = () => { info.textContent = "Le serveur n'a pas renvoyé d'image : vérifiez la BBOX (xmin,ymin,xmax,ymax en MN95)."; };
+      img.src = u;
+    }
+    [layer, format, size].forEach((s) => s.addEventListener("change", draw));
+    bbox.addEventListener("change", draw);
+    const open = el("button", { type: "button", class: "demo-btn", text: "↗ Ouvrir l'URL" });
+    open.addEventListener("click", () => window.open(img.src, "_blank", "noopener"));
+
+    // WMTS : la tuile qui contient le centre de la tuile du fil rouge
+    const lon = 6.6335, lat = 46.7729;
+    const z = el("input", { type: "range", min: "8", max: "18", value: "15" });
+    const zl = el("b");
+    const turl = el("div", { class: "demo-pre demo-kvp" });
+    const timg = el("img", { class: "demo-wms-img demo-wmts-img", alt: "Tuile WMTS" });
+    function drawTile() {
+      const zz = +z.value, n = 2 ** zz;
+      const x = Math.floor(((lon + 180) / 360) * n);
+      const r = (lat * Math.PI) / 180;
+      const y = Math.floor(((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * n);
+      zl.textContent = zz;
+      const side = (40075016.686 * Math.cos(r)) / n;
+      turl.innerHTML = `https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/<span class="demo-kvp-k">${zz}</span>/<span class="demo-kvp-v">${x}</span>/<span class="demo-kvp-v">${y}</span>.jpeg` +
+        `<br><span class="demo-stats">niveau ${zz} : ${fmt(n * n)} tuiles dans le monde · cette tuile couvre environ ${side >= 1000 ? fmt(side / 1000, 1) + " km" : fmt(side) + " m"} de côté</span>`;
+      timg.src = `https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/${zz}/${x}/${y}.jpeg`;
+    }
+    z.addEventListener("input", drawTile);
+
+    root.append(
+      el("p", { html: "<b>WMS : le serveur dessine une image à la demande</b>" }),
+      el("div", { class: "demo-row" }, [el("span", { text: "Couche" }), layer, el("span", { text: "Format" }), format, el("span", { text: "Taille" }), size]),
+      el("div", { class: "demo-row" }, [el("span", { text: "BBOX (MN95)" }), bbox, open]),
+      url, el("div", { class: "demo-wms" }, [img]), info,
+      el("p", { html: "<b>WMTS : on demande une tuile précalculée par son adresse</b> (niveau / colonne / ligne)" }),
+      el("div", { class: "demo-row" }, [el("span", { text: "Niveau de zoom" }), z, zl]),
+      turl, el("div", { class: "demo-wms" }, [timg])
+    );
+    draw();
+    drawTile();
+  }
+
+  // ---------------------------------------------------------------- Chapitre 8 : DuckDB dans le navigateur
+  // DuckDB-WASM, avec un compteur des requêtes HTTP partielles faites par son worker.
+  const DUCKDB_URL = "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.32.0/+esm";
+  // Injecté dans le worker : signale chaque requête HTTP (méthode, plage, octets reçus) par le canal de log.
+  const DUCK_PATCH = `(() => {
+    const P = XMLHttpRequest.prototype, open = P.open, send = P.send, setH = P.setRequestHeader;
+    P.open = function (m, u) { this.__m = m; this.__u = u; this.__r = ""; return open.apply(this, arguments); };
+    P.setRequestHeader = function (k, v) { if (/^range$/i.test(k)) this.__r = v; return setH.apply(this, arguments); };
+    P.send = function () {
+      const out = send.apply(this, arguments);
+      try {
+        let n = 0;
+        if (this.__m !== "HEAD") n = this.response && this.response.byteLength !== undefined ? this.response.byteLength : +(this.getResponseHeader("Content-Length") || 0);
+        postMessage({ requestId: 0, type: "LOG", data: { __http: { m: this.__m, u: String(this.__u), r: this.__r, s: this.status, n } } });
+      } catch (e) {}
+      return out;
+    };
+  })();`;
+  let duckPromise = null;
+  function getDuck() {
+    if (!duckPromise) {
+      duckPromise = (async () => {
+        const duckdb = await import(DUCKDB_URL);
+        const http = [];
+        const logger = { log: (e) => { if (e && e.__http) http.push(e.__http); } };
+        const b = await duckdb.selectBundle(duckdb.getJsDelivrBundles());
+        const wurl = URL.createObjectURL(new Blob([DUCK_PATCH + `\nimportScripts(${JSON.stringify(b.mainWorker)});`], { type: "text/javascript" }));
+        const db = new duckdb.AsyncDuckDB(logger, new Worker(wurl));
+        await db.instantiate(b.mainModule, b.pthreadWorker);
+        URL.revokeObjectURL(wurl);
+        // Lecture par plages d'octets (sinon DuckDB-WASM télécharge le fichier entier)
+        await db.open({ filesystem: { forceFullHTTPReads: false, allowFullHTTPReads: true, reliableHeadRequests: false } });
+        const conn = await db.connect();
+        return { duckdb, db, conn, http };
+      })();
+      duckPromise.catch(() => { duckPromise = null; });
+    }
+    return duckPromise;
+  }
+  async function duckRun(duck, sql, match) {
+    const i0 = duck.http.length, t0 = performance.now();
+    const r = await duck.conn.query(sql);
+    const ms = performance.now() - t0;
+    const cols = r.schema.fields.map((f) => f.name);
+    const rows = r.toArray().map((row) => cols.map((c) => { const v = row[c]; return typeof v === "bigint" ? Number(v) : v; }));
+    const req = duck.http.slice(i0).filter((h) => h.u.includes(match) && h.m !== "HEAD");
+    return { cols, rows, ms, req: req.length, bytes: req.reduce((a, h) => a + h.n, 0) };
+  }
+  function duckCell(v) {
+    if (v === null || v === undefined) return "<i>NULL</i>";
+    if (typeof v === "number") return Number.isInteger(v) ? fmt(v) : fmt(v, Math.abs(v) >= 100 ? 0 : 1);
+    if (typeof v === "object") return esc(JSON.stringify(v.toJSON ? v.toJSON() : v));
+    return esc(v);
+  }
+  function duckTable(res, max = 50) {
+    const rows = res.rows.slice(0, max);
+    return `<table class="demo-table"><tr>${res.cols.map((c) => `<th>${esc(c)}</th>`).join("")}</tr>` +
+      rows.map((r) => `<tr>${r.map((v) => `<td class="${typeof v === "number" ? "demo-num" : ""}">${duckCell(v)}</td>`).join("")}</tr>`).join("") +
+      "</table>" + (res.rows.length > max ? `<p class="demo-stats">… ${fmt(res.rows.length - max)} lignes de plus non affichées.</p>` : "");
+  }
+
+  const DUCK_QUERIES = [
+    ["Combien de bâtiments par commune ?",
+      "SELECT commune, count(*) AS batiments\nFROM batiments\nGROUP BY commune\nORDER BY batiments DESC\nLIMIT 10;"],
+    ["Hauteur moyenne par commune (≥ 1'000 bâtiments)",
+      "SELECT commune,\n       count(*) AS batiments,\n       round(avg(height), 1) AS hauteur_moy_m,\n       round(100.0 * count(height) / count(*)) AS pct_avec_hauteur\nFROM batiments\nGROUP BY commune\nHAVING count(*) >= 1000\nORDER BY hauteur_moy_m DESC\nLIMIT 10;"],
+    ["Les bâtiments de plus de 50 m (plausibles ?)",
+      "SELECT commune, class, height, num_floors, e, n\nFROM batiments\nWHERE height > 50\nORDER BY height DESC\nLIMIT 15;"],
+    ["D'où viennent les bâtiments ? (provenance)",
+      "SELECT source,\n       count(*) AS batiments,\n       round(100.0 * count(*) / sum(count(*)) OVER (), 1) AS pct,\n       round(100.0 * count(height) / count(*)) AS pct_avec_hauteur\nFROM batiments\nGROUP BY source\nORDER BY batiments DESC;"],
+    ["🧵 Fil rouge : la tuile 2538-1180 d'Yverdon",
+      "-- centroïde du bâtiment dans la tuile du fil rouge (MN95)\nSELECT coalesce(class, '(non renseigné)') AS class, count(*) AS batiments\nFROM batiments\nWHERE e >= 2538000 AND e < 2539000\n  AND n >= 1180000 AND n < 1181000\nGROUP BY ALL\nORDER BY batiments DESC;"],
+    ["Comment le fichier est-il organisé ?",
+      "-- métadonnées Parquet : groupes de lignes et taille compressée\nSELECT row_group_id,\n       any_value(row_group_num_rows) AS lignes,\n       min(stats_min) FILTER (WHERE path_in_schema = 'bfs_nummer') AS bfs_min,\n       max(stats_max) FILTER (WHERE path_in_schema = 'bfs_nummer') AS bfs_max,\n       sum(total_compressed_size)::BIGINT AS octets\nFROM parquet_metadata('batiments.parquet')\nGROUP BY row_group_id\nORDER BY row_group_id;"],
+  ];
+
+  function demoDuckdb(root) {
+    const src = new URL(root.dataset.src, location.href).href;
+    const fileName = src.split("/").pop();
+    lazyDemo(root, "▶ Démarrer DuckDB dans le navigateur", async (status) => {
+      status.textContent = " Téléchargement du moteur DuckDB (WebAssembly, environ 10 Mo, une seule fois)…";
+      const duck = await getDuck();
+      await duck.db.registerFileURL("batiments.parquet", src, duck.duckdb.DuckDBDataProtocol.HTTP, false);
+      await duck.conn.query("CREATE OR REPLACE VIEW batiments AS SELECT * FROM 'batiments.parquet'");
+      let size = 0;
+      try { size = +(await fetch(src, { method: "HEAD" })).headers.get("Content-Length") || 0; } catch (e) {}
+      let total = 0;
+
+      const pick = el("select", {}, DUCK_QUERIES.map(([t], i) => el("option", { value: String(i), text: t })));
+      const sql = el("textarea", { class: "demo-code", rows: "8", spellcheck: "false" });
+      const run = el("button", { type: "button", class: "demo-btn demo-load", text: "▶ Exécuter" });
+      const meter = el("div", { class: "demo-duck-meter" });
+      const out = el("div", { class: "demo-scroll" });
+      pick.addEventListener("change", () => { sql.value = DUCK_QUERIES[+pick.value][1]; exec(); });
+      sql.addEventListener("keydown", (e) => { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") exec(); });
+      run.addEventListener("click", exec);
+
+      async function exec() {
+        run.disabled = true;
+        out.innerHTML = "<p class=\"demo-stats\">Requête en cours…</p>";
+        try {
+          const res = await duckRun(duck, sql.value, fileName);
+          total += res.bytes;
+          const pct = size ? (100 * res.bytes) / size : 0;
+          meter.innerHTML =
+            `<div class="demo-duck-bar"><span style="width:${Math.min(100, pct).toFixed(1)}%"></span></div>` +
+            `⏱ ${fmt(res.ms / 1000, 2)} s · ${fmt(res.rows.length)} ligne(s) · ` +
+            (res.req
+              ? `<b>${res.req} requête(s) HTTP partielle(s)</b>, <b>${humanSize(res.bytes)}</b> lus sur ${humanSize(size)} (${fmt(pct, 1)} %)`
+              : "<b>aucun téléchargement</b> : les blocs utiles étaient déjà en mémoire (cache)") +
+            ` · total depuis le démarrage : ${humanSize(total)}`;
+          out.innerHTML = duckTable(res);
+        } catch (e) {
+          out.innerHTML = `<p class="demo-bad">❌ ${esc(String(e.message || e).replace(/^Error: /, ""))}</p>`;
+        }
+        run.disabled = false;
+      }
+
+      root.append(
+        el("p", { class: "demo-stats", html: `Table <code>batiments</code> : ${fmt(216994)} bâtiments vaudois d'Overture Maps (© OpenStreetMap contributors, Microsoft · ODbL). Colonnes : <code>id, subtype, class, height, num_floors, source, commune, bfs_nummer, e, n, surface_m2</code> (e, n = centroïde en MN95).` }),
+        el("div", { class: "demo-row" }, [el("span", { text: "Requête :" }), pick]),
+        sql,
+        el("div", { class: "demo-row" }, [run, el("span", { class: "demo-stats", text: "Modifiez le SQL librement · Ctrl + Entrée pour exécuter" })]),
+        meter, out
+      );
+      sql.value = DUCK_QUERIES[0][1];
+      await exec();
+    });
+  }
+
+  // ---------------------------------------------------------------- Chapitre 8 : Overture en direct
+  // Interroge directement un fichier GeoParquet d'Overture (713 Mo) sur Amazon S3, puis affiche les lieux.
+  const OVERTURE_PLACES = "https://overturemaps-us-west-2.s3.us-west-2.amazonaws.com/release/2026-10-21.0/theme=places/type=place/part-00009-fe90ff49-733f-5fa3-9755-c6cd4438305c-c000.zstd.parquet";
+  const OVERTURE_SQL = `SELECT names.primary AS nom,
+       basic_category AS categorie,
+       sources[1].dataset AS source,
+       round((bbox.xmin + bbox.xmax) / 2, 6) AS lon,
+       round((bbox.ymin + bbox.ymax) / 2, 6) AS lat
+FROM 'https://overturemaps-us-west-2.s3.us-west-2.amazonaws.com/release/2026-10-21.0/
+      theme=places/type=place/part-00009-….zstd.parquet'
+WHERE bbox.xmin BETWEEN 6.62 AND 6.66     -- emprise d'Yverdon-les-Bains
+  AND bbox.ymin BETWEEN 46.76 AND 46.79;`;
+  function demoOverture(root) {
+    lazyDemo(root, "▶ Interroger Overture en direct (Amazon S3)", async (status) => {
+      status.textContent = " Chargement de DuckDB et de la carte…";
+      loadCss(LIBS.maplibreCss);
+      const [duck] = await Promise.all([getDuck(), loadScript(LIBS.maplibreJs)]);
+      status.textContent = " Lecture du fichier Overture sur Amazon S3…";
+      const sql = OVERTURE_SQL.replace(/'https:[\s\S]*?parquet'/, `'${OVERTURE_PLACES}'`);
+      const res = await duckRun(duck, sql, "overturemaps");
+      const size = 713205738;
+      const meter = el("div", { class: "demo-duck-meter", html:
+        `<div class="demo-duck-bar"><span style="width:${Math.max(0.5, (100 * res.bytes) / size).toFixed(2)}%"></span></div>` +
+        `⏱ ${fmt(res.ms / 1000, 1)} s · <b>${fmt(res.rows.length)} lieux</b> trouvés · <b>${res.req} requêtes HTTP partielles</b>, <b>${humanSize(res.bytes)}</b> lus sur ${humanSize(size)} (${fmt((100 * res.bytes) / size, 2)} %)` });
+      const cats = {};
+      res.rows.forEach((r) => { const c = r[1] || "(sans catégorie)"; cats[c] = (cats[c] || 0) + 1; });
+      const top = Object.entries(cats).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      const srcs = {};
+      res.rows.forEach((r) => { const s = r[2] || "?"; srcs[s] = (srcs[s] || 0) + 1; });
+      const mapDiv = el("div", { class: "demo-map" });
+      root.append(
+        el("pre", { class: "demo-pre", text: OVERTURE_SQL }),
+        meter, mapDiv,
+        el("div", { class: "demo-views" }, [
+          el("div", { html: `<b>Catégories les plus fréquentes</b><table class="demo-table">${top.map(([c, n]) => `<tr><td>${esc(c)}</td><td class="demo-num">${fmt(n)}</td></tr>`).join("")}</table>` }),
+          el("div", { html: `<b>Provenance (sources[1].dataset)</b><table class="demo-table">${Object.entries(srcs).sort((a, b) => b[1] - a[1]).map(([c, n]) => `<tr><td>${esc(c)}</td><td class="demo-num">${fmt(n)}</td></tr>`).join("")}</table><p class="demo-stats">Licences : CDLA Permissive 2.0, ou Apache 2.0 pour les lieux issus de Foursquare.</p>` }),
+        ])
+      );
+      const fc = { type: "FeatureCollection", features: res.rows.map((r) => ({ type: "Feature", properties: { nom: r[0] || "(sans nom)", cat: r[1] || "", src: r[2] || "" }, geometry: { type: "Point", coordinates: [r[3], r[4]] } })) };
+      const map = new maplibregl.Map({ container: mapDiv, style: "https://demotiles.maplibre.org/style.json", center: [6.64, 46.775], zoom: 13.2, attributionControl: { compact: true } });
+      map.addControl(new maplibregl.NavigationControl({ showCompass: false }));
+      map.on("load", () => {
+        map.addSource("swisstopo", { type: "raster", tileSize: 256, bounds: [5.9, 45.8, 10.5, 47.8], minzoom: 7,
+          tiles: ["https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-grau/default/current/3857/{z}/{x}/{y}.jpeg"], attribution: "© swisstopo" });
+        map.addLayer({ id: "swisstopo", type: "raster", source: "swisstopo" });
+        map.addSource("emprise", { type: "geojson", data: { type: "Feature", geometry: { type: "Polygon", coordinates: [[[6.62, 46.76], [6.66, 46.76], [6.66, 46.79], [6.62, 46.79], [6.62, 46.76]]] } } });
+        map.addLayer({ id: "emprise", type: "line", source: "emprise", paint: { "line-color": "#c62828", "line-width": 2, "line-dasharray": [2, 2] } });
+        map.addSource("lieux", { type: "geojson", data: fc, attribution: "© Overture Maps Foundation" });
+        map.addLayer({ id: "lieux", type: "circle", source: "lieux", paint: { "circle-radius": 4, "circle-color": "#00796b", "circle-stroke-color": "#fff", "circle-stroke-width": 1 } });
+        map.fitBounds([[6.62, 46.76], [6.66, 46.79]], { padding: 20, duration: 0 });
+        const popup = new maplibregl.Popup({ closeButton: false });
+        map.on("click", "lieux", (e) => { const p = e.features[0].properties; popup.setLngLat(e.lngLat).setHTML(`<b>${esc(p.nom)}</b><br>${esc(p.cat)}<br><small>source : ${esc(p.src)}</small>`).addTo(map); });
+        map.on("mouseenter", "lieux", () => (map.getCanvas().style.cursor = "pointer"));
+        map.on("mouseleave", "lieux", () => (map.getCanvas().style.cursor = ""));
+      });
+    });
+  }
+
   const demos = {
     pixels: demoPixels, compression: demoCompression, taille: demoTaille, pmtiles: demoPmtiles, quiz: demoQuiz,
     bits: demoBits, float: demoFloat, unites: demoUnites, texte: demoTexte, fichier: demoFichier, exercices: demoExercices,
@@ -2339,6 +2625,7 @@
     editeur: demoEditeur, couleurkml: demoCouleurKml, geojsoncarte: demoGeojsonCarte,
     normes: demoNormes, trier: demoTrier, frise: demoFrise,
     pivot: demoPivot, etl: demoEtl, incompat: demoIncompat, normat: demoNormat,
+    getmap: demoGetmap, duckdb: demoDuckdb, overture: demoOverture,
   };
 
   function init() {

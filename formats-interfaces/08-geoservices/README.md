@@ -11,7 +11,8 @@
 - Distinguer les types de géoservices et les grands standards OGC (WMS, WMTS, WFS, CSW)
 - Interroger un service WMS, WMTS ou WFS, en KVP ou en REST
 - Situer les tuiles vectorielles, les OGC API et les catalogues STAC
-- Expliquer le principe des formats *cloud-native* (COG, FlatGeobuf, GeoParquet, PMTiles, Zarr) et les comparer aux géoservices
+- Expliquer comment diffuser des géodonnées **sans serveur cartographique** (formats *cloud-native*, stockage web) et comparer cette approche aux géoservices
+- Interroger un gros fichier GeoParquet en SQL directement dans le navigateur, avec DuckDB
 
 ## Services web et géoservices
 
@@ -242,6 +243,14 @@ https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/20
 !!! warning "Attention à l'ordre des numéros"
     Dans l'URL de geo.admin.ch, la **colonne** (`TileCol`, X) vient **avant** la **ligne** (`TileRow`, Y). D'autres services utilisent un autre ordre : référez-vous toujours au modèle d'URL (`ResourceURL`) donné dans le GetCapabilities. De même, les numéros de niveaux et de tuiles valides dépendent du `TileMatrixSet` : ceux du système 2056 ne sont pas ceux du système 3857 (« Web Mercator », utilisé par la plupart des cartes web mondiales).
 
+### 🧵 Fil rouge : la tuile d'Yverdon en WMS et en WMTS
+
+Interrogeons les services de la Confédération sur la tuile **2538-1180** du fil rouge. Pour le **WMS**, la requête `GetMap` porte exactement sur l'emprise de la tuile (`BBOX=2538000,1180000,2539000,1181000` en MN95) : changez la couche, le format ou la taille, et le serveur **dessine** une nouvelle image. Pour le **WMTS**, on ne choisit plus l'emprise : on calcule l'**adresse** de la tuile précalculée qui contient Yverdon, et elle change avec le niveau de zoom.
+
+<div class="demo" data-demo="getmap"></div>
+
+*Les URL affichées sont de vraies requêtes : copiez-les dans votre navigateur. Couches © swisstopo, OFS.*
+
 !!! tip "À vous de jouer, sans installation : WMS et WMTS dans GeoLibre"
 
     [GeoLibre](https://web.geolibre.app) est un SIG qui fonctionne dans le navigateur (voir [chapitre 2](../02-raster/README.md#fil-rouge-un-kilometre-carre-a-yverdon-les-bains)). Il suffit pour tester les services de la Confédération :
@@ -324,28 +333,34 @@ En contrepartie, le client doit faire plus de travail (dessin des objets) et les
 
 swisstopo propose des **fonds de carte en tuiles vectorielles** ([vectortiles.geo.admin.ch](https://www.geo.admin.ch/de/vector-tiles-service-verfuegbare-dienste-und-daten/)), utilisables avec des styles prêts à l'emploi ou personnalisés.
 
-## Formats cloud-native : lire sans tout télécharger
+## Diffuser sans serveur cartographique
 
-Les géoservices WMS, WMTS ou WFS nécessitent un **serveur cartographique** qui calcule les réponses. Une approche plus récente, dite ***cloud-native***, s'en passe : on dépose simplement des **fichiers** sur un serveur web ordinaire (ou un stockage cloud), et c'est le **client** (QGIS, GeoLibre, un navigateur, DuckDB…) qui va lire **uniquement la partie dont il a besoin**.
+Les géoservices WMS, WMTS ou WFS nécessitent un **serveur cartographique** : un logiciel qui tourne en permanence et calcule les réponses. Une approche plus récente, dite ***cloud-native***, s'en passe : on dépose simplement des **fichiers** sur un serveur web ordinaire ou un **stockage objet** (Amazon S3, Azure Blob Storage, Google Cloud Storage, voire GitHub Pages), et c'est le **client** (QGIS, GeoLibre, un navigateur, DuckDB…) qui va lire **uniquement la partie dont il a besoin**.
 
 Deux ingrédients rendent cela possible :
 
 1. les **requêtes HTTP partielles** (*range requests*) : le client demande « les octets 120'000 à 180'000 du fichier » au lieu du fichier entier ;
-2. une **organisation interne** du fichier qui permet de savoir où se trouvent les données utiles : en-tête placé au début, index spatial, blocs (tuiles, *chunks*, groupes de lignes).
+2. une **organisation interne** du fichier qui permet de savoir où se trouvent les données utiles : en-tête ou pied de fichier qui sert d'index, index spatial, blocs (tuiles, *chunks*, groupes de lignes).
 
-| Format | Type | Organisation | Usage typique | Voir |
-|---|---|---|---|---|
-| **COG** | raster | tuiles + aperçus | orthophotos, MNT (swisstopo) | [chapitre 2](../02-raster/README.md#cloud-optimized-geotiff-cog) |
-| **Zarr** | raster multidimensionnel | blocs (*chunks*) | climat, météo, séries temporelles | [chapitre 2](../02-raster/README.md#zarr) |
-| **FlatGeobuf** | vecteur | index spatial (R-tree) | afficher une zone d'un gros jeu de données | [chapitre 3](../03-vecteur/README.md#formats-recents-flatgeobuf-geoparquet-et-pmtiles) |
-| **GeoParquet** | vecteur | colonnes, groupes de lignes | analyses, requêtes SQL sur de gros volumes | [chapitre 3](../03-vecteur/README.md#formats-recents-flatgeobuf-geoparquet-et-pmtiles) |
-| **PMTiles** | tuiles (vecteur ou raster) | pyramide de tuiles + index | carte web sans serveur cartographique | [chapitre 3](../03-vecteur/README.md#formats-recents-flatgeobuf-geoparquet-et-pmtiles) |
+Vous connaissez déjà ces formats ; ce tableau rappelle seulement leur rôle dans la diffusion :
 
-Ces fichiers sont souvent décrits dans un **catalogue STAC** (voir [plus bas](#stac-un-catalogue-pour-les-donnees-spatio-temporelles)), qui permet de les trouver.
+| Format | Type | Ce que le client lit à distance | Voir |
+|---|---|---|---|
+| **COG** | raster | les tuiles et l'aperçu de la zone affichée | [chapitre 2](../02-raster/README.md#cloud-optimized-geotiff-cog) |
+| **Zarr** | raster multidimensionnel | les blocs (*chunks*) d'une date, d'une variable | [chapitre 2](../02-raster/README.md#zarr) |
+| **FlatGeobuf** | vecteur | les objets de l'emprise, grâce à l'index spatial | [chapitre 3](../03-vecteur/README.md#formats-recents-flatgeobuf-geoparquet-et-pmtiles) |
+| **GeoParquet** | vecteur, tableau | les colonnes et groupes de lignes utiles à la requête | [chapitre 3](../03-vecteur/README.md#formats-recents-flatgeobuf-geoparquet-et-pmtiles) |
+| **PMTiles** | tuiles (vecteur ou raster) | les tuiles du niveau de zoom et de l'emprise | [chapitre 3](../03-vecteur/README.md#formats-recents-flatgeobuf-geoparquet-et-pmtiles) |
+| **COPC** | nuage de points | les points de la zone et du niveau de détail | [chapitre 4](../04-3d-nuages-de-points/README.md#les-formats) |
+| **GeoJSON**, **JSON-FG** | vecteur, texte | tout le fichier : simple, mais réservé aux petits volumes | [chapitre 5](../05-xml-json/README.md#geojson) |
+
+Pour **trouver** ces fichiers, on les décrit dans un **catalogue STAC** (voir [plus bas](#stac-un-catalogue-pour-les-donnees-spatio-temporelles)) : c'est lui qui joue le rôle du GetCapabilities.
+
+### Notre propre site, un exemple de diffusion sans serveur
+
+Ce cours est publié par **GitHub Pages**, un hébergement de fichiers statiques : il n'y a aucun serveur cartographique derrière. Pourtant, les données des chapitres précédents s'y consultent comme un service.
 
 !!! example "🧪 À vous de jouer : les communes vaudoises sur le web"
-
-    Les fichiers du [chapitre 3](../03-vecteur/README.md) sont publiés sur ce site, donc sur un simple serveur web, sans aucun serveur cartographique.
 
     **FlatGeobuf dans GeoLibre** — *Add Data › Vector Layer*, collez l'adresse puis *Load* :
     ```text
@@ -377,8 +392,67 @@ Ces fichiers sont souvent décrits dans un **catalogue STAC** (voir [plus bas](#
 
     Ouvrez l'onglet *Réseau* des outils de développement (F12) pendant ces essais pour voir les requêtes partielles.
 
-!!! note "Services ou fichiers ?"
-    Les deux approches coexistent. Les **services** (WMS, WFS, OGC API) restent indispensables quand les données changent souvent, sont volumineuses à préparer, ou doivent être filtrées et sécurisées par le serveur. Les **fichiers cloud-native** sont plus simples et moins coûteux à publier, et se prêtent bien à la diffusion de données stables (une mise à jour = un nouveau fichier).
+### Overture Maps : une base de données mondiale, sans API
+
+La **[Overture Maps Foundation](https://overturemaps.org/)** (Linux Foundation, avec Amazon, Meta, Microsoft, TomTom…) publie une carte du monde ouverte : bâtiments, routes, lieux, adresses, limites administratives. Elle n'offre **ni WMS, ni WFS, ni API** : uniquement des **fichiers GeoParquet** sur Amazon S3 et Azure, mis à jour chaque mois. Le thème « bâtiments » de la version 2026-10-21 compte à lui seul **512 fichiers et 277 Go**.
+
+Pour en extraire les bâtiments du canton de Vaud, une seule requête **DuckDB** suffit, lancée depuis un ordinateur portable, sans rien télécharger au préalable :
+
+```sql
+INSTALL spatial; LOAD spatial; INSTALL httpfs; LOAD httpfs;
+SET s3_region = 'us-west-2';
+
+COPY (
+  SELECT id, subtype, class, height, num_floors,
+         sources[1].dataset AS source, geometry
+  FROM read_parquet('s3://overturemaps-us-west-2/release/2026-10-21.0/theme=buildings/type=building/*')
+  WHERE bbox.xmin < 7.25 AND bbox.xmax > 6.06      -- rectangle englobant le canton
+    AND bbox.ymin < 46.99 AND bbox.ymax > 46.18
+) TO 'vaud_raw.parquet' (FORMAT parquet, COMPRESSION zstd);
+```
+
+Résultat : **665'727 bâtiments en 3 min 22 s**. DuckDB lit d'abord le **pied** de chaque fichier Parquet, qui contient les valeurs minimales et maximales de `bbox` pour chaque groupe de lignes, et ne télécharge que les groupes qui touchent le rectangle. Une seconde requête (jointure spatiale avec les communes du [chapitre 3](../03-vecteur/README.md), reprojection en MN95) ne garde que les **216'994 bâtiments situés dans le canton** et produit un fichier de **6,7 Mo** : c'est lui que nous allons interroger.
+
+!!! info "Licences"
+    Les bâtiments d'Overture proviennent surtout d'**OpenStreetMap** et, pour environ 10 % d'entre eux dans le canton, de la détection automatique de **Microsoft** (*ML Buildings*). Ils sont diffusés sous licence **ODbL** : réutilisation libre, avec mention des sources et partage à l'identique des bases dérivées. Les lieux (*places*) sont sous **CDLA Permissive 2.0**, sauf ceux issus de Foursquare, sous **Apache 2.0**. Une même diffusion peut donc mélanger plusieurs licences : c'est le niveau **juridique** de l'interopérabilité vu au [chapitre 6](../06-interoperabilite-normes/README.md#licences-le-droit-dutiliser-les-donnees).
+
+### ▶ Du « big data » dans le navigateur avec DuckDB
+
+**[DuckDB](https://duckdb.org)** est une base de données d'analyse qui tient dans un seul programme et lit directement les fichiers Parquet, CSV ou JSON, en local ou sur le web. Sa version **WebAssembly** tourne dans une page web. La démo ci-dessous interroge l'extrait vaudois (6,7 Mo) hébergé sur ce site : choisissez une requête ou écrivez la vôtre, et observez la barre jaune. Elle indique la **part du fichier réellement téléchargée** : grâce au stockage par colonnes et aux groupes de lignes, une requête sur la hauteur ne lit pas les noms des communes, et une requête sur une commune ne lit que les groupes de lignes qui la contiennent.
+
+<div class="demo" data-demo="duckdb" data-src="donnees/batiments_vd_overture.parquet"></div>
+
+*Données : [Overture Maps Foundation](https://overturemaps.org/), version 2026-10-21 ; © OpenStreetMap contributors, Microsoft ; licence ODbL. Extrait préparé pour ce cours : [`batiments_vd_overture.parquet`](donnees/batiments_vd_overture.parquet).*
+
+!!! question "🧵 Fil rouge : qui a raison ?"
+    Lancez la requête « Fil rouge ». Sur la tuile 2538-1180, Overture compte **564 bâtiments**, contre **392** pour swissBUILDINGS3D (même règle : centroïde du bâtiment dans la tuile). Pourquoi une telle différence ? Pistes : OpenStreetMap découpe souvent un bâtiment en plusieurs parties (annexes, garages, abris) ; les deux jeux n'appliquent pas les mêmes règles de saisie (taille minimale, bâtiments souterrains ou en construction) ; ils n'ont pas la même date. Aucun n'est « faux » : ils n'ont pas la même **définition** d'un bâtiment. C'est exactement la question sémantique du [schema mapping](../07-echange-de-donnees/README.md#schema-mapping).
+
+    Lancez aussi la requête « plus de 50 m » : certains objets mesurent plus de 120 m. Situez-les avec leurs coordonnées MN95 sur [map.geo.admin.ch](https://map.geo.admin.ch) : s'agit-il vraiment de bâtiments ? Une donnée ouverte et collaborative se **contrôle** avant d'être utilisée.
+
+### ▶ En direct : interroger le fichier mondial sur Amazon S3
+
+Pour aller plus loin, DuckDB peut interroger **directement** les fichiers d'Overture sur Amazon S3, sans extrait préparé. Les lieux (*places*) du monde entier tiennent dans 16 fichiers ; celui qui contient Yverdon pèse **713 Mo**. Le bouton ci-dessous cherche les lieux autour d'Yverdon dans ce fichier : DuckDB lit le pied du fichier, repère les groupes de lignes dont le `bbox` touche l'emprise, et ne télécharge qu'**environ 5 Mo**, moins de 1 % du fichier.
+
+<div class="demo" data-demo="overture"></div>
+
+*Données : Overture Maps Foundation, thème places ; licences CDLA Permissive 2.0 et Apache 2.0. La vitesse dépend de votre connexion : comptez quelques secondes.*
+
+### Services ou fichiers ?
+
+Les deux approches coexistent ; le choix dépend des données et des utilisateurs.
+
+| Critère | Géoservice (WMS, WFS, OGC API) | Fichiers *cloud-native* |
+|---|---|---|
+| Infrastructure | serveur cartographique à maintenir | stockage web ordinaire, aucun logiciel serveur |
+| Coût | serveur, licences, exploitation | stockage et trafic, souvent très faibles |
+| Mise à jour | immédiate, objet par objet (WFS-T) | on republie un fichier (version datée) |
+| Filtrage | par le serveur, selon les paramètres de la requête | par le client, qui ne lit que les blocs utiles |
+| Sécurité, droits d'accès | fins (par couche, par utilisateur) | tout ou rien sur le fichier |
+| Calcul | côté serveur (rendu de carte, traitements) | côté client (navigateur, DuckDB, QGIS) |
+| Standards | OGC (WMS, WFS, OGC API) | formats ouverts (GeoParquet, COG…) et STAC ; pas de protocole de requête |
+| Idéal pour | données qui changent souvent, accès contrôlé, cartes prêtes à l'emploi | données stables ou versionnées, gros volumes, analyses |
+
+Les grands producteurs combinent les deux : swisstopo publie ses géodonnées à la fois par des **services** (WMS, WMTS, API) et par des **fichiers** téléchargeables décrits dans son **catalogue STAC** (COG, GeoPackage…). Overture, à l'inverse, ne publie que des fichiers.
 
 ## OGC API : la nouvelle génération
 
@@ -434,6 +508,15 @@ La seconde requête renvoie, en GeoJSON, les dalles SWISSIMAGE qui touchent l'em
 
     Autre exemple de catalogue STAC, cette fois pour des données **multidimensionnelles** au format Zarr : la [démo de prévisions météo](../02-raster/README.md#zarr) du chapitre 2.
 
+## Et demain ?
+
+- **Une plateforme unique** : selon la Confédération (mai 2026), le Géoportail fédéral, qui compte désormais plus de 1'000 jeux de données, doit fusionner progressivement avec le portail des cantons (geodienste.ch) et d'autres portails dans une plateforme unique, **SWISSGEO**.
+- **Des interfaces pour les agents IA** : après les services pour les logiciels (WMS, OGC API) et les fichiers pour les clients d'analyse, apparaissent des interfaces conçues pour les **agents IA**, comme les serveurs MCP. swisstopo en teste un prototype ; voir le [chapitre 7](../07-echange-de-donnees/README.md#agents-ia-acces-aux-donnees-et-schema-mapping).
+
+## Testez-vous
+
+<div class="demo" data-demo="quiz" data-quiz="geoservices"></div>
+
 ## À retenir
 
 - Un **géoservice** (LGéo) donne accès à des géodonnées par le réseau, sous une **forme structurée** définie par des normes (OGC).
@@ -442,6 +525,9 @@ La seconde requête renvoie, en GeoJSON, les dalles SWISSIMAGE qui touchent l'em
 - **WMS** → image calculée à la demande ; **WMTS** → tuiles précalculées (`TileRow` = ligne/Y, `TileCol` = colonne/X) ; **WFS** → objets vectoriels (WFS-T : modification).
 - **Tuiles vectorielles** : géométries découpées en tuiles, stylées par le client.
 - **OGC API** (Features, Tiles, Maps, Processes, Records) : successeurs REST/JSON des WxS. **STAC** : catalogue de fichiers, utilisé par data.geo.admin.ch.
+- **Sans serveur cartographique** : des fichiers *cloud-native* (COG, GeoParquet, FlatGeobuf, PMTiles, COPC) sur un stockage web, lus par morceaux grâce aux **requêtes HTTP partielles**. Exemple : Overture Maps, diffusé uniquement en GeoParquet.
+- **DuckDB** interroge en SQL des fichiers Parquet locaux ou distants, même dans le navigateur, en ne lisant que les colonnes et blocs utiles.
+- Services et fichiers sont **complémentaires** : mises à jour et droits d'accès fins d'un côté, simplicité et faible coût de l'autre.
 
 ## Sources
 
@@ -455,6 +541,13 @@ La seconde requête renvoie, en GeoJSON, les dalles SWISSIMAGE qui touchent l'em
 - [STAC – SpatioTemporal Asset Catalog](https://stacspec.org/)
 - [Documentation de geo.admin.ch](https://docs.geo.admin.ch/)
 - [Service de tuiles vectorielles de geo.admin.ch](https://www.geo.admin.ch/de/vector-tiles-service-verfuegbare-dienste-und-daten/)
+- [Overture Maps – documentation](https://docs.overturemaps.org/) et [notes de version (licences)](https://docs.overturemaps.org/release-notes/)
+- [DuckDB](https://duckdb.org/) et [DuckDB-WASM](https://github.com/duckdb/duckdb-wasm)
+- [Le Géoportail fédéral compte 1000 jeux de données (communiqué, 18.05.2026)](https://www.admin.ch/de/newnsb/-vbSMQwry06iCR89upt44)
+
+## Exercices
+
+- [Un même territoire, quatre accès](../exercices/ex12-quatre-acces/README.md)
 
 ---
 

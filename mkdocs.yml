@@ -83,3 +83,4 @@ nav:
           - "Conversion GPX ↔ KML": formats-interfaces/exercices/ex09-gpx-kml/README.md
           - "Modèle QGIS : reprojection et calcul": formats-interfaces/exercices/ex10-modele-reprojection/README.md
           - "Modèle QGIS : tampon et découpage": formats-interfaces/exercices/ex11-modele-cours-eau/README.md
+          - "Un même territoire, quatre accès": formats-interfaces/exercices/ex12-quatre-acces/README.md

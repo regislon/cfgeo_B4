@@ -341,3 +341,17 @@
 .demo-etl-config { margin: 0.6rem 0; padding: 0.4rem 0.6rem; border-left: 4px solid #00796b; }
 .demo-etl-form input, .demo-etl-form select { font: inherit; font-size: 0.7rem; }
 .demo-etl-hint { font-size: 0.65rem; opacity: 0.75; }
+
+/* Chapitre 8 : requêtes WMS / WMTS, DuckDB, Overture */
+.demo-kvp { font-family: var(--md-code-font-family); font-size: 0.68rem; }
+.demo-kvp-k { color: #00796b; font-weight: 700; }
+.demo-kvp-v { color: #b26a00; }
+[data-md-color-scheme="slate"] .demo-kvp-k { color: #80cbc4; }
+[data-md-color-scheme="slate"] .demo-kvp-v { color: #ffcc80; }
+.demo-wms { margin: 0.4rem 0; }
+.md-typeset .demo-wms-img, .demo-wms-img { display: block; width: 100%; max-width: 380px; aspect-ratio: 1; object-fit: contain; border: 1px solid var(--md-default-fg-color--lighter); border-radius: 4px; background: var(--md-code-bg-color); }
+.md-typeset .demo-wmts-img, .demo-wmts-img { max-width: 256px; }
+.demo-duck-meter { margin: 0.5rem 0; font-size: 0.72rem; }
+.demo-duck-bar { height: 0.6rem; margin-bottom: 0.25rem; border-radius: 0.3rem; background: var(--md-default-fg-color--lightest); overflow: hidden; }
+.demo-duck-bar span { display: block; height: 100%; min-width: 2px; background: var(--md-accent-fg-color); }
+.demo-num { text-align: right !important; font-variant-numeric: tabular-nums; }

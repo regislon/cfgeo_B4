@@ -332,7 +332,7 @@ Avec l'augmentation des volumes et la généralisation du stockage dans le cloud
 - **PMTiles** (`.pmtiles`, Protomaps) : un **fichier unique** qui contient une pyramide de **tuiles vectorielles** prêtes à afficher (comme une carte web). Ce n'est pas un format de **données** mais de **visualisation** : les géométries y sont découpées par tuile et **simplifiées** selon le niveau de zoom, en Web Mercator. Spécification communautaire, non OGC (l'équivalent normalisé côté service est OGC API – Tiles).
 
 !!! tip "Formats « cloud-native »"
-    Ces formats, comme le COG pour le raster, sont conçus pour être **lus directement sur un serveur web, par morceaux**, sans télécharger tout le fichier. Leur diffusion et leur utilisation en ligne sont traitées au [chapitre 8](../08-geoservices/README.md#formats-cloud-native-lire-sans-tout-telecharger).
+    Ces formats, comme le COG pour le raster, sont conçus pour être **lus directement sur un serveur web, par morceaux**, sans télécharger tout le fichier. Leur diffusion et leur utilisation en ligne sont traitées au [chapitre 8](../08-geoservices/README.md#diffuser-sans-serveur-cartographique).
 
 <div class="demo" data-demo="pmtiles" data-src="donnees/yverdon_2538-1180.pmtiles" data-size="465499" data-center="6.6343,46.7741" data-zoom="15"></div>
 

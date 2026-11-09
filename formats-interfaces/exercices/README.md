@@ -13,6 +13,7 @@ Ils sont présentés pendant le cours, au moment indiqué dans les slides du cha
 | [Lire et modifier un fichier KML](ex06-kml/README.md) | [5. XML et JSON](../05-xml-json/README.md) |
 | [GeoJSON et systèmes de coordonnées](ex07-geojson/README.md) | [5. XML et JSON](../05-xml-json/README.md) |
 | [Schema mapping](ex08-schema-mapping/README.md) | [7. Échange de données](../07-echange-de-donnees/README.md) |
+| [Un même territoire, quatre accès](ex12-quatre-acces/README.md) | [8. Géoservices (GeoWeb)](../08-geoservices/README.md) |
 | [Conversion GPX ↔ KML](ex09-gpx-kml/README.md) | [9. Reformatage et ETL](../09-reformatage-etl/README.md) |
 | [Modèle QGIS : reprojection et calcul](ex10-modele-reprojection/README.md) | [9. Reformatage et ETL](../09-reformatage-etl/README.md) |
 | [Modèle QGIS : tampon et découpage](ex11-modele-cours-eau/README.md) | [9. Reformatage et ETL](../09-reformatage-etl/README.md) |

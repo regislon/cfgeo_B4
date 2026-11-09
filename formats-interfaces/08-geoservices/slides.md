@@ -166,6 +166,18 @@ https://wmts.geo.admin.ch/EPSG/2056/1.0.0/WMTSCapabilities.xml
 - `TileCol` = **colonne** (axe X), `TileRow` = **ligne** (axe Y)
 - Ordre : voir `ResourceURL` du GetCapabilities
 
+
+---
+
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Fil rouge : la tuile d’Yverdon en WMS et en WMTS](./#fil-rouge-la-tuile-dyverdon-en-wms-et-en-wmts)' -->
+## 🧵 La tuile d'Yverdon en WMS et en WMTS
+
+- **WMS** : `BBOX=2538000,1180000,2539000,1181000` (MN95) → le serveur **dessine** l'image de la tuile, à la taille demandée
+- **WMTS** : on calcule l'**adresse** de la tuile précalculée qui contient Yverdon : `…/3857/15/16987/11555.jpeg`
+- Changer le zoom → autre tuile ; changer l'emprise WMS → autre image
+
+▶ [Démo : construire la requête](./#fil-rouge-la-tuile-dyverdon-en-wms-et-en-wmts)
+
 ---
 
 <!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 WMTS – Web Map Tile Service](./#wmts-web-map-tile-service)' -->
@@ -229,24 +241,32 @@ https://geo.exemple.ch/wfs?SERVICE=WFS&VERSION=2.0.0
 
 ---
 
-<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Formats cloud-native : lire sans tout télécharger](./#formats-cloud-native-lire-sans-tout-telecharger)' -->
-## Formats *cloud-native*
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Diffuser sans serveur cartographique](./#diffuser-sans-serveur-cartographique)' -->
+<!-- _class: lead -->
 
-- Pas de serveur cartographique : de simples **fichiers** sur un serveur web
-- Le client lit **seulement ce qu'il faut** : requêtes HTTP **partielles** + index
-
-| Format | Type | Usage |
-|---|---|---|
-| COG | raster | orthophotos, MNT |
-| Zarr | multidimensionnel | climat, météo |
-| FlatGeobuf | vecteur | afficher une zone |
-| GeoParquet | vecteur | SQL, analyses |
-| PMTiles | tuiles | carte web sans serveur |
+# Diffuser sans serveur cartographique
 
 ---
 
-<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Formats cloud-native : lire sans tout télécharger](./#formats-cloud-native-lire-sans-tout-telecharger)' -->
-## 🧪 GeoParquet + SQL, directement en ligne
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Diffuser sans serveur cartographique](./#diffuser-sans-serveur-cartographique)' -->
+## Des fichiers, pas de serveur
+
+- De simples **fichiers** sur un stockage web (S3, Azure, GitHub Pages…)
+- Le client lit **seulement ce qu'il faut** : requêtes HTTP **partielles** + index interne
+
+| Format | Lu à distance | Vu au |
+|---|---|---|
+| COG, Zarr | tuiles, blocs | ch. 2 |
+| FlatGeobuf, GeoParquet, PMTiles | objets, colonnes, tuiles | ch. 3 |
+| COPC | points de la zone | ch. 4 |
+| GeoJSON, JSON-FG | tout le fichier (petits volumes) | ch. 5 |
+
+**STAC** sert de catalogue (le « GetCapabilities » des fichiers)
+
+---
+
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Notre propre site, un exemple de diffusion sans serveur](./#notre-propre-site-un-exemple-de-diffusion-sans-serveur)' -->
+## 🧪 Ce site est déjà un « service » sans serveur
 
 ```sql
 SELECT name, einwohnerzahl
@@ -258,7 +278,69 @@ Lausanne 144'873 · **Yverdon-les-Bains 30'292** · Montreux 26'955…
 
 - DuckDB ne lit que **2 colonnes**, pas les géométries
 - FlatGeobuf → GeoLibre · PMTiles → pmtiles.io
-- Services **ou** fichiers ? Données changeantes → services · stables → fichiers
+
+---
+
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Overture Maps : une base de données mondiale, sans API](./#overture-maps-une-base-de-donnees-mondiale-sans-api)' -->
+## Overture Maps : le monde en GeoParquet
+
+- Bâtiments, routes, lieux, adresses… **ni WMS, ni WFS, ni API** : des **fichiers GeoParquet** sur Amazon S3 et Azure
+- Bâtiments : **512 fichiers, 277 Go**
+- Une requête **DuckDB** extrait le canton de Vaud : **665'727 bâtiments en 3 min 22 s** (portable)
+- Puis jointure avec les communes → **216'994 bâtiments, 6,7 Mo**
+- Licences : bâtiments **ODbL** (OSM, Microsoft) · lieux **CDLA 2.0 / Apache 2.0**
+
+---
+
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Du « big data » dans le navigateur avec DuckDB](./#du-big-data-dans-le-navigateur-avec-duckdb)' -->
+## ▶ DuckDB dans le navigateur
+
+- Base de données d'analyse en **WebAssembly** : SQL sur un Parquet distant
+- `SELECT avg(height) …` → **14 requêtes partielles, 426 ko** lus sur 6,7 Mo (6 %)
+- Stockage **par colonnes** + **groupes de lignes** triés par commune
+- Requêtes prêtes à l'emploi **ou** votre propre SQL
+
+▶ [Démo : interroger 216'994 bâtiments](./#du-big-data-dans-le-navigateur-avec-duckdb)
+
+---
+
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Du « big data » dans le navigateur avec DuckDB](./#du-big-data-dans-le-navigateur-avec-duckdb)' -->
+## 🧵 Overture ou swissBUILDINGS3D ?
+
+Tuile 2538-1180, même règle (centroïde dans la tuile) :
+
+| Overture | swissBUILDINGS3D |
+|---|---|
+| **564** bâtiments | **392** bâtiments |
+
+- OSM découpe en parties (annexes, garages, abris) · règles de saisie et dates différentes
+- Des « bâtiments » de **plus de 120 m** : à vérifier !
+- ➜ pas la même **définition** d'un bâtiment : question **sémantique** (ch. 7)
+
+---
+
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 En direct : interroger le fichier mondial sur Amazon S3](./#en-direct-interroger-le-fichier-mondial-sur-amazon-s3)' -->
+## ▶ En direct sur Amazon S3
+
+- Lieux (*places*) d'Overture autour d'Yverdon, **directement** dans le fichier mondial
+- Fichier de **713 Mo** → DuckDB lit **≈ 5 Mo (0,7 %)** en ~3 s
+- **2'790 lieux** sur la carte : restaurants, commerces, services…
+
+▶ [Démo : interroger Overture en direct](./#en-direct-interroger-le-fichier-mondial-sur-amazon-s3)
+
+---
+
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Services ou fichiers ?](./#services-ou-fichiers)' -->
+## Services ou fichiers ?
+
+| | Géoservice | Fichiers *cloud-native* |
+|---|---|---|
+| Infrastructure | serveur cartographique | stockage web |
+| Mise à jour | immédiate, par objet | nouveau fichier (version) |
+| Filtrage, calcul | par le serveur | par le client |
+| Droits d'accès | fins | tout ou rien |
+| Idéal pour | données changeantes, accès contrôlé | gros volumes stables, analyses |
+
 ---
 
 <!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 OGC API : la nouvelle génération](./#ogc-api-la-nouvelle-generation)' -->
@@ -315,6 +397,30 @@ https://data.geo.admin.ch/api/stac/v1/collections/
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Exercices](./#exercices)' -->
+<!-- _class: exercice -->
+
+# Exercice : Un même territoire, quatre accès
+
+[Consignes](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex12-quatre-acces/)
+
+---
+
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Et demain ?](./#et-demain)' -->
+## Et demain ?
+
+- **SWISSGEO** : le Géoportail fédéral (plus de 1'000 jeux de données, mai 2026) doit fusionner progressivement avec geodienste.ch et d'autres portails
+- Des interfaces pour les **agents IA** : serveurs **MCP** (prototype swisstopo) → voir ch. 7
+
+---
+
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Testez-vous](./#testez-vous)' -->
+## ❓ Testez-vous
+
+▶ [Quiz du chapitre](./#testez-vous)
+
+---
+
 <!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 À retenir](./#a-retenir)' -->
 ## À retenir
 
@@ -323,3 +429,5 @@ https://data.geo.admin.ch/api/stac/v1/collections/
 - **WMS** = image à la demande ; **WMTS** = tuiles (`TileCol` X, `TileRow` Y) ; **WFS** = objets
 - **Tuiles vectorielles** : stylées par le client
 - **OGC API** : successeurs REST/JSON ; **STAC** : catalogue de fichiers
+- **Sans serveur** : fichiers *cloud-native* lus par morceaux (Overture = GeoParquet seulement)
+- **DuckDB** : SQL sur Parquet distant, même dans le navigateur
