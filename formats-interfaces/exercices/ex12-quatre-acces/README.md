@@ -10,7 +10,7 @@ Aucune donnée à télécharger : tout se fait en ligne, sur les services de la 
 
 ## Consignes
 
-Logiciel : un navigateur web. Gardez les outils de développement ouverts (touche **F12**, onglet *Réseau*) pour voir les requêtes et la quantité de données téléchargée. [GeoLibre](https://web.geolibre.app) peut servir à afficher les résultats.
+Logiciel : un navigateur web. Gardez les outils de développement ouverts (touche **F12**, onglet *Réseau*) pour voir les requêtes et la quantité de données téléchargée. [GeoLibre](https://web.geolibre.app) (à ouvrir dans **Chrome**) peut servir à afficher les résultats.
 
 L'emprise de la tuile, en MN95, est `2538000,1180000,2539000,1181000`.
 

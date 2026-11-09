@@ -57,11 +57,13 @@ Ces trois produits décrivent le même territoire, mais leurs pixels ne contienn
     `https://data.geo.admin.ch/ch.swisstopo.swissalti3d/swissalti3d_2019_2538-1180/swissalti3d_2019_2538-1180_0.5_2056_5728.tif`.
     C'est possible parce que ces fichiers sont des *Cloud Optimized GeoTIFF* (voir [plus bas](#cloud-optimized-geotiff-cog)).
 
-    **Sans rien installer** : ouvrez [GeoLibre](https://web.geolibre.app) dans votre navigateur, puis *Add Data › Raster Layer*, collez la même URL et cliquez sur *Load*. Activez *Inspect pixel values* (icône de la couche) et cliquez sur la carte pour lire l'altitude d'un pixel.
+    **Sans rien installer** : ouvrez [GeoLibre](https://web.geolibre.app) (à ouvrir dans **Chrome**) dans votre navigateur, puis *Add Data › Raster Layer*, collez la même URL et cliquez sur *Load*. Activez *Inspect pixel values* (icône de la couche) et cliquez sur la carte pour lire l'altitude d'un pixel.
 
 !!! info "GeoLibre, un SIG dans le navigateur"
 
     [GeoLibre](https://geolibre.app) est un SIG libre qui fonctionne **entièrement dans le navigateur**, sans installation ([version web](https://web.geolibre.app)), et existe aussi en application de bureau. Il lit directement les COG, GeoParquet, FlatGeobuf, GeoPackage, les services WMS, WMTS, WFS, OGC API et STAC, et propose de nombreux traitements. Nous l'utilisons dans ce cours comme **alternative légère à QGIS**, notamment lors des journées à distance.
+
+    ⚠️ **Ouvrez GeoLibre avec Google Chrome.** Il ne fonctionne pas correctement dans Firefox.
 
     Deux limites à connaître :
 

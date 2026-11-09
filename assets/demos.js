@@ -268,7 +268,7 @@
     loadCss(LIBS.maplibreCss);
     await loadScript(LIBS.maplibreJs);
     await loadScript(LIBS.pmtilesJs);
-    const url = new URL(root.dataset.src, location.href).href;
+    const url = rangeUrl(root.dataset.src);
     const fileSize = parseInt(root.dataset.size || "0", 10);
 
     const mapDiv = el("div", { class: "demo-map" });
@@ -2506,8 +2506,18 @@
       "-- métadonnées Parquet : groupes de lignes et taille compressée\nSELECT row_group_id,\n       any_value(row_group_num_rows) AS lignes,\n       min(stats_min) FILTER (WHERE path_in_schema = 'bfs_nummer') AS bfs_min,\n       max(stats_max) FILTER (WHERE path_in_schema = 'bfs_nummer') AS bfs_max,\n       sum(total_compressed_size)::BIGINT AS octets\nFROM parquet_metadata('batiments.parquet')\nGROUP BY row_group_id\nORDER BY row_group_id;"],
   ];
 
+  // GitHub Pages compresse à la volée (gzip) les fichiers binaires demandés par un
+  // navigateur, et applique alors les requêtes partielles (Range) au flux compressé :
+  // les formats cloud-native deviennent illisibles. Sur le site publié, on lit donc ces
+  // fichiers sur raw.githubusercontent.com, qui sert les octets d'origine.
+  function rangeUrl(rel) {
+    const abs = new URL(rel, location.href).href;
+    const m = abs.match(/^https:\/\/regislon\.github\.io\/cfgeo_B4\/(.*)$/);
+    return m ? "https://raw.githubusercontent.com/regislon/cfgeo_B4/main/" + m[1] : abs;
+  }
+
   function demoDuckdb(root) {
-    const src = new URL(root.dataset.src, location.href).href;
+    const src = rangeUrl(root.dataset.src);
     const fileName = src.split("/").pop();
     lazyDemo(root, "▶ Démarrer DuckDB dans le navigateur", async (status) => {
       status.textContent = " Téléchargement du moteur DuckDB (WebAssembly, environ 10 Mo, une seule fois)…";

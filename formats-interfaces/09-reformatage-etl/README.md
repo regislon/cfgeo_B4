@@ -188,6 +188,9 @@ Voir l'[exercice 8](../exercices/ex09-gpx-kml/README.md).
 
 [GeoLibre](https://geolibre.app) est un SIG libre qui fonctionne **dans le navigateur**, sans installation ([version web](https://web.geolibre.app)), ou en application de bureau. Il s'appuie sur des technologies récentes conçues pour le web : MapLibre pour l'affichage, **DuckDB** (une base de données qui tourne dans le navigateur) pour les requêtes SQL, et des outils de traitement compilés en WebAssembly.
 
+!!! warning "Navigateur"
+    Ouvrez GeoLibre avec **Google Chrome** : il ne fonctionne pas correctement dans Firefox.
+
 Pour le reformatage, il propose notamment (menu *Processing › Conversion*) :
 
 - la lecture de nombreux formats (GeoJSON, Shapefile, GeoPackage, FlatGeobuf, GeoParquet, CSV, GPX, KML, DXF…) et l'**export** d'une couche en GeoJSON, GeoParquet, Shapefile, GeoPackage ou CSV depuis la table attributaire ;

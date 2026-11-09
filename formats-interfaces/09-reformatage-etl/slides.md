@@ -170,6 +170,8 @@ gpsbabel -i gpx -f trace.gpx -o kml -F trace.kml
 ⚠️ Pas de MN95 ni d'options de création fines, pas d'INTERLIS
 → explorer : GeoLibre · produire : QGIS, GDAL, FME
 
+⚠️ À ouvrir dans **Chrome** (pas Firefox)
+
 ---
 
 <!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Services en ligne](./#services-en-ligne)' -->

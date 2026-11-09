@@ -54,7 +54,7 @@ Une requête à un géoservice peut prendre plusieurs formes :
 
 | Style | Principe | Exemple |
 |---|---|---|
-| **KVP** (*key-value pairs*) | Paramètres `clé=valeur` à la suite de l'URL, après un `?` et séparés par `&` | `...?SERVICE=WMS&REQUEST=GetCapabilities` |
+| **KVP** (*key-value pairs*, paires clé-valeur) | Paramètres `clé=valeur` à la suite de l'URL, après un `?` et séparés par `&` | `...?SERVICE=WMS&REQUEST=GetCapabilities` |
 | **REST** | Chaque ressource a sa propre URL, organisée comme un chemin de fichiers | `.../ch.swisstopo.pixelkarte-farbe/default/current/2056/20/58/70.jpeg` |
 | SOAP | Messages XML envoyés en POST | Très peu utilisé, non traité ici |
 
@@ -253,7 +253,7 @@ Interrogeons les services de la Confédération sur la tuile **2538-1180** du fi
 
 !!! tip "À vous de jouer, sans installation : WMS et WMTS dans GeoLibre"
 
-    [GeoLibre](https://web.geolibre.app) est un SIG qui fonctionne dans le navigateur (voir [chapitre 2](../02-raster/README.md#fil-rouge-un-kilometre-carre-a-yverdon-les-bains)). Il suffit pour tester les services de la Confédération :
+    [GeoLibre](https://web.geolibre.app) (à ouvrir dans **Chrome**) est un SIG qui fonctionne dans le navigateur (voir [chapitre 2](../02-raster/README.md#fil-rouge-un-kilometre-carre-a-yverdon-les-bains)). Il suffit pour tester les services de la Confédération :
 
     **WMS** — *Add Data › WMS Layer* :
 
@@ -360,20 +360,23 @@ Pour **trouver** ces fichiers, on les décrit dans un **catalogue STAC** (voir [
 
 Ce cours est publié par **GitHub Pages**, un hébergement de fichiers statiques : il n'y a aucun serveur cartographique derrière. Pourtant, les données des chapitres précédents s'y consultent comme un service.
 
+!!! warning "Attention au serveur web"
+    Pour les lectures partielles, le serveur doit renvoyer les **octets d'origine** du fichier. Or GitHub Pages compresse à la volée (gzip) les fichiers binaires demandés par un navigateur : les requêtes partielles portent alors sur le flux compressé, et le client reçoit des octets illisibles (DuckDB signale par exemple *No magic bytes found at end of file*). Les adresses ci-dessous passent donc par **raw.githubusercontent.com**, qui sert les mêmes fichiers du dépôt sans les compresser. Avant de diffuser des fichiers *cloud-native*, testez toujours une requête partielle depuis un navigateur.
+
 !!! example "🧪 À vous de jouer : les communes vaudoises sur le web"
 
     **FlatGeobuf dans GeoLibre** — *Add Data › Vector Layer*, collez l'adresse puis *Load* :
     ```text
-    https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/donnees/communes_vd.fgb
+    https://raw.githubusercontent.com/regislon/cfgeo_B4/main/formats-interfaces/03-vecteur/donnees/communes_vd.fgb
     ```
     Les communes s'affichent, reprojetées à la volée depuis le MN95.
 
-    **PMTiles dans un visualiseur web** — ouvrez [pmtiles.io](https://pmtiles.io/?url=https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/donnees/communes_vd.pmtiles) : la carte est dessinée à partir des tuiles, téléchargées au fur et à mesure du zoom. Observez la simplification des limites communales quand on dézoome.
+    **PMTiles dans un visualiseur web** — ouvrez [pmtiles.io](https://pmtiles.io/?url=https://raw.githubusercontent.com/regislon/cfgeo_B4/main/formats-interfaces/03-vecteur/donnees/communes_vd.pmtiles) : la carte est dessinée à partir des tuiles, téléchargées au fur et à mesure du zoom. Observez la simplification des limites communales quand on dézoome.
 
-    **GeoParquet interrogé en SQL** — avec [DuckDB](https://duckdb.org) (ou le *SQL Workspace* de GeoLibre), une seule requête suffit, directement sur le fichier en ligne :
+    **GeoParquet interrogé en SQL** — ouvrez le [shell DuckDB en ligne](https://shell.duckdb.org) (rien à installer ; ou DuckDB installé sur votre ordinateur, ou le *SQL Workspace* de GeoLibre), collez la requête, puis pressez Entrée. Elle lit directement le fichier en ligne :
     ```sql
     SELECT name, einwohnerzahl
-    FROM 'https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/donnees/communes_vd.parquet'
+    FROM 'https://raw.githubusercontent.com/regislon/cfgeo_B4/main/formats-interfaces/03-vecteur/donnees/communes_vd.parquet'
     ORDER BY einwohnerzahl DESC
     LIMIT 5;
     ```
@@ -504,7 +507,7 @@ La seconde requête renvoie, en GeoJSON, les dalles SWISSIMAGE qui touchent l'em
 
 !!! tip "À vous de jouer : parcourir le catalogue STAC de swisstopo"
 
-    Dans [GeoLibre](https://web.geolibre.app), ouvrez *Add Data › STAC Layer*, saisissez `https://data.geo.admin.ch/api/stac/v1/` et cliquez sur *Connect*. GeoLibre liste les collections du catalogue ; zoomez sur votre région et laissez cochée l'option *Limit search to the current map extent* pour ne rechercher que les items visibles. Comparez avec la réponse brute de la requête ci-dessus dans votre navigateur : c'est le même JSON, mis en forme par le logiciel.
+    Dans [GeoLibre](https://web.geolibre.app) (à ouvrir dans **Chrome**), ouvrez *Add Data › STAC Layer*, saisissez `https://data.geo.admin.ch/api/stac/v1/` et cliquez sur *Connect*. GeoLibre liste les collections du catalogue ; zoomez sur votre région et laissez cochée l'option *Limit search to the current map extent* pour ne rechercher que les items visibles. Comparez avec la réponse brute de la requête ci-dessus dans votre navigateur : c'est le même JSON, mis en forme par le logiciel.
 
     Autre exemple de catalogue STAC, cette fois pour des données **multidimensionnelles** au format Zarr : la [démo de prévisions météo](../02-raster/README.md#zarr) du chapitre 2.
 

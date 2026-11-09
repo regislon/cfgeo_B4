@@ -40,7 +40,7 @@ Au [chapitre 2](../02-raster/README.md#fil-rouge-un-kilometre-carre-a-yverdon-le
 | `commune` | **surface** | 1 | n° OFS, nom, habitants | swissBOUNDARIES3D |
 | `tuile` | **surface** | 1 | nom | emprise de la tuile 2538-1180 |
 
-Toutes ces couches sont réunies dans **un seul fichier** GeoPackage : [`yverdon_2538-1180.gpkg`](donnees/yverdon_2538-1180.gpkg) (440 Ko). Ouvrez-le dans QGIS, ou sans installation dans [GeoLibre](https://web.geolibre.app) (*Add Data › Vector Layer*).
+Toutes ces couches sont réunies dans **un seul fichier** GeoPackage : [`yverdon_2538-1180.gpkg`](donnees/yverdon_2538-1180.gpkg) (440 Ko). Ouvrez-le dans QGIS, ou sans installation dans [GeoLibre](https://web.geolibre.app) (à ouvrir dans **Chrome**) (*Add Data › Vector Layer*).
 
 !!! note "Comment ce jeu de données a été préparé"
     Il illustre lui-même le contenu du cours : les bâtiments proviennent d'un modèle **3D** (planchers en triangles) ramené en **2D** et fusionné par bâtiment ; leur **hauteur** a été calculée à partir de la géométrie 3D (altitude maximale moins altitude minimale) ; les routes et arrêts ont été obtenus par une requête à l'**API de geo.admin.ch** puis **découpés** selon la tuile ; le tout a été converti et réuni avec GDAL (`ogr2ogr`).
@@ -355,7 +355,7 @@ Avec l'augmentation des volumes et la généralisation du stockage dans le cloud
     | *à produire vous-même* | GML | MN95 | 4,0 Mo |
     | *à produire vous-même* | KML | WGS84 | 5,5 Mo |
 
-    **À vous de jouer**, dans QGIS ou sans installation dans [GeoLibre](https://web.geolibre.app) (*Add Data › Vector Layer*, puis collez l'adresse du fichier, obtenue par clic droit sur le lien › *Copier l'adresse du lien*, et cliquez sur *Load* ; ou glissez-déposez le fichier téléchargé) :
+    **À vous de jouer**, dans QGIS ou sans installation dans [GeoLibre](https://web.geolibre.app) (à ouvrir dans **Chrome**) (*Add Data › Vector Layer*, puis collez l'adresse du fichier, obtenue par clic droit sur le lien › *Copier l'adresse du lien*, et cliquez sur *Load* ; ou glissez-déposez le fichier téléchargé) :
 
     1. Ouvrez les cinq fichiers. Combien de fichiers faut-il pour le shapefile ? Pourquoi le zip ?
     2. Comparez les **noms des champs** : dans le shapefile, `bezirksnummer` est devenu `bezirksnum`, `einwohnerzahl` est devenu `einwohnerz`… Pourquoi ?

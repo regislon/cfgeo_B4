@@ -77,6 +77,8 @@ Une **couleur**… ou une **altitude** · *© swisstopo*
 ⚠️ Affichage en **Web Mercator**, coordonnées **jamais en MN95**
 → QGIS / GDAL restent la référence pour le travail précis
 
+⚠️ À ouvrir dans **Chrome** (pas Firefox)
+
 ---
 
 <!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Valeur du pixel et résolution](./#valeur-du-pixel-et-resolution)' -->

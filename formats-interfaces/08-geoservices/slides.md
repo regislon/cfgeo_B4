@@ -18,10 +18,13 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 <!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Objectifs](./#objectifs)' -->
 ## Objectifs
 
-- Expliquer le fonctionnement d'un géoservice
+- Expliquer le fonctionnement d'un géoservice (GetCapabilities, puis requête)
 - Citer avantages et limites d'une architecture orientée services
-- Interroger un service WMS, WMTS ou WFS
-- Connaître les OGC API et les catalogues (STAC)
+- Distinguer les types de géoservices et les standards OGC (WMS, WMTS, WFS, CSW)
+- Interroger un service WMS, WMTS ou WFS, en KVP ou en REST
+- Situer les tuiles vectorielles, les OGC API et STAC
+- Diffuser **sans serveur cartographique** et comparer aux géoservices
+- Interroger un gros GeoParquet en SQL dans le navigateur (DuckDB)
 
 ---
 
@@ -48,7 +51,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 <!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 KVP et REST](./#kvp-et-rest)' -->
 ## KVP ou REST ?
 
-- **KVP** : paramètres après `?`, séparés par `&`
+- **KVP** (*key-value pairs*, paires clé=valeur) : paramètres après `?`, séparés par `&`
 
 ```text
 https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities
@@ -67,8 +70,9 @@ https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/20
 
 ![bg right:45% w:500](img/architecture-distribuee.png)
 
-- Plus besoin de **posséder** une copie des données
-- Les données restent chez le producteur
+- **Traditionnel** : acquérir, stocker, gérer soi-même les données
+- **SOA** : plus besoin de **posséder** une copie des données
+- Les données restent chez le producteur → **SIG distribués**
 - Services standardisés → géoportails, SIG
 - Ex. : map.geo.admin.ch, géoportails cantonaux
 
@@ -99,7 +103,7 @@ https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/20
 
 ---
 
-<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Types de géoservices](./#types-de-geoservices)' -->
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 WMS – Web Map Service](./#wms-web-map-service)' -->
 <!-- _class: lead -->
 
 # WMS, WMTS, WFS
@@ -132,12 +136,13 @@ https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap
 
 - `LAYERS`, `CRS`, `BBOX`, taille, format
 - ⚠️ EPSG:4326 en 1.3.0 : **lat, lon** !
+- ❓ `WIDTH`/`HEIGHT` ≠ proportions de la `BBOX` ?
 
 *© swisstopo*
 
 ---
 
-<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 WMTS – Web Map Tile Service](./#wmts-web-map-tile-service)' -->
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 WMTS : vocabulaire](./#vocabulaire)' -->
 ## WMTS – des tuiles précalculées
 
 ![bg right:40% w:420](img/wmts-pyramide-tuiles.png)
@@ -145,11 +150,12 @@ https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap
 - Images de taille fixe (256 × 256 px)
 - Échelles fixes → **pyramide**
 - Pas de calcul à la volée : **rapide**, facile à mettre en cache
-- `TileMatrixSet` = pyramide, `TileMatrix` = niveau
+- `TileMatrixSet` = pyramide (`2056`, `3857`), `TileMatrix` = niveau
+- `TileCol` = colonne (X), `TileRow` = ligne (Y)
 
 ---
 
-<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 WMTS – Web Map Tile Service](./#wmts-web-map-tile-service)' -->
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 WMTS : GetTile](./#gettile)' -->
 ## WMTS – adresser une tuile
 
 ```text
@@ -157,14 +163,12 @@ https://wmts.geo.admin.ch/EPSG/2056/1.0.0/WMTSCapabilities.xml
 ```
 
 ```text
-.../1.0.0/{Layer}/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg
-.../1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/2056/{z}/{x}/{y}.jpeg
+.../1.0.0/{Layer}/{Style}/{Time}/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.{Format}
 ```
 
 ![bg right:30% w:256](img/wmts-tuile-2056.jpg)
 
-- `TileCol` = **colonne** (axe X), `TileRow` = **ligne** (axe Y)
-- Ordre : voir `ResourceURL` du GetCapabilities
+- Ordre : voir `ResourceURL` du GetCapabilities ; numéros **2056** ≠ **3857**
 
 
 ---
@@ -180,7 +184,7 @@ https://wmts.geo.admin.ch/EPSG/2056/1.0.0/WMTSCapabilities.xml
 
 ---
 
-<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 WMTS – Web Map Tile Service](./#wmts-web-map-tile-service)' -->
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Fil rouge : WMS et WMTS dans GeoLibre](./#fil-rouge-la-tuile-dyverdon-en-wms-et-en-wmts)' -->
 ## À tester : GeoLibre (navigateur)
 
 **WMS** : *Add Data › WMS Layer*
@@ -191,6 +195,8 @@ https://wmts.geo.admin.ch/EPSG/2056/1.0.0/WMTSCapabilities.xml
 `…/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg`
 
 F12 › *Réseau* : voir passer les requêtes
+
+⚠️ À ouvrir dans **Chrome** (pas Firefox)
 
 ---
 
@@ -206,7 +212,7 @@ https://geo.exemple.ch/wfs?SERVICE=WFS&VERSION=2.0.0
   &REQUEST=GetFeature&TYPENAMES=batiments&COUNT=100
 ```
 
-*Serveur fictif — vérifiez qu'un service réel est encore actif.*
+Où trouver des WFS ? Géoportails cantonaux, [geocat.ch](https://www.geocat.ch) — *serveur fictif ci-dessus ; vérifiez qu'un service réel est encore actif.*
 
 ---
 
@@ -225,7 +231,7 @@ https://geo.exemple.ch/wfs?SERVICE=WFS&VERSION=2.0.0
 <!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Tuiles vectorielles (vector tiles)](./#tuiles-vectorielles-vector-tiles)' -->
 <!-- _class: lead -->
 
-# Tuiles vectorielles et OGC API
+# Tuiles vectorielles
 
 ---
 
@@ -237,6 +243,7 @@ https://geo.exemple.ch/wfs?SERVICE=WFS&VERSION=2.0.0
 - Grille de tuiles comme le WMTS, mais contenant des **géométries**
 - Format courant : **Mapbox Vector Tile** (`.pbf`) ; standard : OGC API – Tiles
 - **Style appliqué par le client**, net à toute résolution, interactif
+- Limites : plus de travail pour le client, données **généralisées** selon le zoom
 - swisstopo : fonds de carte vectoriels (vectortiles.geo.admin.ch)
 
 ---
@@ -270,14 +277,15 @@ https://geo.exemple.ch/wfs?SERVICE=WFS&VERSION=2.0.0
 
 ```sql
 SELECT name, einwohnerzahl
-FROM 'https://regislon.github.io/…/communes_vd.parquet'
+FROM 'https://raw.githubusercontent.com/regislon/cfgeo_B4/main/…/communes_vd.parquet'
 ORDER BY einwohnerzahl DESC LIMIT 5;
 ```
 
 Lausanne 144'873 · **Yverdon-les-Bains 30'292** · Montreux 26'955…
 
 - DuckDB ne lit que **2 colonnes**, pas les géométries
-- FlatGeobuf → GeoLibre · PMTiles → pmtiles.io
+- À tester dans [shell.duckdb.org](https://shell.duckdb.org) · FlatGeobuf → GeoLibre · PMTiles → pmtiles.io
+- ⚠️ GitHub Pages compresse les fichiers → lectures partielles via **raw.githubusercontent.com**
 
 ---
 
@@ -287,6 +295,7 @@ Lausanne 144'873 · **Yverdon-les-Bains 30'292** · Montreux 26'955…
 - Bâtiments, routes, lieux, adresses… **ni WMS, ni WFS, ni API** : des **fichiers GeoParquet** sur Amazon S3 et Azure
 - Bâtiments : **512 fichiers, 277 Go**
 - Une requête **DuckDB** extrait le canton de Vaud : **665'727 bâtiments en 3 min 22 s** (portable)
+- DuckDB lit le **pied** de chaque fichier (min/max de `bbox` par groupe de lignes) et ne télécharge que les groupes utiles
 - Puis jointure avec les communes → **216'994 bâtiments, 6,7 Mo**
 - Licences : bâtiments **ODbL** (OSM, Microsoft) · lieux **CDLA 2.0 / Apache 2.0**
 
@@ -336,17 +345,29 @@ Tuile 2538-1180, même règle (centroïde dans la tuile) :
 | | Géoservice | Fichiers *cloud-native* |
 |---|---|---|
 | Infrastructure | serveur cartographique | stockage web |
+| Coût | serveur, licences, exploitation | stockage et trafic |
 | Mise à jour | immédiate, par objet | nouveau fichier (version) |
 | Filtrage, calcul | par le serveur | par le client |
 | Droits d'accès | fins | tout ou rien |
+| Standards | OGC (WMS, WFS, OGC API) | formats ouverts + STAC |
 | Idéal pour | données changeantes, accès contrôlé | gros volumes stables, analyses |
+
+swisstopo combine les deux ; Overture ne publie que des fichiers
+
+---
+
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 OGC API : la nouvelle génération](./#ogc-api-la-nouvelle-generation)' -->
+<!-- _class: lead -->
+
+# OGC API et STAC
 
 ---
 
 <!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 OGC API : la nouvelle génération](./#ogc-api-la-nouvelle-generation)' -->
 ## OGC API : la nouvelle génération
 
-- **REST** + **JSON/GeoJSON** + description **OpenAPI**
+- Les **WxS** (années 2000) : KVP + XML
+- Depuis 2019 : **REST** + **JSON/GeoJSON** + description **OpenAPI**, standards **modulaires**
 
 | OGC API | Remplace |
 |---|---|
@@ -368,7 +389,7 @@ Tuile 2538-1180, même règle (centroïde dans la tuile) :
 ```
 
 - Lisible dans un navigateur (HTML/JSON)
-- QGIS lit WxS **et** OGC API
+- Les WxS restent très utilisés ; QGIS lit WxS **et** OGC API
 
 ---
 
@@ -384,6 +405,8 @@ https://data.geo.admin.ch/api/stac/v1/collections/
   ch.swisstopo.swissimage-dop10/items?bbox=7.43,46.94,7.45,46.95
 ```
 
+→ les dalles SWISSIMAGE de l'emprise (WGS84), avec leurs liens de téléchargement
+
 ---
 
 <!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 STAC : un catalogue pour les données spatio-temporelles](./#stac-un-catalogue-pour-les-donnees-spatio-temporelles)' -->
@@ -394,6 +417,8 @@ https://data.geo.admin.ch/api/stac/v1/collections/
 - Liste des **collections** swisstopo, recherche limitée à l'emprise de la carte
 - Même JSON que la requête brute, mis en forme par le logiciel
 - STAC + **Zarr** : démo de prévisions météo (chapitre 2)
+
+⚠️ À ouvrir dans **Chrome** (pas Firefox)
 
 ---
 
@@ -426,8 +451,10 @@ https://data.geo.admin.ch/api/stac/v1/collections/
 
 - Géoservice = accès aux géodonnées **par le réseau**, sous **forme normalisée**
 - **GetCapabilities** d'abord, requête de données ensuite
+- SOA : données **à jour** et **partagées**, mais **dépendance** au réseau et aux fournisseurs
 - **WMS** = image à la demande ; **WMTS** = tuiles (`TileCol` X, `TileRow` Y) ; **WFS** = objets
 - **Tuiles vectorielles** : stylées par le client
 - **OGC API** : successeurs REST/JSON ; **STAC** : catalogue de fichiers
 - **Sans serveur** : fichiers *cloud-native* lus par morceaux (Overture = GeoParquet seulement)
 - **DuckDB** : SQL sur Parquet distant, même dans le navigateur
+- Services et fichiers sont **complémentaires**
