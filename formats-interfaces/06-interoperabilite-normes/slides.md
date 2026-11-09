@@ -5,6 +5,7 @@ paginate: true
 footer: CFGéo B4 · Formats, interfaces · 6. Interopérabilité et normes
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Lire le chapitre](./)' -->
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
@@ -14,6 +15,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Objectifs](./#objectifs)' -->
 ## Objectifs
 
 - Définir interface et interopérabilité
@@ -23,6 +25,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Qu’est-ce qu’une interface ?](./#quest-ce-quune-interface)' -->
 ## Qu'est-ce qu'une interface ?
 
 - **Interface utilisateur** / **graphique** : humain ↔ machine
@@ -32,6 +35,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Interopérabilité : définition et degrés](./#interoperabilite-definition-et-degres)' -->
 ## Interopérabilité
 
 - Capacité de systèmes différents à **communiquer sans ambiguïté**
@@ -42,6 +46,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Interopérabilité en informatique](./#interoperabilite-en-informatique)' -->
 ## L'analogie ferroviaire
 
 - **CFF** : voie normale 1435 mm
@@ -53,6 +58,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Degrés d’interopérabilité](./#degres-dinteroperabilite)' -->
 ## Degrés d'interopérabilité
 
 | Compatibilité | Standard de fait | Interopérabilité |
@@ -62,6 +68,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Degrés d’interopérabilité](./#degres-dinteroperabilite)' -->
 ## Standard de fait : le shapefile
 
 - Créé par Esri, spécification publiée en 1998
@@ -71,6 +78,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Les niveaux d’interopérabilité](./#les-niveaux-dinteroperabilite)' -->
 ## Les 5 niveaux d'interopérabilité
 
 | Niveau | Question |
@@ -85,6 +93,7 @@ D'après le cadre européen d'interopérabilité (EIF)
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Fil rouge : ce que la préparation de ce cours nous a appris](./#fil-rouge-ce-que-la-preparation-de-ce-cours-nous-a-appris)' -->
 ## 🧵 Ce que le fil rouge nous a appris
 
 - **Technique** : swissTLM3D = fichier national de 3 à 5 Go → API REST, 200 objets par requête
@@ -96,6 +105,7 @@ D'après le cadre européen d'interopérabilité (EIF)
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Norme ou standard ?](./#norme-ou-standard)' -->
 ## Norme ou standard ?
 
 - **Norme** : organisme **reconnu** (ISO, CEN, SNV), consensus
@@ -106,6 +116,7 @@ D'après le cadre européen d'interopérabilité (EIF)
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Normes ouvertes et communautaires](./#normes-ouvertes-et-communautaires)' -->
 ## Normes ouvertes
 
 - Rédaction **collaborative**, brouillon → tests → recommandation
@@ -117,6 +128,7 @@ D'après le cadre européen d'interopérabilité (EIF)
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Normes payantes](./#normes-payantes)' -->
 ## Normes payantes et restreintes
 
 - **Payantes** : ISO, CEN, SNV, AFNOR… publiques mais pas gratuites
@@ -128,6 +140,7 @@ D'après le cadre européen d'interopérabilité (EIF)
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Formats opaques et propriétaires](./#formats-opaques-et-proprietaires)' -->
 ## Formats propriétaires fermés
 
 - Connus de leur seul concepteur
@@ -138,6 +151,7 @@ D'après le cadre européen d'interopérabilité (EIF)
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Qui a défini les formats de ce cours ?](./#qui-a-defini-les-formats-de-ce-cours)' -->
 ## ▶ Qui a défini les formats du cours ?
 
 - **32 formats** et services : OGC, ISO, IETF, W3C, ASPRS, buildingSMART, SNV, Esri, Autodesk, communautés…
@@ -148,12 +162,14 @@ D'après le cadre européen d'interopérabilité (EIF)
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Normalisation en géoinformation](./#normalisation-en-geoinformation)' -->
 <!-- _class: lead -->
 
 # Normalisation en géoinformation
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Normalisation en géoinformation](./#normalisation-en-geoinformation)' -->
 ## Qui normalise ?
 
 | Niveau | Organisme | Géoinformation |
@@ -166,6 +182,7 @@ D'après le cadre européen d'interopérabilité (EIF)
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 ISO/TC 211](./#isotc-211)' -->
 ## ISO/TC 211 : la série 191xx
 
 - ISO 19107 géométrie · 19111 systèmes de coordonnées
@@ -176,6 +193,7 @@ D'après le cadre européen d'interopérabilité (EIF)
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 CEN/TC 287](./#centc-287)' -->
 ## CEN et SNV
 
 - CEN reprend les normes ISO (→ **EN ISO 191xx**)
@@ -185,6 +203,7 @@ D'après le cadre européen d'interopérabilité (EIF)
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 eCH et coordination nationale](./#ech-et-coordination-nationale)' -->
 ## Coordination suisse
 
 - **eCH** : standards de cyberadministration, groupe *Géoinformation*
@@ -193,6 +212,7 @@ D'après le cadre européen d'interopérabilité (EIF)
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Le cadre légal suisse : LGéo, modèles minimaux, INTERLIS](./#le-cadre-legal-suisse-lgeo-modeles-minimaux-interlis)' -->
 ## Le cadre légal suisse
 
 | Texte | Contenu |
@@ -207,6 +227,7 @@ MGDM : **models.geo.admin.ch** · cantons : **geodienste.ch** · UE : **INSPIRE*
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Open Geospatial Consortium (OGC)](./#open-geospatial-consortium-ogc)' -->
 ## OGC : Open Geospatial Consortium
 
 - Fondé en 1994, plus de 500 membres
@@ -218,6 +239,7 @@ MGDM : **models.geo.admin.ch** · cantons : **geodienste.ch** · UE : **INSPIRE*
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Open Geospatial Consortium (OGC)](./#open-geospatial-consortium-ogc)' -->
 ## OGC API : la nouvelle génération
 
 - **REST** + **JSON**/GeoJSON + HTML, décrit en OpenAPI
@@ -228,6 +250,7 @@ MGDM : **models.geo.admin.ch** · cantons : **geodienste.ch** · UE : **INSPIRE*
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Comment naît un standard : JSON-FG et STAC](./#comment-nait-un-standard-json-fg-et-stac)' -->
 ## ▶ Comment naît un standard
 
 | | JSON-FG | STAC |
@@ -241,6 +264,7 @@ MGDM : **models.geo.admin.ch** · cantons : **geodienste.ch** · UE : **INSPIRE*
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 OGC et ISO : une collaboration étroite](./#ogc-et-iso-une-collaboration-etroite)' -->
 ## OGC ↔ ISO
 
 | OGC | ISO |
@@ -254,6 +278,7 @@ ex. map.geo.admin.ch, geocat.ch
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Licences : le droit d’utiliser les données](./#licences-le-droit-dutiliser-les-donnees)' -->
 ## Licences : le droit d'utiliser
 
 - **OGD swisstopo** (depuis 2021) : gratuit, réutilisable, **mention de la source**
@@ -265,6 +290,7 @@ ex. map.geo.admin.ch, geocat.ch
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 Testez-vous](./#testez-vous)' -->
 ## ❓ Testez-vous
 
 7 questions : niveaux, standard de fait, INTERLIS dans la loi, licences, CEN, Community Standards
@@ -273,6 +299,7 @@ ex. map.geo.admin.ch, geocat.ch
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 6. Interopérabilité et normes · [📖 À retenir](./#a-retenir)' -->
 ## À retenir
 
 - **Interface** = jonction fondée sur des règles communes

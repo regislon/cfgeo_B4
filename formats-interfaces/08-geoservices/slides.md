@@ -5,6 +5,7 @@ paginate: true
 footer: CFGéo B4 · Formats, interfaces · 8. Géoservices (GeoWeb)
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Lire le chapitre](./)' -->
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
@@ -14,6 +15,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Objectifs](./#objectifs)' -->
 ## Objectifs
 
 - Expliquer le fonctionnement d'un géoservice
@@ -23,6 +25,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Services web et géoservices](./#services-web-et-geoservices)' -->
 ## Service web, géoservice
 
 - **Service web** : des applications dialoguent à distance via HTTP(S), quels que soient plateforme et langage
@@ -32,6 +35,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Principe de fonctionnement](./#principe-de-fonctionnement)' -->
 ## Principe : Capabilities d'abord
 
 ![w:900](img/principe-getcapabilities.png)
@@ -41,6 +45,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 KVP et REST](./#kvp-et-rest)' -->
 ## KVP ou REST ?
 
 - **KVP** : paramètres après `?`, séparés par `&`
@@ -57,6 +62,7 @@ https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/20
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Architecture orientée services](./#du-modele-traditionnel-a-larchitecture-orientee-services)' -->
 ## Architecture orientée services (SOA)
 
 ![bg right:45% w:500](img/architecture-distribuee.png)
@@ -68,6 +74,7 @@ https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/20
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Avantages et inconvénients](./#avantages-et-inconvenients)' -->
 ## Avantages et inconvénients
 
 | ✅ Avantages | ❌ Inconvénients |
@@ -79,6 +86,7 @@ https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/20
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Types de géoservices](./#types-de-geoservices)' -->
 ## Types de géoservices
 
 | Type | Exemples |
@@ -91,12 +99,14 @@ https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/20
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Types de géoservices](./#types-de-geoservices)' -->
 <!-- _class: lead -->
 
 # WMS, WMTS, WFS
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 WMS – Web Map Service](./#wms-web-map-service)' -->
 ## WMS – Web Map Service
 
 ![bg right:45% w:520](img/wms-requetes.png)
@@ -108,6 +118,7 @@ https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/20
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Exemple : le WMS de la Confédération](./#exemple-le-wms-de-la-confederation)' -->
 ## WMS – une requête GetMap
 
 ```text
@@ -126,6 +137,7 @@ https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 WMTS – Web Map Tile Service](./#wmts-web-map-tile-service)' -->
 ## WMTS – des tuiles précalculées
 
 ![bg right:40% w:420](img/wmts-pyramide-tuiles.png)
@@ -137,6 +149,7 @@ https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 WMTS – Web Map Tile Service](./#wmts-web-map-tile-service)' -->
 ## WMTS – adresser une tuile
 
 ```text
@@ -155,6 +168,7 @@ https://wmts.geo.admin.ch/EPSG/2056/1.0.0/WMTSCapabilities.xml
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 WMTS – Web Map Tile Service](./#wmts-web-map-tile-service)' -->
 ## À tester : GeoLibre (navigateur)
 
 **WMS** : *Add Data › WMS Layer*
@@ -168,6 +182,7 @@ F12 › *Réseau* : voir passer les requêtes
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 WFS – Web Feature Service](./#wfs-web-feature-service)' -->
 ## WFS – Web Feature Service
 
 - Renvoie les **objets** : géométrie + attributs (GML par défaut, parfois GeoJSON)
@@ -183,6 +198,7 @@ https://geo.exemple.ch/wfs?SERVICE=WFS&VERSION=2.0.0
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 WFS – Web Feature Service](./#wfs-web-feature-service)' -->
 ## WMS ou WFS ?
 
 | | WMS / WMTS | WFS |
@@ -194,12 +210,14 @@ https://geo.exemple.ch/wfs?SERVICE=WFS&VERSION=2.0.0
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Tuiles vectorielles (vector tiles)](./#tuiles-vectorielles-vector-tiles)' -->
 <!-- _class: lead -->
 
 # Tuiles vectorielles et OGC API
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Tuiles vectorielles (vector tiles)](./#tuiles-vectorielles-vector-tiles)' -->
 ## Tuiles vectorielles
 
 ![w:900](img/vector-tiles-principe.png)
@@ -211,6 +229,7 @@ https://geo.exemple.ch/wfs?SERVICE=WFS&VERSION=2.0.0
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Formats cloud-native : lire sans tout télécharger](./#formats-cloud-native-lire-sans-tout-telecharger)' -->
 ## Formats *cloud-native*
 
 - Pas de serveur cartographique : de simples **fichiers** sur un serveur web
@@ -226,6 +245,7 @@ https://geo.exemple.ch/wfs?SERVICE=WFS&VERSION=2.0.0
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Formats cloud-native : lire sans tout télécharger](./#formats-cloud-native-lire-sans-tout-telecharger)' -->
 ## 🧪 GeoParquet + SQL, directement en ligne
 
 ```sql
@@ -241,6 +261,7 @@ Lausanne 144'873 · **Yverdon-les-Bains 30'292** · Montreux 26'955…
 - Services **ou** fichiers ? Données changeantes → services · stables → fichiers
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 OGC API : la nouvelle génération](./#ogc-api-la-nouvelle-generation)' -->
 ## OGC API : la nouvelle génération
 
 - **REST** + **JSON/GeoJSON** + description **OpenAPI**
@@ -255,6 +276,7 @@ Lausanne 144'873 · **Yverdon-les-Bains 30'292** · Montreux 26'955…
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 OGC API : la nouvelle génération](./#ogc-api-la-nouvelle-generation)' -->
 ## OGC API – Features en pratique
 
 ```text
@@ -268,6 +290,7 @@ Lausanne 144'873 · **Yverdon-les-Bains 30'292** · Montreux 26'955…
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 STAC : un catalogue pour les données spatio-temporelles](./#stac-un-catalogue-pour-les-donnees-spatio-temporelles)' -->
 ## STAC – SpatioTemporal Asset Catalog
 
 - Catalogue de **fichiers** décrits par emprise et date
@@ -281,6 +304,7 @@ https://data.geo.admin.ch/api/stac/v1/collections/
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 STAC : un catalogue pour les données spatio-temporelles](./#stac-un-catalogue-pour-les-donnees-spatio-temporelles)' -->
 ## À tester : STAC dans GeoLibre
 
 - *Add Data › STAC Layer*
@@ -291,6 +315,7 @@ https://data.geo.admin.ch/api/stac/v1/collections/
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 À retenir](./#a-retenir)' -->
 ## À retenir
 
 - Géoservice = accès aux géodonnées **par le réseau**, sous **forme normalisée**

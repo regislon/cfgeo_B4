@@ -310,3 +310,34 @@
 .demo-cell-ok { background: rgba(46, 125, 50, 0.12); }
 .demo-cell-ko { background: rgba(198, 40, 40, 0.18); font-weight: 700; }
 .demo-table select { font: inherit; color: var(--md-default-fg-color); background: var(--md-default-bg-color); border: 1px solid var(--md-default-fg-color--lighter); border-radius: 3px; }
+
+/* Chapitre 7 : mini-ETL graphique (style FME) */
+.demo-etl-palette { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.6rem; }
+.demo-etl-tool { font: inherit; font-size: 0.7rem; cursor: grab; padding: 0.25rem 0.6rem; border-radius: 4px; color: var(--md-default-fg-color); background: var(--md-default-bg-color); border: 1px solid #00796b; border-left: 5px solid #00796b; }
+.demo-etl-tool:hover { background: rgba(0, 121, 107, 0.1); }
+.demo-etl-ico { font-weight: 700; color: #00796b; }
+[data-md-color-scheme="slate"] .demo-etl-ico { color: #80cbc4; }
+.demo-etl-canvas { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem; padding: 0.8rem; border-radius: 6px; background-color: var(--md-code-bg-color); background-image: radial-gradient(var(--md-default-fg-color--lightest) 1px, transparent 1px); background-size: 14px 14px; }
+.demo-etl-node { min-width: 7.5rem; max-width: 13rem; padding: 0.35rem 0.5rem; border-radius: 5px; font-size: 0.68rem; background: var(--md-default-bg-color); border: 2px solid var(--md-default-fg-color--lighter); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); }
+.demo-etl-title { font-weight: 700; }
+.demo-etl-sub { font-size: 0.62rem; opacity: 0.85; word-break: break-word; }
+.demo-etl-reader { border-color: #1565c0; }
+.demo-etl-writer { border-color: #6a1b9a; }
+.demo-etl-tr { cursor: pointer; border-color: #00796b; border-left-width: 6px; }
+.demo-etl-tr.todo { border-style: dashed; }
+.demo-etl-tr.on { outline: 3px solid var(--md-accent-fg-color); }
+.demo-etl-ports { display: flex; flex-direction: column; margin-top: 0.2rem; font-weight: 700; }
+.demo-etl-ok { color: #2e7d32; }
+.demo-etl-ko { color: #c62828; }
+[data-md-color-scheme="slate"] .demo-etl-ok { color: #a5d6a7; }
+[data-md-color-scheme="slate"] .demo-etl-ko { color: #ef9a9a; }
+.demo-etl-arrow { display: inline-flex; flex-direction: column; align-items: center; min-width: 3rem; padding: 0.1rem 0.2rem; font: inherit; font-size: 0.65rem; cursor: pointer; color: var(--md-default-fg-color); background: none; border: 2px dashed transparent; border-radius: 4px; }
+.demo-etl-arrow:hover, .demo-etl-arrow.on { border-color: var(--md-default-fg-color--lighter); }
+.demo-etl-arrow.on .demo-etl-count { background: var(--md-accent-fg-color); color: #000; }
+.demo-etl-arrow.demo-etl-target { border-color: var(--md-accent-fg-color); background: rgba(255, 193, 7, 0.15); }
+.demo-etl-line { font-size: 1.3rem; line-height: 1; }
+.demo-etl-count { padding: 0 0.4rem; border-radius: 1rem; font-weight: 700; background: var(--md-default-fg-color--lightest); }
+.demo-etl-drop { color: #c62828; font-size: 0.6rem; }
+.demo-etl-config { margin: 0.6rem 0; padding: 0.4rem 0.6rem; border-left: 4px solid #00796b; }
+.demo-etl-form input, .demo-etl-form select { font: inherit; font-size: 0.7rem; }
+.demo-etl-hint { font-size: 0.65rem; opacity: 0.75; }

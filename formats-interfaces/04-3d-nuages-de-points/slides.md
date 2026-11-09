@@ -5,6 +5,7 @@ paginate: true
 footer: CFGéo B4 · Formats, interfaces · 4. 3D et nuages de points
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Lire le chapitre](./)' -->
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
@@ -14,6 +15,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Objectifs](./#objectifs)' -->
 ## Objectifs
 
 - Distinguer 2D, 2.5D et 3D
@@ -24,6 +26,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 2D, 2.5D, 3D](./#2d-25d-3d)' -->
 ## 2D, 2.5D, 3D
 
 - **2D** : coordonnées E, N seulement
@@ -36,6 +39,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Applications de la 3D](./#applications-de-la-3d)' -->
 ## À quoi sert la 3D ?
 
 - Visualisation de projets (architecture, urbanisme)
@@ -46,14 +50,27 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ⚠ Saisie **et mise à jour** coûteuses
 
+
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Les outils](./#les-outils)' -->
+## Les outils de la 3D
+
+- **SIG** : QGIS (vue 3D, nuages de points), ArcGIS Pro (scènes 3D)
+- **Villes** : CityEngine (génération procédurale, spin-off de l'ETH)
+- **BIM** : Revit, Archicad · **dessin** : SketchUp
+- **Nuages de points** : CloudCompare, PDAL, LAStools
+- **Rendu** : Blender, 3ds Max · **conversion** : FME
+---
+
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Nuages de points : LAS/LAZ, COPC, E57](./#nuages-de-points-laslaz-copc-e57)' -->
 <!-- _class: lead -->
 
 # Nuages de points
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Nuages de points : LAS/LAZ, COPC, E57](./#nuages-de-points-laslaz-copc-e57)' -->
 ## Qu'est-ce qu'un nuage de points ?
 
 - Ensemble de points X, Y, Z **sans topologie**
@@ -64,6 +81,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Les formats](./#les-formats)' -->
 ## Formats de nuages de points
 
 | Format | En bref |
@@ -76,6 +94,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Les formats](./#les-formats)' -->
 ## Exemple suisse : swissSURFACE3D
 
 - Nuage de points LiDAR **classifié** de toute la Suisse (swisstopo)
@@ -86,6 +105,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Fil rouge : le kilomètre carré d’Yverdon en nuage de points](./#fil-rouge-le-kilometre-carre-dyverdon-en-nuage-de-points)' -->
 ## 🧵 Yverdon en nuage de points
 
 Tuile **2538-1180**, swissSURFACE3D 2025 :
@@ -99,12 +119,14 @@ Tuile **2538-1180**, swissSURFACE3D 2025 :
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 CityGML](./#citygml)' -->
 <!-- _class: lead -->
 
 # Modèles 3D de villes : CityGML
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 CityGML](./#citygml)' -->
 ## CityGML
 
 - Standard **OGC** pour les modèles 3D de villes et paysages
@@ -116,6 +138,7 @@ Tuile **2538-1180**, swissSURFACE3D 2025 :
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Les niveaux de détail](./#les-niveaux-de-detail)' -->
 ## Niveaux de détail (LOD)
 
 ![w:700](img/citygml-lod.png)
@@ -124,6 +147,7 @@ LOD0 empreinte · LOD1 blocs · LOD2 toits · LOD3 façades détaillées
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Les niveaux de détail](./#les-niveaux-de-detail)' -->
 ## CityGML 3.0 : ce qui change
 
 - **LOD4 supprimé** (il servait aux intérieurs)
@@ -134,12 +158,14 @@ LOD0 empreinte · LOD1 blocs · LOD2 toits · LOD3 façades détaillées
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 BIM et IFC](./#bim-et-ifc)' -->
 <!-- _class: lead -->
 
 # BIM et IFC
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Le BIM](./#le-bim)' -->
 ## BIM : Building Information Modelling
 
 - Base de données d'un ouvrage : **objets + propriétés + relations**
@@ -149,6 +175,7 @@ LOD0 empreinte · LOD1 blocs · LOD2 toits · LOD3 façades détaillées
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Le BIM](./#le-bim)' -->
 ## Le BIM sur tout le cycle de vie
 
 ![h:430](img/bim-cycle-de-vie.jpg)
@@ -157,6 +184,7 @@ Conception → construction → exploitation → démolition
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 openBIM et closedBIM](./#openbim-et-closedbim)' -->
 ## openBIM vs closedBIM
 
 - **closedBIM** : une seule suite logicielle pour tous (p. ex. Revit)
@@ -167,6 +195,7 @@ Conception → construction → exploitation → démolition
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 IFC](./#ifc)' -->
 ## IFC : Industry Foundation Classes
 
 - Maintenu par **buildingSMART**, norme **ISO 16739**
@@ -178,6 +207,7 @@ Conception → construction → exploitation → démolition
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 IFC](./#ifc)' -->
 ## ▶ Démo : une maquette IFC dans le navigateur
 
 - Maison d'exemple **buildingSMART** (IFC 4.3, 142 Ko, CC BY 4.0)
@@ -190,6 +220,7 @@ Conception → construction → exploitation → démolition
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Rapprocher SIG et BIM](./#rapprocher-sig-et-bim)' -->
 ## SIG et BIM
 
 - CityGML : le territoire vu de l'**extérieur**
@@ -199,6 +230,7 @@ Conception → construction → exploitation → démolition
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 Diffusion 3D sur le web (3D Tiles)](./#diffusion-3d-sur-le-web-3d-tiles)' -->
 ## Diffusion web : 3D Tiles
 
 - Impossible de charger tout un pays d'un coup → **tuiles hiérarchiques**
@@ -209,6 +241,7 @@ Conception → construction → exploitation → démolition
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 4. 3D et nuages de points · [📖 À retenir](./#a-retenir)' -->
 ## À retenir
 
 - 2.5D = un Z par position ; 3D = vrais volumes

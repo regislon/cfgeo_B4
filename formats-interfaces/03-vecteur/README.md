@@ -432,6 +432,16 @@ Selon le contexte, on choisira des données vectorielles ou raster. Chaque mode 
 
     La plupart des projets combinent les deux : un plan vectoriel (mensuration officielle, swissTLM3D) superposé à une orthophoto ou à un MNT raster. Les SIG modernes et les formats comme le GeoPackage gèrent d'ailleurs les deux modes.
 
+## À retenir
+
+- Les primitives sont le **point**, la **ligne** et la **surface**, avec leurs variantes multiples, les arcs et les coordonnées Z/M.
+- Le stockage va du fichier simple aux fichiers multiples, jusqu'à la base de données.
+- Le codage peut être **binaire** (rapide), **texte** (lisible) ou **XML/JSON** (auto-descriptif).
+- Le modèle commun est **Simple Features** (WKT / WKB) ; **GDAL** lit presque tous les formats.
+- Le shapefile est un standard de fait mais **limité** : préférez le **GeoPackage**.
+- Convertir vers un format plus pauvre (sans arcs, sans topologie) entraîne une **perte d'information**.
+- Vecteur et raster sont **complémentaires**.
+
 ## Sources
 
 - \[11\] [Introduction – Introduction to PostGIS](https://postgis.net/workshops/postgis-intro/introduction.html)

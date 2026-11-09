@@ -5,6 +5,7 @@ paginate: true
 footer: CFGéo B4 · Formats, interfaces · 2. Données raster
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Lire le chapitre](./)' -->
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
@@ -14,6 +15,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Objectifs](./#objectifs)' -->
 ## Objectifs
 
 - Décrire la structure d'une image raster (pixel, résolution, bandes)
@@ -27,6 +29,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Raster ou vecteur ?](./#raster-ou-vecteur)' -->
 ## Raster ou vecteur ?
 
 | | Raster | Vecteur |
@@ -39,6 +42,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Fil rouge : un kilomètre carré à Yverdon-les-Bains](./#fil-rouge-un-kilometre-carre-a-yverdon-les-bains)' -->
 ## 🧵 Fil rouge : 1 km² à Yverdon (tuile 2538-1180)
 
 | | SWISSIMAGE | swissALTI3D | Sentinel‑2 |
@@ -53,6 +57,7 @@ Données ouvertes swisstopo : **data.geo.admin.ch**
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Fil rouge : un kilomètre carré à Yverdon-les-Bains](./#fil-rouge-un-kilometre-carre-a-yverdon-les-bains)' -->
 ## 🧵 Même territoire, autres pixels
 
 ![w:440](img/fil-rouge-swissimage.jpg) ![w:440](img/fil-rouge-swissalti3d-relief.jpg)
@@ -61,6 +66,7 @@ Une **couleur**… ou une **altitude** · *© swisstopo*
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Fil rouge : un kilomètre carré à Yverdon-les-Bains](./#fil-rouge-un-kilometre-carre-a-yverdon-les-bains)' -->
 ## Sans installation : GeoLibre
 
 - SIG libre **dans le navigateur** : `web.geolibre.app`
@@ -73,12 +79,14 @@ Une **couleur**… ou une **altitude** · *© swisstopo*
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Valeur du pixel et résolution](./#valeur-du-pixel-et-resolution)' -->
 <!-- _class: lead -->
 
 # Pixel et résolution
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 La valeur du pixel](./#la-valeur-du-pixel)' -->
 ## Une image = un tableau de nombres
 
 ![w:800](img/pixels-niveaux-de-gris.png)
@@ -88,6 +96,7 @@ Une **couleur**… ou une **altitude** · *© swisstopo*
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Bandes et types de données](./#bandes-et-types-de-donnees)' -->
 ## Bandes et types de données
 
 - **Bandes** : 1 (gris, MNT), 3 (RVB), 4 (RVB + infrarouge), 13 (Sentinel‑2)
@@ -103,6 +112,7 @@ Une **couleur**… ou une **altitude** · *© swisstopo*
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Bandes et types de données](./#bandes-et-types-de-donnees)' -->
 ## Mise à l'échelle et NoData
 
 `valeur réelle = valeur stockée × échelle + décalage`
@@ -117,6 +127,7 @@ Une **couleur**… ou une **altitude** · *© swisstopo*
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Les quatre résolutions d’un capteur](./#les-quatre-resolutions-dun-capteur)' -->
 ## Les 4 résolutions d'un capteur
 
 | Résolution | Question | 🧵 SWISSIMAGE | 🧵 Sentinel‑2 |
@@ -130,6 +141,7 @@ Une **couleur**… ou une **altitude** · *© swisstopo*
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Les quatre résolutions d’un capteur](./#les-quatre-resolutions-dun-capteur)' -->
 ## Résolution spatiale
 
 = **taille du pixel sur le terrain** (GSD)
@@ -145,6 +157,7 @@ Carte 1:25'000 scannée à 400 dpi → pixel ≈ 1,6 m
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Plus petit objet visible](./#plus-petit-objet-visible)' -->
 ## Résolution ≠ plus petit objet visible
 
 ![w:740](img/fil-rouge-swissimage-zoom-pixels.jpg)
@@ -154,6 +167,7 @@ Carte 1:25'000 scannée à 400 dpi → pixel ≈ 1,6 m
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Résolution et taille de fichier](./#resolution-et-taille-de-fichier)' -->
 ## Combien pèse un raster ?
 
 `colonnes × lignes × bandes × octets par valeur`
@@ -168,6 +182,7 @@ Carte 1:25'000 scannée à 400 dpi → pixel ≈ 1,6 m
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 L’affinage panchromatique (pan-sharpening)](./#laffinage-panchromatique-pan-sharpening)' -->
 ## Affinage panchromatique
 
 ![h:360](img/pansharpening.png)
@@ -178,12 +193,14 @@ Image couleur basse résolution + image panchromatique fine → couleur fine
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Géoréférencement (world file, GeoTIFF)](./#georeferencement-world-file-geotiff)' -->
 <!-- _class: lead -->
 
 # Géoréférencement
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Géoréférencement (world file, GeoTIFF)](./#georeferencement-world-file-geotiff)' -->
 ## Du pixel au terrain
 
 ![h:380](img/georeferencement.jpg)
@@ -193,6 +210,7 @@ Image couleur basse résolution + image panchromatique fine → couleur fine
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Le world file](./#le-world-file)' -->
 ## Le world file (`.tfw`, `.jgw`, `.pgw`)
 
 ```text
@@ -209,6 +227,7 @@ Image couleur basse résolution + image panchromatique fine → couleur fine
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 GeoTIFF](./#geotiff)' -->
 ## GeoTIFF
 
 - Géoréférencement **et** système de coordonnées (EPSG) **dans** le fichier
@@ -218,12 +237,14 @@ Image couleur basse résolution + image panchromatique fine → couleur fine
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Codage de la couleur](./#codage-de-la-couleur)' -->
 <!-- _class: lead -->
 
 # Codage de la couleur
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Codage de la couleur](./#codage-de-la-couleur)' -->
 ## Profondeur de codage
 
 | Bits / pixel | Valeurs | Usage |
@@ -238,6 +259,7 @@ Image couleur basse résolution + image panchromatique fine → couleur fine
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Couleurs indexées (palette)](./#couleurs-indexees-palette)' -->
 ## Palette ou couleurs vraies
 
 - **Couleurs indexées** : chaque pixel = un indice dans une palette (≤ 256 couleurs)
@@ -249,12 +271,14 @@ Image couleur basse résolution + image panchromatique fine → couleur fine
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Au-delà du visible : images multispectrales](./#au-dela-du-visible-images-multispectrales)' -->
 <!-- _class: lead -->
 
 # Au-delà du visible
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Au-delà du visible : images multispectrales](./#au-dela-du-visible-images-multispectrales)' -->
 ## Un raster est une **mesure**
 
 - Chaque bande = **réflectance** (0 à 1) dans une plage de longueurs d'onde
@@ -269,6 +293,7 @@ Image couleur basse résolution + image panchromatique fine → couleur fine
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Composition colorée](./#composition-coloree)' -->
 ## Vraies et fausses couleurs
 
 ![w:420](img/sentinel2-vraies-couleurs.jpg) ![w:420](img/sentinel2-fausses-couleurs.jpg)
@@ -279,6 +304,7 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 L’indice de végétation (NDVI)](./#lindice-de-vegetation-ndvi)' -->
 ## NDVI : indice de végétation
 
 `NDVI = (PIR − Rouge) / (PIR + Rouge)` → entre −1 et +1
@@ -292,6 +318,7 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 L’indice de végétation (NDVI)](./#lindice-de-vegetation-ndvi)' -->
 ## NDVI : le résultat
 
 ![bg right:45% fit](img/sentinel2-ndvi.jpg)
@@ -305,12 +332,14 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Compression](./#compression)' -->
 <!-- _class: lead -->
 
 # Compression
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Compression](./#compression)' -->
 ## Format ≠ compression
 
 - **Format** : organisation du fichier (en-tête, métadonnées, données)
@@ -319,6 +348,7 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Ratio et taux de compression](./#ratio-et-taux-de-compression)' -->
 ## Ratio et taux
 
 - **Ratio** = taille originale / taille compressée → **4:1**
@@ -329,6 +359,7 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Compression avec ou sans perte](./#compression-avec-ou-sans-perte)' -->
 ## Avec ou sans perte
 
 ![w:520](img/compression-sans-perte.png)
@@ -340,6 +371,7 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Exemple : la marguerite](./#exemple-la-marguerite)' -->
 ## Exemple : la marguerite
 
 ![bg right:35% w:300](img/marguerite-originale.png)
@@ -352,6 +384,7 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Quelques algorithmes de compression](./#quelques-algorithmes-de-compression)' -->
 ## RLE — *Run Length Encoding*
 
 - Nombre de répétitions + valeur
@@ -362,6 +395,7 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Quelques algorithmes de compression](./#quelques-algorithmes-de-compression)' -->
 ## Compression par dictionnaire
 
 - **LZW** : dictionnaire des séquences déjà vues → TIFF, GIF
@@ -372,6 +406,7 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Exercices](./#exercices)' -->
 <!-- _class: exercice -->
 
 # Exercice : Compression par dictionnaire
@@ -381,6 +416,7 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Quelques algorithmes de compression](./#quelques-algorithmes-de-compression)' -->
 ## JPEG
 
 1. RVB → luminance + chrominance
@@ -396,6 +432,7 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Quelques algorithmes de compression](./#quelques-algorithmes-de-compression)' -->
 ## Ondelettes
 
 - Image décrite à **plusieurs niveaux de détail** : vue grossière + corrections fines
@@ -405,6 +442,7 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Compressions modernes dans GeoTIFF](./#compressions-modernes-dans-geotiff)' -->
 ## Compressions modernes dans GeoTIFF
 
 - **Prédicteur** : stocker la **différence avec le voisin** → petites valeurs répétitives
@@ -417,6 +455,7 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Compressions modernes dans GeoTIFF](./#compressions-modernes-dans-geotiff)' -->
 ## 🧵 Mesures réelles : swissALTI3D (2'000 × 2'000, Float32, 16 Mo)
 
 | Compression | Taille | Ratio | Erreur max. |
@@ -431,6 +470,7 @@ SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Exercices](./#exercices)' -->
 <!-- _class: exercice -->
 
 # Exercice : Formats d'images et compression
@@ -440,6 +480,7 @@ SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Séries temporelles et cubes de données](./#series-temporelles-et-cubes-de-donnees)' -->
 ## Séries temporelles et cubes de données
 
 ![w:1000](img/sentinel2-ndvi-saisons.jpg)
@@ -449,6 +490,7 @@ SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Métadonnées](./#metadonnees)' -->
 ## Métadonnées
 
 - Capteur, date, position, orientation, résolution…
@@ -458,12 +500,14 @@ SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Formats raster](./#formats-raster)' -->
 <!-- _class: lead -->
 
 # Formats raster
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Formats d’image courants](./#formats-dimage-courants)' -->
 ## Formats d'image courants
 
 - **BMP** : historique, non compressé, volumineux
@@ -476,6 +520,7 @@ SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Cloud Optimized GeoTIFF (COG)](./#cloud-optimized-geotiff-cog)' -->
 ## Cloud Optimized GeoTIFF (COG)
 
 - Un GeoTIFF **tuilé** avec **aperçus** (*overviews*)
@@ -488,6 +533,7 @@ SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Diffuser des rasters : tuiles, VRT et lecture distante](./#diffuser-des-rasters-tuiles-vrt-et-lecture-distante)' -->
 ## Diffuser des rasters
 
 - **Tuiles raster** (PNG, JPEG, WebP) par niveau de zoom → WMTS
@@ -499,6 +545,7 @@ SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Exercices](./#exercices)' -->
 <!-- _class: exercice -->
 
 # Exercice : Compresser et diffuser un GeoTIFF
@@ -507,6 +554,7 @@ SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 ASCII Grid](./#ascii-grid)' -->
 ## Grilles et cubes de données
 
 - **ASCII Grid** (`.asc`) : MNT en texte, lisible, volumineux
@@ -517,6 +565,7 @@ SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Zarr](./#zarr)' -->
 ## ▶ Démo : un cube Zarr
 
 ![w:560](img/zarr-cube-previsions.jpg)
@@ -527,6 +576,7 @@ SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Quel format choisir ?](./#quel-format-choisir)' -->
 ## Quel format choisir ?
 
 | Besoin | Format |
@@ -541,6 +591,7 @@ SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 À retenir](./#a-retenir)' -->
 ## À retenir
 
 - Raster = grille de pixels, **1 valeur par pixel et par bande** : une **mesure**

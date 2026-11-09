@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 440" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1f2a2e">
+  <defs>
+    <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#455a64"/>
+    </marker>
+  </defs>
+  <rect width="800" height="440" fill="#ffffff"/>
+
+  <!-- Instructions -->
+  <rect x="190" y="18" width="220" height="74" rx="8" fill="#fff8e1" stroke="#ffc107" stroke-width="2"/>
+  <text x="300" y="42" text-anchor="middle" font-weight="700">Instructions et documentation</text>
+  <text x="300" y="62" text-anchor="middle" font-size="12.5">AGENTS.md, modèles,</text>
+  <text x="300" y="79" text-anchor="middle" font-size="12.5">dictionnaires de champs</text>
+  <line x1="300" y1="92" x2="300" y2="140" stroke="#455a64" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#fl)"/>
+  <text x="308" y="122" font-size="12" fill="#6b7b80">guident</text>
+
+  <!-- Utilisateur -->
+  <rect x="16" y="178" width="120" height="64" rx="8" fill="#eceff1" stroke="#607d8b" stroke-width="2"/>
+  <text x="76" y="206" text-anchor="middle" font-weight="700">Utilisateur</text>
+  <text x="76" y="226" text-anchor="middle" font-size="12.5">question, tâche</text>
+  <line x1="136" y1="200" x2="186" y2="200" stroke="#455a64" stroke-width="2" marker-end="url(#fl)"/>
+
+  <!-- Application d'IA -->
+  <rect x="190" y="142" width="220" height="136" rx="10" fill="#e0f2f1" stroke="#00796b" stroke-width="2"/>
+  <text x="300" y="164" text-anchor="middle" font-size="12.5" fill="#00574d">Application d'IA</text>
+  <rect x="222" y="176" width="156" height="84" rx="8" fill="#00796b"/>
+  <text x="300" y="206" text-anchor="middle" font-weight="700" fill="#ffffff" font-size="16">Agent</text>
+  <text x="300" y="226" text-anchor="middle" fill="#ffffff" font-size="12">choisit les outils,</text>
+  <text x="300" y="243" text-anchor="middle" fill="#ffffff" font-size="12">enchaîne les étapes</text>
+
+  <!-- Moyens d'accès -->
+  <rect x="452" y="96" width="170" height="232" rx="10" fill="#f5f5f5" stroke="#9e9e9e" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="537" y="116" text-anchor="middle" font-weight="700" font-size="13">Moyens d'accès</text>
+  <g font-size="13.5" text-anchor="middle">
+    <rect x="468" y="128" width="138" height="38" rx="6" fill="#ffffff" stroke="#1565c0" stroke-width="1.5"/>
+    <text x="537" y="152">Fichiers locaux</text>
+    <rect x="468" y="174" width="138" height="38" rx="6" fill="#ffffff" stroke="#1565c0" stroke-width="1.5"/>
+    <text x="537" y="198">API</text>
+    <rect x="468" y="220" width="138" height="38" rx="6" fill="#ffffff" stroke="#1565c0" stroke-width="1.5"/>
+    <text x="537" y="244">Commandes et scripts</text>
+    <rect x="468" y="266" width="138" height="38" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+    <text x="537" y="290" font-weight="700">MCP</text>
+  </g>
+  <line x1="410" y1="210" x2="448" y2="210" stroke="#455a64" stroke-width="2" marker-end="url(#fl)"/>
+  <text x="429" y="200" text-anchor="middle" font-size="11" fill="#6b7b80">outils</text>
+
+  <!-- Données -->
+  <line x1="622" y1="210" x2="660" y2="210" stroke="#455a64" stroke-width="2" marker-end="url(#fl)"/>
+  <path d="M664,170 a50,12 0 0,0 120,0 v80 a50,12 0 0,1 -120,0 z" fill="#ede7f6" stroke="#6a1b9a" stroke-width="2"/>
+  <ellipse cx="724" cy="170" rx="60" ry="12" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="2"/>
+  <text x="724" y="208" text-anchor="middle" font-weight="700">Données</text>
+  <text x="724" y="228" text-anchor="middle" font-size="12">fichiers, bases,</text>
+  <text x="724" y="244" text-anchor="middle" font-size="12">services</text>
+
+  <!-- Retour -->
+  <path d="M300,278 V360 H76 V246" fill="none" stroke="#c62828" stroke-width="2" marker-end="url(#fl)"/>
+  <text x="188" y="352" text-anchor="middle" font-size="12.5" fill="#c62828" font-weight="700">Résultats et anomalies à vérifier</text>
+
+  <!-- Légende -->
+  <text x="400" y="420" text-anchor="middle" font-style="italic" font-size="14" fill="#455a64">Les instructions guident l'agent ; les outils lui donnent accès aux données.</text>
+</svg>

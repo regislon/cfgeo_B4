@@ -57,3 +57,19 @@ section.exercice a {
   color: #00574d;
   font-weight: bold;
 }
+
+/* Lien discret vers la section du cours (directive _footer) */
+footer a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dotted currentColor;
+}
+
+footer a:hover {
+  color: #00796b;
+}
+
+section.lead footer a:hover,
+section.exercice footer a:hover {
+  color: inherit;
+}

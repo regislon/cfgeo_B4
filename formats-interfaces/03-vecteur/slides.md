@@ -5,6 +5,7 @@ paginate: true
 footer: CFGéo B4 · Formats, interfaces · 3. Données vectorielles
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Lire le chapitre](./)' -->
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
@@ -14,6 +15,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Objectifs](./#objectifs)' -->
 ## Objectifs
 
 - Primitives, modèle **Simple Features**, WKT / WKB
@@ -24,6 +26,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Fil rouge : le même kilomètre carré, en vecteur](./#fil-rouge-le-meme-kilometre-carre-en-vecteur)' -->
 ## 🧵 Fil rouge : le même km², en vecteur
 
 ![w:420](img/fil-rouge-vecteur.png) ![w:420](img/fil-rouge-vecteur-sur-ortho.jpg)
@@ -32,6 +35,7 @@ Tuile 2538-1180 (Yverdon) · chapitre 2 : des **pixels** → ici : des **objets*
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Fil rouge : le même kilomètre carré, en vecteur](./#fil-rouge-le-meme-kilometre-carre-en-vecteur)' -->
 ## 🧵 Un GeoPackage, cinq couches
 
 | Couche | Primitive | Objets | Attributs |
@@ -46,12 +50,14 @@ Tuile 2538-1180 (Yverdon) · chapitre 2 : des **pixels** → ici : des **objets*
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Primitives et géométries](./#primitives-et-geometries)' -->
 <!-- _class: lead -->
 
 # Géométries et attributs
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Primitives et géométries](./#primitives-et-geometries)' -->
 ## Primitives géométriques
 
 - **Point**, **ligne** (polyligne), **surface** (polygone, avec trous)
@@ -61,6 +67,7 @@ Tuile 2538-1180 (Yverdon) · chapitre 2 : des **pixels** → ici : des **objets*
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Un modèle commun : OGC Simple Features](./#un-modele-commun-ogc-simple-features)' -->
 ## Un modèle commun : *Simple Features*
 
 ![w:820](img/postgis-types-geometries.png)
@@ -69,6 +76,7 @@ OGC / ISO 19125 · repris par presque tous les formats et logiciels
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Un modèle commun : OGC Simple Features](./#un-modele-commun-ogc-simple-features)' -->
 ## WKT et WKB
 
 🧵 Centre de la tuile d'Yverdon (MN95)
@@ -84,6 +92,7 @@ WKB : 010100000000000000025E43410000000054033241
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Au-delà de la géométrie](./#au-dela-de-la-geometrie)' -->
 ## Au-delà de la géométrie
 
 - **Topologie** : voisinage, limites partagées, pas de recouvrement
@@ -91,8 +100,11 @@ WKB : 010100000000000000025E43410000000054033241
 - **Objets multiples** : plusieurs parties pour un objet
 - ⚠️ Format cible plus pauvre → **perte** (arcs → segments, topologie perdue)
 
+⚠️ Tous les formats ne les gèrent pas : conversion = **perte** (arcs → segments, topologie perdue)
+
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Gestion des attributs](./#gestion-des-attributs)' -->
 ## Attributs : familles de stockage
 
 | Catégorie | Exemples |
@@ -107,6 +119,7 @@ Complexité et possibilités (relations, multi-utilisateurs) croissantes ↓
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Binaire, texte, XML](./#binaire-texte-xml)' -->
 ## Binaire, texte, XML/JSON
 
 - **Binaire** : compact, rapide, illisible → Shapefile, GeoPackage
@@ -115,6 +128,7 @@ Complexité et possibilités (relations, multi-utilisateurs) croissantes ↓
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Qui définit les formats ?](./#qui-definit-les-formats)' -->
 ## Qui définit les formats ?
 
 - **OGC** : GML, KML, GeoPackage, Simple Features
@@ -126,6 +140,7 @@ Complexité et possibilités (relations, multi-utilisateurs) croissantes ↓
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 GDAL, le moteur caché des logiciels](./#gdal-le-moteur-cache-des-logiciels)' -->
 ## GDAL, le moteur caché des logiciels
 
 - Bibliothèque libre qui lit et écrit **200+ formats**
@@ -135,12 +150,14 @@ Complexité et possibilités (relations, multi-utilisateurs) croissantes ↓
 - INTERLIS : lecture seule → écriture avec **ili2db**
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Les principaux formats vectoriels](./#les-principaux-formats-vectoriels)' -->
 <!-- _class: lead -->
 
 # Les principaux formats
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 DXF](./#dxf)' -->
 ## DXF
 
 ```text
@@ -160,6 +177,7 @@ AC1018
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Shapefile](./#shapefile)' -->
 ## Shapefile
 
 - ESRI (ArcView, années 1990) — **standard de fait**
@@ -170,6 +188,7 @@ AC1018
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Exercices](./#exercices)' -->
 <!-- _class: exercice -->
 
 # Exercice : Du fichier de base de données au shapefile
@@ -179,6 +198,7 @@ AC1018
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 GeoPackage](./#geopackage)' -->
 ## GeoPackage
 
 - Standard **OGC**, ouvert, une base **SQLite** dans **un seul fichier**
@@ -189,6 +209,7 @@ AC1018
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Exercices](./#exercices)' -->
 <!-- _class: exercice -->
 
 # Exercice : Shapefile, GeoPackage et raster
@@ -198,6 +219,7 @@ AC1018
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 GeoJSON](./#geojson)' -->
 ## GeoJSON
 
 ```json
@@ -212,6 +234,7 @@ AC1018
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 KML](./#kml)' -->
 ## KML / KMZ
 
 - XML, Google Earth → standard **OGC** (2008)
@@ -222,6 +245,7 @@ AC1018
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 GML](./#gml)' -->
 ## GML et INTERLIS
 
 - **GML** : XML de l'OGC, **ISO 19136** (2007)
@@ -232,6 +256,7 @@ AC1018
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Formats récents : FlatGeobuf, GeoParquet et PMTiles](./#formats-recents-flatgeobuf-geoparquet-et-pmtiles)' -->
 ## Formats récents
 
 - **FlatGeobuf** (`.fgb`) : binaire, **index spatial**, lu par morceaux · non modifiable
@@ -243,6 +268,7 @@ AC1018
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Formats récents : FlatGeobuf, GeoParquet et PMTiles](./#formats-recents-flatgeobuf-geoparquet-et-pmtiles)' -->
 ## ▶ Démo : le fil rouge en PMTiles
 
 - Carte interactive sur le site : **grille des tuiles** visible
@@ -254,6 +280,7 @@ AC1018
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Formats récents : FlatGeobuf, GeoParquet et PMTiles](./#formats-recents-flatgeobuf-geoparquet-et-pmtiles)' -->
 ## 🧪 Un jeu de données, plusieurs formats
 
 300 communes vaudoises (swissBOUNDARIES3D 2026)
@@ -270,6 +297,7 @@ Shapefile : `einwohnerzahl` → `einwohnerz` · À ouvrir dans QGIS ou **GeoLibr
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Synthèse : GDAL et normalisation](./#synthese-gdal-et-normalisation)' -->
 ## Synthèse : GDAL et OGC
 
 | Format | GDAL | OGC | Format | GDAL | OGC |
@@ -283,6 +311,7 @@ Shapefile : `einwohnerzahl` → `einwohnerz` · À ouvrir dans QGIS ou **GeoLibr
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Synthèse : GDAL et normalisation](./#synthese-gdal-et-normalisation)' -->
 ## Pièges de conversion
 
 - Noms de champs **tronqués** (Shapefile : 10 caractères)
@@ -294,6 +323,7 @@ Shapefile : `einwohnerzahl` → `einwohnerz` · À ouvrir dans QGIS ou **GeoLibr
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Quel format choisir ?](./#quel-format-choisir)' -->
 ## Quel format choisir ?
 
 | Besoin | Format |
@@ -309,6 +339,7 @@ Shapefile : `einwohnerzahl` → `einwohnerz` · À ouvrir dans QGIS ou **GeoLibr
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Quel format choisir ?](./#quel-format-choisir)' -->
 ## ❓ Quiz : quel format choisir ?
 
 8 situations concrètes : architecte, collègue QGIS, site web, mensuration officielle, carte de 3 millions de bâtiments, analyse SQL, Google Earth, ancien logiciel…
@@ -317,12 +348,14 @@ Shapefile : `einwohnerzahl` → `einwohnerz` · À ouvrir dans QGIS ou **GeoLibr
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Vecteur vs raster](./#vecteur-vs-raster)' -->
 <!-- _class: lead -->
 
 # Vecteur vs raster
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Vecteur vs raster](./#vecteur-vs-raster)' -->
 ## Vecteur vs raster
 
 | Vecteur | Raster |
@@ -336,6 +369,7 @@ Shapefile : `einwohnerzahl` → `einwohnerz` · À ouvrir dans QGIS ou **GeoLibr
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 À retenir](./#a-retenir)' -->
 ## À retenir
 
 - Primitives : **point, ligne, surface** (+ multi, arcs, Z/M)

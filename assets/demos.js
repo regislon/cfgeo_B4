@@ -1387,7 +1387,8 @@
     draw();
   }
 
-  // Mini-ETL : règles de mapping appliquées à cinq bâtiments réels de swissBUILDINGS3D
+  // Mini-ETL graphique (style FME) : une chaîne données initiales → transformateurs → résultat,
+  // appliquée à cinq bâtiments réels de swissBUILDINGS3D. Recalcul à chaque modification.
   const ETL_SRC = [
     { UUID: "{0FB0172F-593E-4E1C-8817-6E3F36D4C954}", OBJEKTART: "Gebaeude Einzelhaus", NAME_KOMPLETT: "Salle omnisports des Isles", GESAMTHOEHE: null, ZMIN: 430.34, ZMAX: 445.12 },
     { UUID: "{55F72582-2831-41E3-88D5-09900F76CE3F}", OBJEKTART: "Hochhaus", NAME_KOMPLETT: "", GESAMTHOEHE: null, ZMIN: 431.17, ZMAX: 478.51 },
@@ -1396,75 +1397,280 @@
     { UUID: "{AE2C2556-E0A7-4544-A565-C0DE5B354D7D}", OBJEKTART: "Gebaeude Einzelhaus", NAME_KOMPLETT: "", GESAMTHOEHE: null, ZMIN: 430.13, ZMAX: 451.30 },
   ];
   const ETL_GENRES = ["Bâtiment", "Immeuble de grande hauteur", "En construction"];
+  // [champ, type, obligatoire, description]
   const ETL_TARGET = [
-    ["uuid", "texte", true, "copy:UUID"],
-    ["genre", "liste : " + ETL_GENRES.join(" / "), true, "copy:OBJEKTART"],
-    ["nom", "texte", false, "copy:NAME_KOMPLETT"],
-    ["hauteur", "nombre (m)", true, "copy:GESAMTHOEHE"],
-    ["altitude_sol", "nombre (m)", false, "none"],
+    ["uuid", "texte", true, "identifiant {XXXXXXXX-…}"],
+    ["genre", "liste", true, ETL_GENRES.join(" / ")],
+    ["nom", "texte", false, "NULL si inconnu (pas de chaîne vide)"],
+    ["hauteur", "nombre", true, "hauteur du bâtiment en m"],
+    ["altitude_sol", "nombre", true, "altitude du pied du bâtiment en m"],
   ];
-  const ETL_RULES = [
-    ["none", "(aucune)"], ["copy:UUID", "Copier UUID"], ["copy:OBJEKTART", "Copier OBJEKTART"], ["translate", "Traduire OBJEKTART (table ci-dessous)"],
-    ["copy:NAME_KOMPLETT", "Copier NAME_KOMPLETT"], ["nullify", "Copier NAME_KOMPLETT (vide → NULL)"], ["copy:GESAMTHOEHE", "Copier GESAMTHOEHE"],
-    ["height", "Calculer ZMAX − ZMIN"], ["copy:ZMIN", "Copier ZMIN"], ["copy:ZMAX", "Copier ZMAX"], ["const", "Constante « Bâtiment »"],
-  ];
-  function demoEtl(root) {
-    const show = (v) => (v === null ? "<i>NULL</i>" : v === "" ? "<i>(vide)</i>" : esc(v));
-    const srcTable = el("div", { class: "demo-scroll", html:
-      `<table class="demo-table"><tr><th colspan="6">Source : swissBUILDINGS3D, couche Floor (5 objets)</th></tr><tr>${Object.keys(ETL_SRC[0]).map((k) => `<th>${k}</th>`).join("")}</tr>` +
-      ETL_SRC.map((r) => `<tr>${Object.values(r).map((v) => `<td>${show(v)}</td>`).join("")}</tr>`).join("") + "</table>" });
-    const rules = {};
-    const ruleRows = ETL_TARGET.map(([name, type, req, def]) => {
-      const sel = el("select", {}, ETL_RULES.map(([v, t]) => el("option", { value: v, text: t })));
-      sel.value = def;
-      rules[name] = sel;
-      return el("tr", {}, [el("td", { html: `<b>${name}</b>${req ? " *" : ""}` }), el("td", { text: type }), el("td", {}, [sel])]);
-    });
-    const ruleTable = el("table", { class: "demo-table" }, [el("tr", { html: "<th>Champ cible</th><th>Type</th><th>Règle de transformation</th>" }), ...ruleRows]);
-    const trans = {};
-    const transRows = ["Gebaeude Einzelhaus", "Hochhaus", "Im Bau"].map((de) => {
-      const sel = el("select", {}, [el("option", { value: "", text: "— à choisir —" }), ...ETL_GENRES.map((g) => el("option", { value: g, text: g }))]);
-      trans[de] = sel;
-      return el("tr", {}, [el("td", { html: `<code>${de}</code>` }), el("td", {}, [sel])]);
-    });
-    const transTable = el("table", { class: "demo-table" }, [el("tr", { html: "<th>Valeur source (OBJEKTART)</th><th>Valeur cible (genre)</th>" }), ...transRows]);
-    const run = el("button", { type: "button", class: "demo-btn demo-load", text: "▶ Exécuter le mapping" });
-    const result = el("div", { class: "demo-scroll" });
-    const report = el("div", { class: "demo-quiz-fb" });
-    function apply(rule, r) {
-      if (rule === "none") return null;
-      if (rule.startsWith("copy:")) return r[rule.slice(5)];
-      if (rule === "translate") return trans[r.OBJEKTART].value || r.OBJEKTART;
-      if (rule === "nullify") return r.NAME_KOMPLETT === "" ? null : r.NAME_KOMPLETT;
-      if (rule === "height") return Math.round((r.ZMAX - r.ZMIN) * 10) / 10;
-      if (rule === "const") return "Bâtiment";
-      return null;
+  const ETL_TYPES = {
+    rename: { icon: "✎", name: "Renommer", fme: "AttributeRenamer", help: "Change le nom d'un ou plusieurs champs." },
+    map: { icon: "⇄", name: "Traduire des valeurs", fme: "ValueMapper", help: "Remplace chaque valeur d'un champ selon une table de correspondance." },
+    calc: { icon: "∑", name: "Calculer", fme: "AttributeCreator", help: "Crée un champ à partir d'un calcul sur d'autres champs." },
+    nullify: { icon: "∅", name: "Vide → NULL", fme: "NullAttributeMapper", help: "Remplace les chaînes vides d'un champ par NULL." },
+    filter: { icon: "⧩", name: "Filtrer", fme: "Tester", help: "Ne laisse passer que les objets qui respectent une condition ; les autres sont écartés." },
+  };
+  function etlNewNode(type) {
+    const cfg = {
+      rename: { pairs: [{ from: "", to: "" }] },
+      map: { field: "", out: "", table: {} },
+      calc: { out: "", a: "", op: "-", b: "" },
+      nullify: { field: "" },
+      filter: { field: "", cond: "notempty", value: "" },
+    }[type];
+    return { type, cfg };
+  }
+  const ETL_ID = Symbol("id");
+  function etlRun(node, feats) {
+    const c = node.cfg;
+    const out = [], drop = [];
+    for (const f0 of feats) {
+      let f = { ...f0 };
+      if (node.type === "rename") {
+        const g = {};
+        const map = Object.fromEntries(c.pairs.filter((p) => p.from && p.to.trim()).map((p) => [p.from, p.to.trim()]));
+        for (const [k, v] of Object.entries(f)) g[map[k] || k] = v;
+        g[ETL_ID] = f[ETL_ID];
+        f = g;
+      } else if (node.type === "map" && c.field && c.field in f) {
+        const v = f[c.field];
+        const t = c.table[String(v)];
+        f[(c.out || "").trim() || c.field] = t !== undefined && t !== "" ? t : v;
+      } else if (node.type === "calc" && c.out.trim() && c.a) {
+        const a = f[c.a], b = f[c.b];
+        let v = null;
+        if (c.op === "=") v = a === undefined ? null : a;
+        else if (typeof a === "number" && typeof b === "number") v = Math.round((c.op === "-" ? a - b : a + b) * 100) / 100;
+        f[c.out.trim()] = v;
+      } else if (node.type === "nullify" && c.field && f[c.field] === "") {
+        f[c.field] = null;
+      } else if (node.type === "filter" && c.field) {
+        const v = f[c.field];
+        const empty = v === null || v === undefined || v === "";
+        const ok = c.cond === "notempty" ? !empty : c.cond === "empty" ? empty : c.cond === "eq" ? String(v) === c.value : String(v) !== c.value;
+        if (!ok) { drop.push(f); continue; }
+      }
+      out.push(f);
     }
-    run.addEventListener("click", () => {
-      const errors = [];
-      let html = `<table class="demo-table"><tr><th colspan="5">Cible : couche batiments</th></tr><tr>${ETL_TARGET.map(([n]) => `<th>${n}</th>`).join("")}</tr>`;
-      ETL_SRC.forEach((r, i) => {
-        html += "<tr>";
-        ETL_TARGET.forEach(([name, type, req]) => {
-          const v = apply(rules[name].value, r);
-          let err = "";
-          if (req && (v === null || v === "")) err = "obligatoire mais vide";
-          else if (type.startsWith("nombre") && v !== null && v !== "" && typeof v !== "number") err = "texte dans un champ numérique";
-          else if (name === "genre" && v !== null && !ETL_GENRES.includes(v)) err = `« ${v} » n'est pas une valeur de la liste`;
-          else if (name === "uuid" && v !== null && !/^\{[0-9A-F-]{36}\}$/.test(v)) err = "n'est pas un identifiant UUID";
-          if (err) errors.push(`objet ${i + 1}, <b>${name}</b> : ${esc(err)}`);
-          html += `<td class="${err ? "demo-cell-ko" : "demo-cell-ok"}" title="${esc(err)}">${show(v)}</td>`;
+    return { out, drop };
+  }
+  function etlSummary(node) {
+    const c = node.cfg;
+    const p = {
+      rename: () => c.pairs.filter((x) => x.from && x.to).map((x) => `${x.from} → ${x.to}`).join(", "),
+      map: () => c.field ? `${c.field}${c.out && c.out !== c.field ? " → " + c.out : ""} (${Object.values(c.table).filter(Boolean).length} valeur(s))` : "",
+      calc: () => c.out && c.a ? `${c.out} = ${c.a}${c.op === "=" ? "" : (c.op === "-" ? " − " : " + ") + (c.b || "?")}` : "",
+      nullify: () => c.field,
+      filter: () => c.field ? `${c.field} ${{ notempty: "non vide", empty: "vide", eq: "= " + c.value, ne: "≠ " + c.value }[c.cond]}` : "",
+    }[node.type]();
+    return p || "à configurer…";
+  }
+  function etlValidate(f) {
+    const errs = [];
+    for (const [name, type, req] of ETL_TARGET) {
+      const v = f[name];
+      if (v === undefined) { if (req) errs.push(`champ « ${name} » absent`); continue; }
+      if (v === null) { if (req) errs.push(`« ${name} » obligatoire mais NULL`); continue; }
+      if (v === "") { errs.push(name === "nom" ? "« nom » : chaîne vide, le modèle attend NULL" : `« ${name} » obligatoire mais vide`); continue; }
+      if (type === "nombre" && typeof v !== "number") { errs.push(`« ${name} » : texte dans un champ numérique`); continue; }
+      if (name === "uuid" && !/^\{[0-9A-F-]{36}\}$/.test(v)) errs.push("« uuid » : pas un identifiant UUID");
+      if (name === "genre" && !ETL_GENRES.includes(v)) errs.push(`« genre » : « ${v} » n'est pas une valeur de la liste`);
+      if (name === "hauteur" && (v <= 0 || v > 150)) errs.push(`« hauteur » = ${v} m : invraisemblable`);
+      if (name === "altitude_sol" && (v < 190 || v > 4700)) errs.push(`« altitude_sol » = ${v} m : hors de la Suisse`);
+    }
+    return errs;
+  }
+  function demoEtl(root) {
+    let nodes = [];
+    let selected = -1;   // nœud configuré
+    let inspect = 0;     // flèche inspectée (0 = données initiales)
+    let dragFrom = null; // { kind: "new", type } ou { kind: "move", index }
+
+    const show = (v) => (v === null ? "<i>NULL</i>" : v === "" ? "<i>(vide)</i>" : esc(v));
+    const mission = el("div", { class: "demo-ifc-info", html:
+      "<b>🎯 Mission</b> : livrer les 5 bâtiments sources dans la couche cible <code>batiments</code>, <b>sans en perdre aucun</b>. " +
+      "Glissez des transformateurs de la palette dans la chaîne (ou cliquez dessus), configurez-les, et regardez les objets passer." +
+      `<table class="demo-table"><tr><th>Champ cible</th><th>Type</th><th></th><th>Contenu attendu</th></tr>${ETL_TARGET.map(([n, t, r, d]) =>
+        `<tr><td><code>${n}</code></td><td>${t}</td><td>${r ? "obligatoire" : "facultatif"}</td><td>${esc(d)}</td></tr>`).join("")}</table>` });
+    const palette = el("div", { class: "demo-etl-palette" });
+    const canvas = el("div", { class: "demo-etl-canvas" });
+    const config = el("div", { class: "demo-etl-config" });
+    const inspector = el("div", { class: "demo-etl-inspector" });
+    const status = el("div", { class: "demo-quiz-fb" });
+    const reset = el("button", { type: "button", class: "demo-btn", text: "↺ Recommencer" });
+
+    for (const [type, t] of Object.entries(ETL_TYPES)) {
+      const b = el("button", { type: "button", class: "demo-etl-tool", draggable: "true", title: `${t.help} (équivalent FME : ${t.fme})`, html: `<span class="demo-etl-ico">${t.icon}</span> ${t.name}` });
+      b.addEventListener("click", () => { nodes.push(etlNewNode(type)); selected = nodes.length - 1; inspect = nodes.length; render(); });
+      b.addEventListener("dragstart", (e) => { dragFrom = { kind: "new", type }; e.dataTransfer.setData("text/plain", type); e.dataTransfer.effectAllowed = "copyMove"; });
+      palette.append(b);
+    }
+    reset.addEventListener("click", () => { nodes = []; selected = -1; inspect = 0; render(); });
+
+    function compute() {
+      const edges = [ETL_SRC.map((f, i) => ({ ...f, [ETL_ID]: i }))];
+      const drops = [];
+      nodes.forEach((n) => { const r = etlRun(n, edges[edges.length - 1]); edges.push(r.out); drops.push(r.drop); });
+      const last = edges[edges.length - 1];
+      const ok = [], ko = [];
+      last.forEach((f) => { const e = etlValidate(f); (e.length ? ko : ok).push({ f, e }); });
+      return { edges, drops, ok, ko };
+    }
+
+    function insertAt(pos) {
+      if (!dragFrom) return;
+      if (dragFrom.kind === "new") { nodes.splice(pos, 0, etlNewNode(dragFrom.type)); selected = pos; inspect = pos + 1; }
+      else {
+        const [n] = nodes.splice(dragFrom.index, 1);
+        const p = dragFrom.index < pos ? pos - 1 : pos;
+        nodes.splice(p, 0, n); selected = p; inspect = p + 1;
+      }
+      dragFrom = null;
+      render();
+    }
+
+    function arrow(pos, count, dropCount) {
+      const a = el("button", { type: "button", class: "demo-etl-arrow" + (inspect === pos ? " on" : ""), title: "Inspecter les objets à cet endroit de la chaîne",
+        html: `<span class="demo-etl-count">${count}</span><span class="demo-etl-line">⟶</span>${dropCount ? `<span class="demo-etl-drop">${dropCount} écarté(s)</span>` : ""}` });
+      a.addEventListener("click", () => { inspect = pos; render(); });
+      a.addEventListener("dragover", (e) => { e.preventDefault(); a.classList.add("demo-etl-target"); });
+      a.addEventListener("dragleave", () => a.classList.remove("demo-etl-target"));
+      a.addEventListener("drop", (e) => { e.preventDefault(); insertAt(pos); });
+      return a;
+    }
+
+    function box(cls, title, sub, extra = []) {
+      return el("div", { class: "demo-etl-node " + cls }, [el("div", { class: "demo-etl-title", html: title }), el("div", { class: "demo-etl-sub", html: sub }), ...extra]);
+    }
+
+    function fieldSelect(fields, value, onChange, empty = "— champ —") {
+      const s = el("select", {}, [el("option", { value: "", text: empty }), ...fields.map((f) => el("option", { value: f, text: f }))]);
+      s.value = fields.includes(value) ? value : "";
+      s.addEventListener("change", () => onChange(s.value));
+      return s;
+    }
+    function textInput(value, onChange, ph = "") {
+      const i = el("input", { type: "text", value, placeholder: ph, size: "14" });
+      i.addEventListener("change", () => onChange(i.value));
+      return i;
+    }
+
+    function renderConfig(res) {
+      config.innerHTML = "";
+      if (selected < 0 || !nodes[selected]) {
+        config.append(el("p", { class: "demo-etl-hint", text: "Cliquez sur un transformateur de la chaîne pour le configurer." }));
+        return;
+      }
+      const node = nodes[selected], c = node.cfg, t = ETL_TYPES[node.type];
+      const input = res.edges[selected];
+      const fields = [...new Set(input.flatMap((f) => Object.keys(f)))];
+      const upd = () => render();
+      const head = el("div", { class: "demo-row" }, [el("b", { html: `${t.icon} ${t.name}` }), el("span", { class: "demo-etl-hint", text: `${t.help} FME : ${t.fme}.` })]);
+      const del = el("button", { type: "button", class: "demo-btn", text: "✕ Supprimer" });
+      del.addEventListener("click", () => { nodes.splice(selected, 1); selected = -1; inspect = Math.min(inspect, nodes.length); render(); });
+      const body = el("div", { class: "demo-etl-form" });
+      if (node.type === "rename") {
+        c.pairs.forEach((p, i) => {
+          const rm = el("button", { type: "button", class: "demo-btn", text: "−", title: "Retirer cette ligne" });
+          rm.addEventListener("click", () => { c.pairs.splice(i, 1); if (!c.pairs.length) c.pairs.push({ from: "", to: "" }); upd(); });
+          body.append(el("div", { class: "demo-row" }, [fieldSelect(fields, p.from, (v) => { p.from = v; upd(); }), el("span", { text: "→" }), textInput(p.to, (v) => { p.to = v; upd(); }, "nouveau nom"), rm]));
         });
-        html += "</tr>";
+        const add = el("button", { type: "button", class: "demo-btn", text: "+ un champ" });
+        add.addEventListener("click", () => { c.pairs.push({ from: "", to: "" }); upd(); });
+        body.append(add);
+      } else if (node.type === "map") {
+        body.append(el("div", { class: "demo-row" }, [el("span", { text: "Champ :" }), fieldSelect(fields, c.field, (v) => { c.field = v; c.table = {}; upd(); }),
+          el("span", { text: "écrire dans :" }), textInput(c.out, (v) => { c.out = v; upd(); }, c.field || "même champ")]));
+        if (c.field) {
+          const vals = [...new Set(input.map((f) => f[c.field]).filter((v) => v !== undefined).map(String))];
+          const dl = "etl-genres-" + Math.random().toString(36).slice(2);
+          body.append(el("datalist", { id: dl }, ETL_GENRES.map((g) => el("option", { value: g }))));
+          const tb = el("table", { class: "demo-table" }, [el("tr", { html: "<th>Valeur source</th><th>Valeur cible</th>" })]);
+          vals.forEach((v) => {
+            const i = el("input", { type: "text", list: dl, value: c.table[v] || "", placeholder: "(inchangée)", size: "24" });
+            i.addEventListener("change", () => { c.table[v] = i.value; upd(); });
+            tb.append(el("tr", {}, [el("td", { html: v === "" ? "<i>(vide)</i>" : `<code>${esc(v)}</code>` }), el("td", {}, [i])]));
+          });
+          body.append(tb);
+        }
+      } else if (node.type === "calc") {
+        const op = el("select", {}, [["-", "−"], ["+", "+"], ["=", "(copier)"]].map(([v, x]) => el("option", { value: v, text: x })));
+        op.value = c.op;
+        op.addEventListener("change", () => { c.op = op.value; upd(); });
+        const row = [textInput(c.out, (v) => { c.out = v; upd(); }, "nouveau champ"), el("span", { text: "=" }), fieldSelect(fields, c.a, (v) => { c.a = v; upd(); }), op];
+        if (c.op !== "=") row.push(fieldSelect(fields, c.b, (v) => { c.b = v; upd(); }));
+        body.append(el("div", { class: "demo-row" }, row));
+      } else if (node.type === "nullify") {
+        body.append(el("div", { class: "demo-row" }, [el("span", { text: "Champ :" }), fieldSelect(fields, c.field, (v) => { c.field = v; upd(); })]));
+      } else if (node.type === "filter") {
+        const cond = el("select", {}, [["notempty", "n'est pas vide"], ["empty", "est vide"], ["eq", "est égal à"], ["ne", "est différent de"]].map(([v, x]) => el("option", { value: v, text: x })));
+        cond.value = c.cond;
+        cond.addEventListener("change", () => { c.cond = cond.value; upd(); });
+        const row = [el("span", { text: "Garder si" }), fieldSelect(fields, c.field, (v) => { c.field = v; upd(); }), cond];
+        if (c.cond === "eq" || c.cond === "ne") row.push(textInput(c.value, (v) => { c.value = v; upd(); }, "valeur"));
+        body.append(el("div", { class: "demo-row" }, row));
+      }
+      config.append(head, body, el("div", { class: "demo-row" }, [del]));
+    }
+
+    function renderInspector(res) {
+      const feats = res.edges[inspect] || [];
+      const prev = inspect > 0 ? res.edges[inspect - 1] : null;
+      const where = inspect === 0 ? "données initiales (sources)" : `après « ${ETL_TYPES[nodes[inspect - 1].type].name} »`;
+      const fields = [...new Set(feats.flatMap((f) => Object.keys(f)))];
+      let html = `<p><b>🔍 Inspecteur</b> : ${feats.length} objet(s), ${where}. <span class="demo-etl-hint">Les cellules modifiées par cette étape sont surlignées.</span></p>`;
+      if (!feats.length) { inspector.innerHTML = html; return; }
+      html += `<div class="demo-scroll"><table class="demo-table"><tr>${fields.map((k) => `<th>${esc(k)}</th>`).join("")}</tr>`;
+      feats.forEach((f) => {
+        const p = prev && prev.find((g) => g[ETL_ID] === f[ETL_ID]);
+        html += "<tr>" + fields.map((k) => {
+          const changed = p && (!(k in p) || p[k] !== f[k]);
+          return `<td class="${changed ? "demo-hl" : ""}">${k in f ? show(f[k]) : ""}</td>`;
+        }).join("") + "</tr>";
       });
-      result.innerHTML = html + "</table>";
-      report.innerHTML = errors.length
-        ? `❌ <b>${errors.length} erreur(s)</b> : le jeu de données ne respecte pas le modèle cible.<ul>${[...new Set(errors)].slice(0, 12).map((e) => `<li>${e}</li>`).join("")}</ul>Corrigez les règles et relancez : c'est l'itération du schema mapping.`
-        : "✅ <b>Aucune erreur</b> : 5 objets en entrée, 5 objets en sortie, tous conformes au modèle cible. C'est exactement le mapping appliqué au fil rouge.";
-    });
-    root.append(srcTable, el("p", { html: "<b>1. Règles par champ cible</b> (* = obligatoire)" }), ruleTable,
-      el("p", { html: "<b>2. Table de correspondance des valeurs</b> (utilisée par la règle « Traduire »)" }), transTable,
-      el("div", { class: "demo-row" }, [run]), result, report);
+      inspector.innerHTML = html + "</table></div>";
+    }
+
+    function render() {
+      const res = compute();
+      canvas.innerHTML = "";
+      canvas.append(box("demo-etl-reader", "📂 Données initiales", "sources · swissBUILDINGS3D<br><code>Floor</code>"));
+      canvas.append(arrow(0, res.edges[0].length, 0));
+      nodes.forEach((n, i) => {
+        const t = ETL_TYPES[n.type];
+        const configured = etlSummary(n) !== "à configurer…";
+        const b = box("demo-etl-tr" + (selected === i ? " on" : "") + (configured ? "" : " todo"), `${t.icon} ${t.name}`, esc(etlSummary(n)));
+        b.setAttribute("draggable", "true");
+        b.setAttribute("tabindex", "0");
+        b.addEventListener("click", () => { selected = i; inspect = i + 1; render(); });
+        b.addEventListener("keydown", (e) => { if (e.key === "Enter") { selected = i; inspect = i + 1; render(); } });
+        b.addEventListener("dragstart", (e) => { dragFrom = { kind: "move", index: i }; e.dataTransfer.setData("text/plain", "move"); });
+        canvas.append(b, arrow(i + 1, res.edges[i + 1].length, res.drops[i].length));
+      });
+      const ok = res.ok.length, ko = res.ko.length;
+      canvas.append(box("demo-etl-writer", "💾 Résultat", "données finales · couche<br><code>batiments</code>", [
+        el("div", { class: "demo-etl-ports", html: `<span class="demo-etl-ok">✔ ${ok} valide(s)</span><span class="demo-etl-ko">✖ ${ko} rejeté(s)</span>` })]));
+
+      renderConfig(res);
+      renderInspector(res);
+
+      const lost = ETL_SRC.length - ok - ko;
+      if (ok === ETL_SRC.length) {
+        status.innerHTML = "✅ <b>Mission accomplie</b> : 5 objets initiaux, 5 objets finaux valides, 0 rejeté. Votre chaîne fait le même travail que le schema mapping du fil rouge.";
+      } else {
+        const reasons = {};
+        res.ko.forEach(({ e }) => e.forEach((x) => (reasons[x] = (reasons[x] || 0) + 1)));
+        status.innerHTML = `<b>Bilan du résultat</b> : ${ok} / ${ETL_SRC.length} objets valides` +
+          (lost ? ` · ⚠️ <b>${lost} objet(s) perdu(s)</b> en route (un filtre les a écartés : comptez toujours avant / après !)` : "") +
+          (ko ? `<ul>${Object.entries(reasons).map(([r, n]) => `<li>${esc(r)} <span class="demo-etl-hint">(${n} objet${n > 1 ? "s" : ""})</span></li>`).join("")}</ul>` : "");
+      }
+    }
+
+    root.append(mission, el("p", { html: "<b>Palette</b> <span class=\"demo-etl-hint\">(glisser sur une flèche de la chaîne, ou cliquer pour ajouter à la fin)</span>" }), palette,
+      canvas, status, config, inspector, el("div", { class: "demo-row" }, [reset]));
+    render();
   }
 
   // Simulateur d'incompatibilités

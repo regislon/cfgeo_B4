@@ -753,6 +753,17 @@ Le format **ASCII Grid** (`.asc`, défini par ESRI) décrit une grille de valeur
 
     Pour toute donnée destinée à être analysée (MNT, classification, image à traiter), n'utilisez **jamais JPEG ou WebP avec perte** : ils modifient les valeurs des pixels de manière incontrôlée et faussent les calculs. Préférez une compression **sans perte**, ou **LERC** si une erreur maximale connue et inférieure à la précision des données est acceptable.
 
+## À retenir
+
+- Un raster est une grille de pixels, avec **une valeur par pixel et par bande** : c'est une **mesure**, pas seulement une image.
+- Un capteur a **quatre résolutions** : spatiale, spectrale, radiométrique et temporelle.
+- Le type de données, l'échelle et le décalage, et la valeur **NoData** doivent être déclarés.
+- Le proche infrarouge permet les **fausses couleurs** et le calcul du **NDVI**.
+- Taille brute = colonnes × lignes × bandes × octets par valeur.
+- Le **world file** donne 6 paramètres **sans système de coordonnées** ; le **GeoTIFF** inclut le système de coordonnées.
+- **Format ≠ compression** : avec perte (JPEG, ondelettes) ou sans perte (RLE, LZW, Deflate, ZSTD). Pour des données à analyser : **sans perte** (ou LERC à erreur maîtrisée), jamais JPEG.
+- **GeoTIFF / COG** est le choix par défaut en géomatique.
+
 ## Sources
 
 - \[5\] [Les images – Apprendre (Modulo informatique)](https://dev-apprendre.modulo-info.ch/rep-info/images.html)

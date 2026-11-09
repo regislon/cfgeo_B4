@@ -210,9 +210,107 @@ La couche `batiments` du fil rouge (chapitre 3) est elle-même le résultat d'un
 
 **5. Itérer.** Les valeurs de `genre` ont d'abord été laissées en allemand, puis traduites dans une seconde passe.
 
+### ▶ À vous : le mini-ETL
+
 <div class="demo" data-demo="etl"></div>
 
-*À vous : configurez les règles du mapping pour cinq vrais bâtiments de la tuile, puis exécutez. Le mini-ETL signale les erreurs (champ obligatoire vide, valeur non traduite, texte dans un champ numérique). Les valeurs sources sont réelles (swissBUILDINGS3D, © swisstopo).*
+*À vous : reconstruisez ce mapping comme dans FME. Glissez des transformateurs (Renommer, Traduire des valeurs, Calculer, Vide → NULL, Filtrer) entre les données initiales (sources) et le résultat (données finales), configurez-les, et cliquez sur les flèches pour **inspecter** les objets à chaque étape. Le résultat est contrôlé objet par objet par rapport au modèle cible avec la raison de chaque rejet. Objectif : 5 objets initiaux, 5 objets finaux valides. Les valeurs sources sont réelles (swissBUILDINGS3D, © swisstopo).*
+
+### 🤖 Agents IA, accès aux données et schema mapping
+
+#### De l'assistant à l'agent
+
+Un assistant d'IA produit une réponse à une demande. Lorsqu'il fonctionne comme un **agent**, il peut aussi choisir des outils, enchaîner plusieurs actions et adapter les étapes selon les résultats obtenus, dans les limites des accès accordés.
+
+Pour préparer un échange de géodonnées, un agent peut examiner les modèles source et cible, consulter les valeurs présentes, proposer un schema mapping et, si les outils disponibles le permettent, exécuter une conversion sur un échantillon.
+
+Il faut distinguer trois éléments :
+
+| Élément | Rôle | Exemples |
+|---|---|---|
+| **L'agent** | Organiser les étapes et choisir les outils | Examiner les champs, proposer des correspondances, tester une conversion |
+| **Les instructions et la documentation** | Expliquer le sens des données et les règles à respecter | `AGENTS.md`, dictionnaire des attributs, modèle INTERLIS, catalogue des valeurs |
+| **Les moyens d'accès** | Permettre la lecture des données ou l'exécution d'opérations | Fichiers locaux, API, commandes, scripts, serveur MCP |
+
+![Un agent IA, guidé par des instructions, accède aux données par des fichiers, des API, des scripts ou MCP](img/agent-ia.svg)
+
+#### Les instructions : expliquer les données à l'agent
+
+Un fichier comme **`AGENTS.md`** peut donner à un agent les consignes nécessaires pour travailler dans un projet : emplacement des données, description des champs, système de coordonnées, règles de transformation et contrôles attendus.
+
+Par exemple :
+
+```markdown
+## Données bâtiments
+
+- Fichier source : donnees/batiments.gpkg
+- Système de coordonnées : EPSG:2056 (MN95)
+- UUID : identifiant du bâtiment, à conserver.
+- OBJEKTART : catégorie du bâtiment, valeurs en allemand.
+- ZMIN et ZMAX : altitudes en mètres.
+- Hauteur : calculer ZMAX - ZMIN.
+- Ne supprimer aucun bâtiment sans expliquer pourquoi.
+- Écrire le résultat dans un nouveau fichier.
+```
+
+Ces instructions rendent les conventions explicites et peuvent être réutilisées par plusieurs outils d'IA. Leur lecture automatique dépend toutefois du logiciel utilisé. **Un fichier `AGENTS.md` ne crée pas une connexion aux données et n'accorde aucune permission : il explique comment travailler avec les accès disponibles.**
+
+#### Les outils : accéder aux données et agir
+
+L'agent peut accéder aux données de différentes manières : ouvrir un fichier local, appeler une API, lancer une commande comme `ogr2ogr` ou utiliser un script.
+
+**MCP — *Model Context Protocol* — est une autre possibilité.** Ce protocole standardise la manière dont une application d'IA découvre et utilise les capacités exposées par un serveur : outils, ressources et modèles de requêtes. Le serveur fait le lien avec les fichiers, les bases de données ou les services concernés.
+
+MCP reprend ainsi l'idée d'une **interface commune** (voir le [format pivot](#le-probleme-des-interfaces-multiples-et-le-format-pivot)) : les applications et les sources compatibles peuvent communiquer sans développer une intégration spécifique pour chaque paire. Il ne définit cependant ni le sens métier des données ni les règles du schema mapping.
+
+!!! note "À retenir"
+    Les instructions guident l'agent ; les outils lui donnent accès aux données ; MCP peut standardiser cet accès.
+
+??? example "Pour aller plus loin : un appel d'outil via MCP"
+    Cet exemple montre un moyen d'accès parmi d'autres. L'agent choisit un outil et ses paramètres ; l'application transmet l'appel au serveur MCP, puis renvoie le résultat à l'agent. Les messages sont du JSON (voir le [chapitre 5](../05-xml-json/README.md)). Voici un vrai échange avec le serveur MCP de swisstopo, raccourci :
+
+    === "Appel de l'outil"
+
+        ```json
+        {"jsonrpc": "2.0", "id": 1, "method": "tools/call",
+         "params": {"name": "geocode_location",
+                    "arguments": {"query": "Faïencerie Yverdon"}}}
+        ```
+
+    === "Réponse du serveur"
+
+        ```json
+        {"label": "Part of a ward La Faïencerie (VD) - Yverdon-les-Bains",
+         "coordinates": {
+           "wgs84": {"longitude": 6.640246, "latitude": 46.769669, "crs": "EPSG:4326"},
+           "lv95":  {"easting": 2539017.527, "northing": 1180143.57, "crs": "EPSG:2056"}}}
+        ```
+
+    La réponse précise le système de coordonnées de chaque valeur : sans cela, l'agent pourrait facilement confondre WGS84 et MN95.
+
+**Exemple en géomatique : accéder aux services de swisstopo.** Dans le cadre de la Stratégie suisse pour la géoinformation, swisstopo développe **[sgs-llm](https://github.com/swisstopo/sgs-llm)**, un **prototype** (2026, non opérationnel) qui combine un chat et une carte en MN95 : on pose une question en langage naturel, l'IA cherche parmi les quelque 900 couches du catalogue fédéral, interroge les objets et affiche le résultat. Il s'appuie sur un serveur MCP en lecture seule (recherche de jeux de données, description de leur schéma, géocodage, communes et cantons, identification des objets à un point, liens vers map.geo.admin.ch). Il existe aussi des serveurs MCP communautaires, comme [swisstopo-mcp](https://github.com/malkreide/swisstopo-mcp).
+
+!!! example "À essayer : l'interface de test de swisstopo"
+    Le prototype est accessible en ligne : **[interface de test SGS LLM](https://denpw8uo5zpkl.cloudfront.net/)**. Posez une question en langage naturel (par exemple « Quels sont les dangers naturels à Yverdon-les-Bains ? ») et observez comment l'agent choisit les jeux de données, interroge les services et affiche le résultat sur la carte.
+
+    Il s'agit d'une **interface de test** et d'une **preuve de concept** (*proof of concept*), pas d'un service opérationnel : son adresse peut changer, elle peut être indisponible, et les réponses peuvent être incomplètes ou fausses. Vérifiez toujours un résultat dans la source officielle ([map.geo.admin.ch](https://map.geo.admin.ch)). L'application demande d'accepter ses conditions d'utilisation ; n'y saisissez **aucune donnée personnelle ou confidentielle**.
+
+#### Application au schema mapping
+
+Dans le [mini-ETL des bâtiments](#a-vous-le-mini-etl), un agent pourrait :
+
+1. Lire le modèle cible et les instructions du projet.
+2. Examiner les champs et les valeurs des données source.
+3. Proposer les renommages, traductions et calculs nécessaires.
+4. Appliquer les règles sur un échantillon avec les outils disponibles.
+5. Présenter les résultats, les rejets et les points à vérifier.
+
+L'agent peut proposer des correspondances plausibles mais incorrectes : une traduction peut modifier le sens d'une catégorie, un champ peut être mal interprété ou un système de coordonnées confondu avec un autre. Des instructions précises réduisent ces risques sans les supprimer.
+
+Les propositions de l'agent peuvent varier entre deux exécutions. Pour rendre le traitement reproductible, il faut **enregistrer les règles retenues dans une table de correspondance, un script ou un workflow ETL**.
+
+!!! tip "Bon réflexe"
+    Utilisez l'agent pour préparer et exécuter le mapping, puis contrôlez le résultat avec le modèle cible et des vérifications explicites : comptage des objets, types et valeurs autorisées, géométries, identifiants et inspection d'un échantillon. La référence reste le modèle officiel.
 
 ## Incompatibilités possibles lors d'un transfert
 
@@ -281,6 +379,7 @@ Les principes de ce chapitre restent valables, mais les pratiques évoluent :
 - Le **schema mapping** établit la correspondance entre modèles : analyser, définir les règles, tester sur un extrait, contrôler (p. ex. avec ilivalidator), itérer.
 - Les incompatibilités typiques concernent les **types d'attributs**, les **types géométriques**, `SURFACE`/`AREA` et les **règles d'intégrité** (identifiants uniques, domaines de numérotation).
 - Le schema mapping règle le niveau **sémantique** : le fil rouge l'a montré (traduction des valeurs, calcul d'un attribut manquant, conversion de la géométrie 3D en 2D).
+- Un **agent IA** peut enchaîner des outils pour préparer un échange de données. Les **instructions et modèles** lui expliquent les règles ; les **fichiers, API, scripts ou connexions MCP** lui permettent d'accéder aux données. Les règles retenues doivent être enregistrées et le résultat contrôlé.
 
 ## Sources
 

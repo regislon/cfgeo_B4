@@ -5,6 +5,7 @@ paginate: true
 footer: CFGéo B4 · Formats, interfaces · 1. Codage binaire
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Lire le chapitre](./)' -->
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
@@ -14,6 +15,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Objectifs](./#objectifs)' -->
 ## Objectifs
 
 - Binaire, décimal, **hexadécimal**
@@ -24,6 +26,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Introduction : qu’est-ce qu’un format ?](./#introduction-quest-ce-quun-format)' -->
 ## Qu'est-ce qu'un format ?
 
 - **Format de données** : manière d'encoder l'information pour qu'un logiciel puisse l'exploiter
@@ -34,6 +37,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Fil rouge : Yverdon en 0 et 1](./#fil-rouge-yverdon-en-0-et-1)' -->
 ## 🧵 Fil rouge : Yverdon en 0 et 1
 
 | Information | Stockée comme |
@@ -48,12 +52,14 @@ Un fichier = une suite d'**octets** · un **format** = la convention pour les li
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Système décimal et système binaire](./#systeme-decimal-et-systeme-binaire)' -->
 <!-- _class: lead -->
 
 # Décimal et binaire
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Pourquoi la base 2 ?](./#pourquoi-la-base-2)' -->
 ## Pourquoi la base 2 ?
 
 - Nous comptons en base 10… parce que nous avons 10 doigts
@@ -65,6 +71,7 @@ Un fichier = une suite d'**octets** · un **format** = la convention pour les li
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Le système décimal (base 10)](./#le-systeme-decimal-base-10)' -->
 ## Représentation positionnelle
 
 - Base 10 : symboles 0 à 9, chaque position = une puissance de 10
@@ -78,6 +85,7 @@ Un fichier = une suite d'**octets** · un **format** = la convention pour les li
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Le bit](./#le-bit)' -->
 ## Le bit
 
 - **bit** = *binary digit* = 0 ou 1 (noté **b**)
@@ -92,6 +100,7 @@ Un fichier = une suite d'**octets** · un **format** = la convention pour les li
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 L’octet](./#loctet)' -->
 ## L'octet
 
 - **Octet** (o) = *byte* (B) = **8 bits**
@@ -102,12 +111,14 @@ Un fichier = une suite d'**octets** · un **format** = la convention pour les li
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Conversions](./#conversions)' -->
 <!-- _class: lead -->
 
 # Conversions
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Du binaire vers le décimal](./#du-binaire-vers-le-decimal)' -->
 ## Binaire → décimal
 
 Somme des puissances de 2 là où il y a un 1 :
@@ -123,6 +134,7 @@ Le bit de poids faible (2⁰) est **à droite**
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Du décimal vers le binaire](./#du-decimal-vers-le-binaire)' -->
 ## Décimal → binaire
 
 Divisions successives par 2, lecture des restes **de bas en haut**
@@ -135,6 +147,7 @@ Divisions successives par 2, lecture des restes **de bas en haut**
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Entraînez-vous](./#entrainez-vous)' -->
 ## À vous !
 
 1. 11001000₍₂₎ = ? en décimal
@@ -147,6 +160,7 @@ Divisions successives par 2, lecture des restes **de bas en haut**
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 L’hexadécimal](./#lhexadecimal)' -->
 ## L'hexadécimal (base 16)
 
 - 16 symboles : **0–9 puis A–F** (A = 10 … F = 15)
@@ -162,6 +176,7 @@ Divisions successives par 2, lecture des restes **de bas en haut**
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Les nombres entiers signés](./#les-nombres-entiers-signes)' -->
 ## Entiers signés
 
 | Type | Octets | Plage |
@@ -176,6 +191,7 @@ Mêmes noms dans les rasters et les tables attributaires
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Les nombres à virgule](./#les-nombres-a-virgule)' -->
 ## Nombres à virgule (IEEE 754)
 
 - Signe + **mantisse** (chiffres) + **exposant** (position de la virgule)
@@ -191,12 +207,14 @@ Mêmes noms dans les rasters et les tables attributaires
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Unités informatiques](./#unites-informatiques)' -->
 <!-- _class: lead -->
 
 # Unités informatiques
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Préfixes décimaux (SI)](./#prefixes-decimaux-si)' -->
 ## Deux familles de préfixes
 
 | SI (décimal) | Valeur | CEI (binaire) | Valeur |
@@ -210,6 +228,7 @@ Mêmes noms dans les rasters et les tables attributaires
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Préfixes décimaux (SI)](./#prefixes-decimaux-si)' -->
 ## Dans la pratique
 
 - Fabricants de disques : préfixes **décimaux** (1 To = 10¹² o)
@@ -220,12 +239,14 @@ Mêmes noms dans les rasters et les tables attributaires
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Le codage du texte](./#le-codage-du-texte)' -->
 <!-- _class: lead -->
 
 # Le codage du texte
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 ASCII](./#ascii)' -->
 ## ASCII, Latin-1, UTF-8
 
 - **ASCII** : 128 caractères, **pas d'accents** · `A` = `41`
@@ -240,6 +261,7 @@ Mêmes noms dans les rasters et les tables attributaires
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Unicode et UTF-8](./#unicode-et-utf-8)' -->
 ## Le problème d'encodage
 
 UTF-8 lu comme du Latin-1 :
@@ -253,12 +275,14 @@ Causes typiques : `.cpg` oublié (Shapefile), `encoding` absent (XML), mauvais c
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Fichiers texte et fichiers binaires](./#fichiers-texte-et-fichiers-binaires)' -->
 <!-- _class: lead -->
 
 # Fichiers texte et fichiers binaires
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Les fichiers texte](./#les-fichiers-texte)' -->
 ## Fichier texte : des caractères
 
 ```text
@@ -276,6 +300,7 @@ POINT
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Les fichiers binaires](./#les-fichiers-binaires)' -->
 ## Fichier binaire : des nombres
 
 ```text
@@ -292,6 +317,7 @@ POINT
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Texte ou binaire : que choisir ?](./#texte-ou-binaire-que-choisir)' -->
 ## Texte ou binaire ?
 
 | | Texte | Binaire |
@@ -303,6 +329,7 @@ POINT
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Testez-vous](./#testez-vous)' -->
 ## ❓ Testez-vous
 
 7 questions : octets, hexadécimal, UTF-8, « GenÃ¨ve », Float32, fichier .shp « illisible », disque de 931 Go
@@ -311,6 +338,7 @@ POINT
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 À retenir](./#a-retenir)' -->
 ## À retenir
 
 - L'ordinateur code tout avec des **0 et des 1**

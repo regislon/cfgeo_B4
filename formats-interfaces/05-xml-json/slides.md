@@ -5,6 +5,7 @@ paginate: true
 footer: CFGéo B4 · Formats, interfaces · 5. XML et JSON
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 Lire le chapitre](./)' -->
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
@@ -14,6 +15,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 Objectifs](./#objectifs)' -->
 ## Objectifs
 
 - Lire et écrire un document XML et JSON
@@ -23,6 +25,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 Fil rouge : un arrêt de bus, cinq encodages](./#fil-rouge-un-arret-de-bus-cinq-encodages)' -->
 ## 🧵 Un arrêt de bus, cinq encodages
 
 « Yverdon-les-Bains, Faïencerie » (fil rouge, chapitre 3)
@@ -39,6 +42,7 @@ Même information, emballages différents · ▶ [voir les 5 fichiers](https://r
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 XML : balises, éléments, attributs](./#xml-balises-elements-attributs)' -->
 ## XML : un métalangage
 
 - Standard du **W3C** (1998), fichier **texte** structuré **en arbre**
@@ -48,6 +52,7 @@ Même information, emballages différents · ▶ [voir les 5 fichiers](https://r
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 XML : balises, éléments, attributs](./#xml-balises-elements-attributs)' -->
 ## Balises, éléments, attributs
 
 ```xml
@@ -67,6 +72,7 @@ Même information, emballages différents · ▶ [voir les 5 fichiers](https://r
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 Attributs](./#attributs)' -->
 ## Élément ou attribut ?
 
 - Pas de règle absolue
@@ -77,6 +83,7 @@ Même information, emballages différents · ▶ [voir les 5 fichiers](https://r
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 Structure d’un document XML](./#structure-dun-document-xml)' -->
 ## Structure d'un document XML
 
 1. **Prologue** : `<?xml version="1.0" encoding="UTF-8"?>`
@@ -88,6 +95,7 @@ plutôt que ISO-8859-1 — et déclaré = réel !
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 Espaces de noms (namespaces)](./#espaces-de-noms-namespaces)' -->
 ## Espaces de noms
 
 ```xml
@@ -104,6 +112,7 @@ plutôt que ISO-8859-1 — et déclaré = réel !
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 DTD et XSD](./#dtd-et-xsd)' -->
 ## DTD et XSD : la grammaire
 
 | | DTD | XSD |
@@ -117,6 +126,7 @@ Ils définissent : éléments, ordre, occurrences, attributs, types
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 DTD et XSD](./#dtd-et-xsd)' -->
 ## Exemple de schéma XSD
 
 ```xml
@@ -136,6 +146,7 @@ Un **schéma** décrit les données… mais n'en contient **aucune**
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 Document bien formé](./#document-bien-forme)' -->
 ## Bien formé
 
 - Un seul élément **racine**
@@ -147,6 +158,7 @@ Un **schéma** décrit les données… mais n'en contient **aucune**
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 Document valide](./#document-valide)' -->
 ## Valide
 
 - **Bien formé**
@@ -160,6 +172,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 À vous de jouer : bien formé ?](./#a-vous-de-jouer-bien-forme)' -->
 ## ▶ À vous : bien formé ?
 
 - Éditeur en ligne : le **KML de l'arrêt**, vérifié **en direct**
@@ -170,12 +183,14 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 Formats géographiques basés sur XML](./#formats-geographiques-bases-sur-xml)' -->
 <!-- _class: lead -->
 
 # Formats géographiques XML
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 GML (Geography Markup Language)](./#gml-geography-markup-language)' -->
 ## GML
 
 - Dialecte XML de l'**OGC**, norme **ISO 19136** depuis 2007
@@ -186,6 +201,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 GML (Geography Markup Language)](./#gml-geography-markup-language)' -->
 ## Exemple GML
 
 ```xml
@@ -203,6 +219,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 KML (Keyhole Markup Language)](./#kml-keyhole-markup-language)' -->
 ## KML
 
 ```xml
@@ -221,6 +238,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 KML (Keyhole Markup Language)](./#kml-keyhole-markup-language)' -->
 ## KML : pièges
 
 - **WGS84 uniquement** : longitude, latitude, altitude
@@ -229,6 +247,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 KML (Keyhole Markup Language)](./#kml-keyhole-markup-language)' -->
 ## ▶ Couleur HTML ↔ KML
 
 | | Ordre | Bleu à 45 % |
@@ -240,6 +259,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 Exercices](./#exercices)' -->
 <!-- _class: exercice -->
 
 # Exercice : Lire et modifier un fichier KML
@@ -248,6 +268,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 GPX (GPS Exchange Format)](./#gpx-gps-exchange-format)' -->
 ## GPX et INTERLIS 2
 
 - **GPX** : récepteurs GPS, sport
@@ -259,12 +280,14 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 JSON](./#json)' -->
 <!-- _class: lead -->
 
 # JSON et GeoJSON
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 JSON](./#json)' -->
 ## JSON
 
 ```json
@@ -283,6 +306,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 XML ou JSON ?](./#xml-ou-json)' -->
 ## XML vs JSON
 
 | | XML | JSON |
@@ -296,6 +320,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 GeoJSON](./#geojson)' -->
 ## GeoJSON (RFC 7946)
 
 ```json
@@ -312,6 +337,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 GeoJSON](./#geojson)' -->
 ## GeoJSON : WGS84, longitude d'abord
 
 - Coordonnées **toujours en WGS84** (EPSG:4326)
@@ -321,6 +347,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 GeoJSON](./#geojson)' -->
 ## ▶ Le piège [lat, lon]
 
 - `[6.639541, 46.769964]` → Yverdon-les-Bains ✅
@@ -331,6 +358,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 JSON-FG : GeoJSON avec d’autres systèmes de coordonnées](./#json-fg-geojson-avec-dautres-systemes-de-coordonnees)' -->
 ## JSON-FG (OGC, 2025)
 
 - Extension de GeoJSON : **reste un GeoJSON valide**
@@ -340,6 +368,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 JSON, le langage des API](./#json-le-langage-des-api)' -->
 ## JSON, le langage des API
 
 - OGC API, **STAC**, API geo.admin.ch → réponses **JSON**
@@ -348,6 +377,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 Exercices](./#exercices)' -->
 <!-- _class: exercice -->
 
 # Exercice : GeoJSON et systèmes de coordonnées
@@ -356,6 +386,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 JSON Schema](./#json-schema)' -->
 ## JSON Schema
 
 ```json
@@ -374,6 +405,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 À vous de jouer : bien formé et valide ?](./#a-vous-de-jouer-bien-forme-et-valide)' -->
 ## ▶ Bien formé **et** valide ?
 
 - GeoJSON de l'arrêt vérifié par un **JSON Schema**
@@ -384,6 +416,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 Testez-vous](./#testez-vous)' -->
 ## ❓ Testez-vous
 
 7 questions : élément racine, `&`, « Pointt », ordre des coordonnées, couleur KML, MN95, schémas
@@ -392,6 +425,7 @@ Valide ⇒ bien formé, mais pas l'inverse
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 5. XML et JSON · [📖 À retenir](./#a-retenir)' -->
 ## À retenir
 
 - XML : arbre, éléments + attributs, une racine, **UTF-8**

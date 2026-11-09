@@ -5,6 +5,7 @@ paginate: true
 footer: CFGéo B4 · Formats, interfaces · 7. Échange de données
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Lire le chapitre](./)' -->
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
@@ -14,6 +15,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Objectifs](./#objectifs)' -->
 ## Objectifs
 
 - Distinguer échanges hors ligne et en ligne
@@ -23,6 +25,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Pourquoi échanger des données ?](./#pourquoi-echanger-des-donnees)' -->
 ## Le problème de base
 
 ![w:650](img/probleme-echange.png)
@@ -33,12 +36,14 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Échanges hors ligne et en ligne](./#echanges-hors-ligne-et-en-ligne)' -->
 <!-- _class: lead -->
 
 # Hors ligne ou en ligne ?
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Interfaces « hors ligne » (off-line)](./#interfaces-hors-ligne-off-line)' -->
 ## Interfaces hors ligne (off-line)
 
 - Extraction **à un instant t** → fichier → import dans le système cible
@@ -49,6 +54,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Interfaces « en ligne » (on-line)](./#interfaces-en-ligne-on-line)' -->
 ## Interfaces en ligne (on-line)
 
 - Systèmes **connectés en permanence**, accès direct à la source
@@ -61,18 +67,21 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Le problème des interfaces multiples et le format pivot](./#le-probleme-des-interfaces-multiples-et-le-format-pivot)' -->
 <!-- _class: lead -->
 
 # Combien d'interfaces ?
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Le problème des interfaces multiples et le format pivot](./#le-probleme-des-interfaces-multiples-et-le-format-pivot)' -->
 ## Le SIT et ses partenaires
 
 ![w:480](img/echanges-sit.png)
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Interfaces point à point](./#interfaces-point-a-point)' -->
 ## Interfaces point à point
 
 ![bg right:40% w:380](img/interfaces-point-a-point.png)
@@ -87,6 +96,7 @@ interfaces = n × (n − 1) / 2
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Le format pivot : INTERLIS](./#le-format-pivot-interlis)' -->
 ## Le format pivot : INTERLIS
 
 ![bg right:40% w:380](img/format-pivot.png)
@@ -98,6 +108,7 @@ interfaces = n × (n − 1) / 2
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Le format pivot : INTERLIS](./#le-format-pivot-interlis)' -->
 ## ▶ Point à point ou pivot ?
 
 - Curseur de 2 à 12 systèmes : le schéma dessine **toutes les liaisons**
@@ -108,6 +119,7 @@ interfaces = n × (n − 1) / 2
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Contenu de l’information échangée](./#contenu-de-linformation-echangee)' -->
 ## Que contient l'échange ?
 
 1. **Modèle** : simple graphique, objets + attributs, ou classes + relations + contraintes ?
@@ -116,6 +128,7 @@ interfaces = n × (n − 1) / 2
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Contenu de l’information échangée](./#contenu-de-linformation-echangee)' -->
 ## *De facto* vs *de jure*
 
 | *De facto* | *De jure* |
@@ -126,12 +139,14 @@ interfaces = n × (n − 1) / 2
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Schema mapping](./#schema-mapping)' -->
 <!-- _class: lead -->
 
 # Schema mapping
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Schema mapping](./#schema-mapping)' -->
 ## Le schema mapping, étape par étape
 
 1. **Analyser** les structures source et cible
@@ -142,6 +157,7 @@ interfaces = n × (n − 1) / 2
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 1. Analyser les structures](./#1-analyser-les-structures)' -->
 ## 1. Analyser les structures
 
 - **Documentation du modèle** : p. ex. DM.01-AV-CH (MO) sur cadastre.ch
@@ -150,6 +166,7 @@ interfaces = n × (n − 1) / 2
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 2. Identifier les règles de transformation](./#2-identifier-les-regles-de-transformation)' -->
 ## 2. Règles de transformation
 
 - Filtrer les données à transférer
@@ -161,6 +178,7 @@ interfaces = n × (n − 1) / 2
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 2. Identifier les règles de transformation](./#2-identifier-les-regles-de-transformation)' -->
 ## Table de correspondance
 
 | Attribut source | Valeur source | Attribut cible | Valeur cible |
@@ -175,6 +193,7 @@ interfaces = n × (n − 1) / 2
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 3. Convertir un jeu de données test et améliorer l’interface](./#3-convertir-un-jeu-de-donnees-test-et-ameliorer-linterface)' -->
 ## 3–5. Tester, contrôler, itérer
 
 - Travailler sur un **extrait représentatif** (avec les cas particuliers)
@@ -186,6 +205,7 @@ interfaces = n × (n − 1) / 2
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Fil rouge : le schema mapping de la couche « bâtiments »](./#fil-rouge-le-schema-mapping-de-la-couche-batiments)' -->
 ## 🧵 Fil rouge : le mapping des bâtiments
 
 | swissBUILDINGS3D | Règle | `batiments` |
@@ -200,17 +220,31 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 
 ---
 
-## ▶ Mini-ETL dans le navigateur
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 À vous : le mini-ETL](./#a-vous-le-mini-etl)' -->
+## ▶ Mini-ETL dans le navigateur (style FME)
 
-- 5 **vrais** bâtiments sources (allemand, hauteur vide)
-- Choisir une **règle** par champ cible + table de **traduction** des valeurs
-- « Exécuter » → table cible + **erreurs** (obligatoire vide, valeur hors liste, texte dans un nombre)
-- Itérer jusqu'à **0 erreur**
+- **Données initiales** (sources : 5 vrais bâtiments, allemand, hauteur vide) → … → **résultat** (données finales, modèle cible)
+- Glisser des **transformateurs** : Renommer, Traduire des valeurs, Calculer, Vide → NULL, Filtrer
+- Cliquer sur une flèche : **inspecteur** des objets à cette étape
+- Le résultat **rejette** les objets non conformes et dit pourquoi → itérer jusqu'à **5 / 5 valides**
 
-▶ [Ouvrir le mini-ETL](https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/#fil-rouge-le-schema-mapping-de-la-couche-batiments)
+▶ [Ouvrir le mini-ETL](https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/#a-vous-le-mini-etl)
+
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Agents IA, accès aux données et schema mapping](./#agents-ia-acces-aux-donnees-et-schema-mapping)' -->
+## 🤖 Agents IA et schema mapping
+
+![w:470](img/agent-ia.svg)
+
+- **Instructions** (`AGENTS.md`, modèles) : expliquent les règles — aucune permission
+- **Outils** (fichiers, API, scripts, **MCP**) : donnent accès aux données
+- L'agent **propose et exécute** ; on **enregistre** les règles et on **contrôle** le résultat
+- Exemple : [interface de test swisstopo (SGS LLM)](https://denpw8uo5zpkl.cloudfront.net/) — **preuve de concept**, pas un service opérationnel
+---
+
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Exercices](./#exercices)' -->
 <!-- _class: exercice -->
 
 # Exercice : Schema mapping
@@ -219,6 +253,7 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Exercices](./#exercices)' -->
 ## ▶ Exercice Normat en ligne
 
 - 53 désignations vaudoises → 28 types principaux
@@ -229,12 +264,14 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Incompatibilités possibles lors d’un transfert](./#incompatibilites-possibles-lors-dun-transfert)' -->
 <!-- _class: lead -->
 
 # Incompatibilités
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Texte vs numérique](./#texte-vs-numerique)' -->
 ## Texte vs numérique
 
 - Numéro de chambre `12a` ou `K-045` (texte)
@@ -244,6 +281,7 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Polyligne vs surface](./#polyligne-vs-surface)' -->
 ## Ligne vs surface
 
 - swissTLM3D (ex-VECTOR25) : route = **ligne** (axe) + classe de largeur
@@ -253,6 +291,7 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 SURFACE vs AREA (INTERLIS)](./#surface-vs-area-interlis)' -->
 ## SURFACE vs AREA (INTERLIS)
 
 | `SURFACE` | `AREA` |
@@ -266,6 +305,7 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Règles d’intégrité et identifiants](./#regles-dintegrite-et-identifiants)' -->
 ## Règles d'intégrité
 
 - Numéros de candélabres **non uniques** → cible exige un identifiant → doublons à gérer
@@ -275,6 +315,7 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Règles d’intégrité et identifiants](./#regles-dintegrite-et-identifiants)' -->
 ## ▶ Simulateur d'incompatibilités
 
 - **Texte → numérique** : `12a` dans un champ entier ? 3 stratégies
@@ -285,6 +326,7 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Échanger aujourd’hui : quelques évolutions](./#echanger-aujourdhui-quelques-evolutions)' -->
 ## Échanger aujourd'hui
 
 - **Mises à jour incrémentales** : seulement les objets créés, modifiés, supprimés (INTERLIS 2 : `TID`, `BID`)
@@ -293,6 +335,7 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Testez-vous](./#testez-vous)' -->
 ## ❓ Testez-vous
 
 7 questions : n(n−1)/2, hauteur calculée, sémantique, regroupements, jeu test, PFP3, incrémental
@@ -301,6 +344,7 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 À retenir](./#a-retenir)' -->
 ## À retenir
 
 - **Hors ligne** = copie figée ; **en ligne** = accès direct et à jour

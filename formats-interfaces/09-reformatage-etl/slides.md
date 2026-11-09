@@ -5,6 +5,7 @@ paginate: true
 footer: CFGéo B4 · Formats, interfaces · 9. Reformatage et ETL
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Lire le chapitre](./)' -->
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
@@ -14,6 +15,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Objectifs](./#objectifs)' -->
 ## Objectifs
 
 - Distinguer changement de format, de système de coordonnées et de modèle
@@ -22,6 +24,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Qu’est-ce que le reformatage ?](./#quest-ce-que-le-reformatage)' -->
 ## Qu'est-ce que le reformatage ?
 
 | Changement | Exemple |
@@ -34,6 +37,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Qu’est-ce que le reformatage ?](./#quest-ce-que-le-reformatage)' -->
 ## ETL : Extract, Transform, Load
 
 - **Extract** : lire une ou plusieurs sources
@@ -43,6 +47,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Qu’est-ce que le reformatage ?](./#quest-ce-que-le-reformatage)' -->
 ## Panorama des outils
 
 | Outil | Type | Licence |
@@ -55,6 +60,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 FME](./#fme)' -->
 ## FME
 
 - Safe Software (Canada), standard *de facto* de l'échange de géodonnées
@@ -65,6 +71,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 GDAL/OGR](./#gdalogr)' -->
 ## GDAL/OGR
 
 - Bibliothèque libre au cœur de QGIS et de nombreux logiciels
@@ -74,6 +81,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Exemples avec ogr2ogr](./#exemples-avec-ogr2ogr)' -->
 ## ogr2ogr en pratique
 
 Shapefile MN03 → GeoPackage MN95 :
@@ -91,6 +99,7 @@ ogr2ogr -f GeoJSON batiments.geojson batiments.gpkg batiments -t_srs EPSG:4326
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Exemple avec gdal_translate](./#exemple-avec-gdal_translate)' -->
 ## Attribuer ≠ reprojeter
 
 ```bash
@@ -104,6 +113,7 @@ gdalwarp -t_srs EPSG:2056 ortho_wgs84.tif ortho_mn95.tif
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 QGIS](./#qgis)' -->
 ## QGIS
 
 - **Exporter → Sauvegarder les entités sous…** : format, CRS, champs, emprise
@@ -113,6 +123,7 @@ gdalwarp -t_srs EPSG:2056 ortho_wgs84.tif ortho_mn95.tif
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Outils INTERLIS (ili2db, ilivalidator)](./#outils-interlis-ili2db-ilivalidator)' -->
 ## Outils INTERLIS
 
 - **ili2db** (`ili2pg`, `ili2gpkg`) : modèle `.ili` → schéma de base ; import/export `.xtf`
@@ -126,6 +137,7 @@ java -jar ilivalidator.jar mo_commune.xtf
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Outils spécialisés : GPSBabel](./#outils-specialises-gpsbabel)' -->
 ## GPSBabel
 
 - Conversion entre des dizaines de formats GPS
@@ -138,6 +150,7 @@ gpsbabel -i gpx -f trace.gpx -o kml -F trace.kml
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Exercices](./#exercices)' -->
 <!-- _class: exercice -->
 
 # Exercice : Conversion GPX ↔ KML
@@ -146,6 +159,7 @@ gpsbabel -i gpx -f trace.gpx -o kml -F trace.kml
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Un SIG dans le navigateur : GeoLibre](./#un-sig-dans-le-navigateur-geolibre)' -->
 ## Un SIG dans le navigateur : GeoLibre
 
 - `web.geolibre.app` : **aucune installation**, données traitées **dans le navigateur**
@@ -158,6 +172,7 @@ gpsbabel -i gpx -f trace.gpx -o kml -F trace.kml
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Services en ligne](./#services-en-ligne)' -->
 ## Services en ligne : prudence !
 
 - Convertisseurs web (p. ex. GPS Visualizer, interface de GPSBabel)
@@ -167,6 +182,7 @@ gpsbabel -i gpx -f trace.gpx -o kml -F trace.kml
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Écrire son propre script](./#ecrire-son-propre-script)' -->
 ## Écrire son propre script
 
 ```python
@@ -183,6 +199,7 @@ gdf.to_file("batiments.gpkg", layer="batiments", driver="GPKG")
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Exercices](./#exercices)' -->
 <!-- _class: exercice -->
 
 # Exercice : Modèle QGIS : reprojection et calcul
@@ -192,6 +209,7 @@ gdf.to_file("batiments.gpkg", layer="batiments", driver="GPKG")
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 Exercices](./#exercices)' -->
 <!-- _class: exercice -->
 
 # Exercice : Modèle QGIS : tampon et découpage
@@ -200,6 +218,7 @@ gdf.to_file("batiments.gpkg", layer="batiments", driver="GPKG")
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 9. Reformatage et ETL · [📖 À retenir](./#a-retenir)' -->
 ## À retenir
 
 - Reformater = changer **format**, **CRS** et/ou **modèle**

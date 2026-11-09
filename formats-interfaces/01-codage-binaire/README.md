@@ -429,6 +429,16 @@ Le logiciel qui connaît la **spécification** du format sait, lui, exactement o
 
 <div class="demo" data-demo="quiz" data-quiz="codage"></div>
 
+## À retenir
+
+- L'ordinateur code toute information avec des **0 et des 1** : *n* bits permettent **2ⁿ** valeurs ; un octet (8 bits) en permet 256 (0 à 255).
+- Binaire → décimal : somme des puissances de 2 ; décimal → binaire : divisions successives par 2.
+- L'**hexadécimal** écrit un octet avec deux chiffres (`CC` = 204) ; les coordonnées sont stockées en nombres à virgule, généralement **Float64**.
+- **ko = 1'000 octets**, **Kio = 1'024 octets** : précisez toujours l'unité.
+- Pour le texte, utilisez **UTF-8** ; « GenÃ¨ve » trahit un fichier lu avec le mauvais encodage.
+- Un fichier **texte** contient des caractères lisibles ; un fichier **binaire** contient des nombres, lisibles seulement grâce à la **spécification** du format.
+- Un **format** est une convention pour coder l'information en binaire.
+
 ## Sources
 
 - \[1\] [Apprendre – Modulo informatique](https://dev-apprendre.modulo-info.ch/)
