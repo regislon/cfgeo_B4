@@ -230,7 +230,7 @@
 .demo-ex-a.demo-ko { border-color: #c62828; }
 
 /* Règle graduée des nombres à virgule */
-.demo-ruler { position: relative; height: 4.6rem; margin: 2.6rem 1.5rem 1rem; border-top: 3px solid var(--md-default-fg-color--light); }
+.demo-ruler { position: relative; height: 4.6rem; margin: 5.2rem 1.5rem 1rem; border-top: 3px solid var(--md-default-fg-color--light); }
 .demo-tick { position: absolute; top: -0.6rem; width: 2px; height: 1.2rem; background: var(--md-default-fg-color--light); }
 .demo-tick span { position: absolute; top: 1.3rem; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 0.65rem; font-family: var(--md-code-font-family); }
 .demo-tick-on { background: #2e7d32; width: 4px; }
@@ -355,3 +355,26 @@
 .demo-duck-bar { height: 0.6rem; margin-bottom: 0.25rem; border-radius: 0.3rem; background: var(--md-default-fg-color--lightest); overflow: hidden; }
 .demo-duck-bar span { display: block; height: 100%; min-width: 2px; background: var(--md-accent-fg-color); }
 .demo-num { text-align: right !important; font-variant-numeric: tabular-nums; }
+
+/* Ancre directe vers une démo depuis les slides (id="demo-…") */
+.md-typeset .demo[id] { scroll-margin-top: 4.5rem; }
+
+/* Tableau binaire ↔ décimal (chapitre 1) : colonnes Binaire et Décimal teintées */
+.md-typeset .table-bits td:first-child,
+.md-typeset .table-bits th:first-child,
+.md-typeset .table-bits td:last-child,
+.md-typeset .table-bits th:last-child {
+  background: var(--md-default-fg-color--lightest);
+}
+.md-typeset div.table-bits table td:nth-child(2),
+.md-typeset div.table-bits table td:nth-child(3),
+.md-typeset div.table-bits table td:nth-child(4),
+.md-typeset div.table-bits table th:nth-child(2),
+.md-typeset div.table-bits table th:nth-child(3),
+.md-typeset div.table-bits table th:nth-child(4) {
+  text-align: center;
+}
+
+/* Décoder un octet : bits non cliquables */
+.demo-decoder .demo-bit { cursor: default; }
+.md-typeset img.demo-decoder-img, .demo-decoder-img { display: block; max-width: 320px; width: 100%; margin-top: 0.6rem; border-radius: 0.5rem; }

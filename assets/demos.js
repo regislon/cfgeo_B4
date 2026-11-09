@@ -502,7 +502,10 @@
 
   // ---------------------------------------------------------------- Bits
   // Interrupteurs cliquables : un octet (entier) ou trois octets (couleur RVB).
+  // data-mode="octet" (défaut) : un octet, sans hexadécimal (section « L'octet »)
+  // data-mode="rvb" : un octet ou trois (couleur RVB), avec l'hexadécimal (section « L'hexadécimal »)
   function demoBits(root) {
+    const withHex = root.dataset.mode === "rvb";
     const mode = el("select", {}, [
       el("option", { value: "1", text: "Un octet (entier de 0 à 255)" }),
       el("option", { value: "3", text: "Trois octets (couleur RVB)" }),
@@ -512,7 +515,15 @@
     const grid = el("div", { class: "demo-bits" });
     const out = el("div", { class: "demo-stats" });
     const swatch = el("div", { class: "demo-swatch" });
-    let bytes = [42];
+    let bytes = withHex ? [204, 211, 230] : [42];
+    if (withHex) mode.value = "3";
+
+    // 42 → « 32 + 8 + 2 »
+    const sum = (v) => {
+      const t = [];
+      for (let i = 7; i >= 0; i--) if ((v >> i) & 1) t.push(2 ** i);
+      return t.length > 1 ? t.join(" + ") + " = " : "";
+    };
 
     function render() {
       grid.innerHTML = "";
@@ -528,7 +539,7 @@
           b.addEventListener("click", () => { bytes[k] ^= 1 << i; render(); });
           row.appendChild(b);
         }
-        row.appendChild(el("span", { class: "demo-bitres", html: `= <b>${val}</b> · hexa <b>${hex2(val)}</b>` }));
+        row.appendChild(el("span", { class: "demo-bitres", html: withHex ? `= <b>${val}</b> · hexa <b>${hex2(val)}</b>` : `= ${sum(val)}<b>${val}</b>` }));
         grid.appendChild(row);
       });
       if (bytes.length === 3) {
@@ -538,13 +549,91 @@
       } else {
         const v = bytes[0];
         swatch.style.background = `rgb(${v},${v},${v})`;
-        out.innerHTML = `Binaire <b>${v.toString(2).padStart(8, "0")}</b> = décimal <b>${v}</b> = hexa <b>${hex2(v)}</b> · comme niveau de gris : ${v === 0 ? "noir" : v === 255 ? "blanc" : "gris"}`;
+        out.innerHTML = `Binaire <b>${v.toString(2).padStart(8, "0")}</b> = décimal <b>${v}</b>` +
+          (withHex ? ` = hexa <b>${hex2(v)}</b>` : "") +
+          ` · comme niveau de gris : ${v === 0 ? "noir" : v === 255 ? "blanc" : "gris"}`;
       }
     }
     mode.addEventListener("change", () => { bytes = mode.value === "3" ? [204, 211, 230] : [42]; render(); });
     preset.addEventListener("click", () => { mode.value = "3"; bytes = [204, 211, 230]; render(); });
     zero.addEventListener("click", () => { bytes = bytes.map(() => 0); render(); });
-    root.append(el("div", { class: "demo-row" }, [mode, preset, zero]), el("div", { class: "demo-bitwrap" }, [grid, swatch]), out);
+    root.append(el("div", { class: "demo-row" }, withHex ? [mode, preset, zero] : [zero]), el("div", { class: "demo-bitwrap" }, [grid, swatch]), out);
+    render();
+  }
+
+  // ---------------------------------------------------------------- Décoder un octet
+  // Un octet tiré au hasard : retrouver sa valeur décimale.
+  function demoDecoder(root) {
+    const bin8 = (n) => n.toString(2).padStart(8, "0");
+    const showW = el("input", { type: "checkbox" });
+    // « Octet suivant » n'apparaît qu'après une bonne réponse
+    const next = el("button", { type: "button", class: "demo-btn", text: "Octet suivant →", style: "display:none" });
+    const row = el("div", { class: "demo-bitrow demo-decoder" });
+    const answer = el("input", { type: "text", class: "demo-ex-a", inputmode: "numeric", autocomplete: "off", placeholder: "Valeur décimale" });
+    const check = el("button", { type: "button", class: "demo-btn", text: "Vérifier" });
+    const showSol = el("button", { type: "button", class: "demo-btn", text: "Voir la solution" });
+    const feedback = el("div", { class: "demo-quiz-fb" });
+    const score = el("div", { class: "demo-stats", text: "Score : 0 / 0" });
+    let n = 67, good = 0, total = 0, done = false; // premier octet : 01000011 = 67
+
+    const SUP = "⁰¹²³⁴⁵⁶⁷";
+    const solution = () => {
+      const pow = [], t = [];
+      for (let i = 7; i >= 0; i--) {
+        const bit = (n >> i) & 1;
+        pow.push(`${bit}·2${SUP[i]}`);
+        if (bit) t.push(2 ** i);
+      }
+      const img = n === 67 && root.dataset.img67
+        ? `<br><img class="demo-decoder-img" src="${root.dataset.img67}" alt="Le chiffre 67 en paysages et cartes" loading="lazy">`
+        : "";
+      return `${bin8(n)}₍₂₎ = ${pow.join(" + ")}<br>= ${t.join(" + ")} = <b>${n}</b>₍₁₀₎${img}`;
+    };
+    function render() {
+      row.innerHTML = "";
+      row.appendChild(el("span", { class: "demo-bitname", text: "Octet" }));
+      for (let i = 7; i >= 0; i--) {
+        const on = (n >> i) & 1;
+        row.appendChild(el("span", { class: "demo-bit" + (on ? " on" : "") }, [
+          el("span", { class: "demo-bitval", text: on ? "1" : "0" }),
+          el("span", { class: "demo-bitw", text: showW.checked ? String(2 ** i) : "?" }),
+        ]));
+      }
+      row.appendChild(el("span", { class: "demo-bitres", html: "= <b>?</b>" }));
+    }
+    function newByte() {
+      n = 1 + Math.floor(Math.random() * 255);
+      done = false;
+      answer.value = "";
+      answer.classList.remove("demo-ok", "demo-ko");
+      feedback.innerHTML = "";
+      next.style.display = "none";
+      render();
+      answer.focus({ preventScroll: true });
+    }
+    function verify() {
+      const v = answer.value.replace(/[\s']/g, "");
+      if (!v) return;
+      const right = parseInt(v, 10) === n && /^\d+$/.test(v);
+      if (!done) { total++; if (right) good++; done = true; }
+      answer.classList.toggle("demo-ok", right);
+      answer.classList.toggle("demo-ko", !right);
+      feedback.innerHTML = right ? `✅ Juste ! ${solution()}` : "❌ Pas tout à fait. Additionnez les poids des bits à 1, ou cochez « Afficher les poids ».";
+      if (right) next.style.display = "";
+      score.textContent = `Score : ${good} / ${total}`;
+    }
+    showW.addEventListener("change", render);
+    next.addEventListener("click", newByte);
+    check.addEventListener("click", verify);
+    answer.addEventListener("keydown", (e) => { if (e.key === "Enter") verify(); });
+    showSol.addEventListener("click", () => { feedback.innerHTML = `💡 ${solution()}`; });
+    root.append(
+      el("div", { class: "demo-row" }, [el("label", {}, [showW, el("span", { text: " Afficher les poids (128, 64…)" })])]),
+      row,
+      el("div", { class: "demo-row" }, [answer, check, showSol, next]),
+      feedback,
+      score
+    );
     render();
   }
 
@@ -2630,7 +2719,7 @@ WHERE bbox.xmin BETWEEN 6.62 AND 6.66     -- emprise d'Yverdon-les-Bains
 
   const demos = {
     pixels: demoPixels, compression: demoCompression, taille: demoTaille, pmtiles: demoPmtiles, quiz: demoQuiz,
-    bits: demoBits, float: demoFloat, unites: demoUnites, texte: demoTexte, fichier: demoFichier, exercices: demoExercices,
+    bits: demoBits, decoder: demoDecoder, float: demoFloat, unites: demoUnites, texte: demoTexte, fichier: demoFichier, exercices: demoExercices,
     las: demoLas, ifc: demoIfc,
     editeur: demoEditeur, couleurkml: demoCouleurKml, geojsoncarte: demoGeojsonCarte,
     normes: demoNormes, trier: demoTrier, frise: demoFrise,

@@ -256,14 +256,14 @@ Contrôle : 405 objets, hauteurs 4,7 – 47,3 m, superposition avec l'orthophoto
 ---
 
 <!-- _footer: 'CFGéo B4 · 7. Échange de données · [📖 Exercices](./#exercices)' -->
-<!-- _class: demo -->
+<!-- _class: exo -->
 ## ▶ Exercice Normat en ligne
 
 - 53 désignations vaudoises → 28 types principaux
 - Signale les **regroupements** (n → 1 = perte d'information)
 - Export **CSV** `att_name_in;att_value_in;att_name_out;att_value_out`
 
-<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex08-schema-mapping/#version-en-ligne"><small>Exercice sur la page web ↗</small>▶ Faire l'exercice en ligne</a>
+<a class="go exo" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex08-schema-mapping/#version-en-ligne"><small>Exercice sur la page web ↗</small>▶ Faire l'exercice en ligne</a>
 
 ---
 

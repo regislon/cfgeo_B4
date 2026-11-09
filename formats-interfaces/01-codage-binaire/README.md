@@ -93,16 +93,21 @@ En combinant plusieurs bits, on peut représenter des informations de plus en pl
 
 Avec 3 bits, on peut ainsi compter de 0 à 7 :
 
-| Binaire (3 bits) | Décimal |
-|---|---|
-| 000 | 0 |
-| 001 | 1 |
-| 010 | 2 |
-| 011 | 3 |
-| 100 | 4 |
-| 101 | 5 |
-| 110 | 6 |
-| 111 | 7 |
+<div class="table-bits">
+<table>
+<thead><tr><th>Binaire (3 bits)</th><th>2² = 4</th><th>2¹ = 2</th><th>2⁰ = 1</th><th>Décimal</th></tr></thead>
+<tbody>
+<tr><td><code>000</code></td><td>0</td><td>0</td><td>0</td><td><b>0</b></td></tr>
+<tr><td><code>001</code></td><td>0</td><td>0</td><td>1</td><td><b>1</b></td></tr>
+<tr><td><code>010</code></td><td>0</td><td>1</td><td>0</td><td><b>2</b></td></tr>
+<tr><td><code>011</code></td><td>0</td><td>1</td><td>1</td><td>2 + 1 = <b>3</b></td></tr>
+<tr><td><code>100</code></td><td>1</td><td>0</td><td>0</td><td><b>4</b></td></tr>
+<tr><td><code>101</code></td><td>1</td><td>0</td><td>1</td><td>4 + 1 = <b>5</b></td></tr>
+<tr><td><code>110</code></td><td>1</td><td>1</td><td>0</td><td>4 + 2 = <b>6</b></td></tr>
+<tr><td><code>111</code></td><td>1</td><td>1</td><td>1</td><td>4 + 2 + 1 = <b>7</b></td></tr>
+</tbody>
+</table>
+</div>
 
 ### L'octet
 
@@ -127,9 +132,13 @@ Cette limite de 255 revient très souvent en géomatique : une image en niveaux 
 | 2 octets (16 bits) | 65'536 | 0 à 65'535 |
 | 4 octets (32 bits) | 4'294'967'296 | 0 à env. 4,3 milliards |
 
-<div class="demo" data-demo="bits"></div>
+<div class="demo" id="demo-octet" data-demo="bits"></div>
 
-*Cliquez sur les bits pour les allumer ou les éteindre. En mode « couleur RVB », les trois octets décrivent un pixel : le bouton 🧵 charge le pixel du toit de voiture de l'orthophoto du fil rouge.*
+*Cliquez sur les bits pour les allumer ou les éteindre : la valeur de l'octet est la somme des poids des bits à 1. Le carré montre la même valeur comme niveau de gris (0 = noir, 255 = blanc).*
+
+**À vous : décoder un octet.** Quelle valeur décimale représente cet octet ? Additionnez les poids des bits à 1 (cochez « Afficher les poids » si besoin). Une fois la bonne réponse trouvée, « Octet suivant » vous en propose d'autres, tirés au hasard.
+
+<div class="demo" id="demo-decoder" data-demo="decoder" data-img67="img/octet-67.jpg"></div>
 
 ## Conversions
 
@@ -177,7 +186,7 @@ Deux méthodes équivalentes :
 
 ### Entraînez-vous
 
-<div class="demo" data-demo="exercices"></div>
+<div class="demo" id="demo-exercices" data-demo="exercices"></div>
 
 *Les nombres sont tirés au hasard : cliquez sur « Nouvel exercice » autant de fois que vous le souhaitez. La correction détaille chaque étape.*
 
@@ -214,6 +223,10 @@ On rencontre l'hexadécimal partout en géomatique :
 - les **couleurs** : `#CCD3E6` en HTML ou dans QGIS, `ff0000ff` en KML (voir [chapitre 5](../05-xml-json/README.md)) ;
 - les **géométries binaires** (WKB) : `0101000000…` (voir [chapitre 3](../03-vecteur/README.md#un-modele-commun-ogc-simple-features)) ;
 - les **éditeurs hexadécimaux**, qui affichent le contenu brut d'un fichier octet par octet (voir [plus bas](#fichiers-texte-et-fichiers-binaires)).
+
+<div class="demo" id="demo-rvb" data-demo="bits" data-mode="rvb"></div>
+
+*Un pixel = trois octets (rouge, vert, bleu), chacun écrit avec deux chiffres hexadécimaux. Cliquez sur les bits pour changer la couleur ; le bouton 🧵 charge le pixel du toit de voiture de l'orthophoto du fil rouge.*
 
 ## Nombres négatifs et nombres à virgule
 
@@ -254,6 +267,10 @@ Pourquoi l'écart dépend-il de la **taille** du nombre ? Parce que le nombre de
 
 En Float64, la mantisse est beaucoup plus longue (environ 16 chiffres significatifs) : pour une coordonnée MN95, l'espacement tombe à moins d'un nanomètre.
 
+![Comprendre Float32, étape par étape : signe, exposant stocké avec un biais de 127, fraction de 23 bits ; même fraction, l'écart passe de 0,0625 à 0,125](img/float32-ecart-double.jpg)
+
+*Figure : un Float32 se compose d'un bit de signe, de 8 bits d'exposant (stocké avec un biais de 127) et de 23 bits de fraction. 1'000'000 et 2'000'000 ont exactement la même fraction ; seul l'exposant change (19 ou 20). Ajouter 1 à la fraction ajoute donc 0,0625 dans le premier cas, 0,125 dans le second : quand l'exposant augmente de 1, les valeurs et leur espacement doublent.*
+
 !!! example "🧵 Fil rouge : une altitude et une coordonnée en Float32"
     | Valeur | Stockée en Float32 | Erreur | Pas entre deux valeurs voisines |
     |---|---|---|---|
@@ -266,7 +283,7 @@ En Float64, la mantisse est beaucoup plus longue (environ 16 chiffres significat
 !!! warning "Piège classique"
     Exporter des coordonnées MN95 dans un champ ou un format « simple précision », ou dans un tableur mal configuré, peut dégrader silencieusement leur précision. Les coordonnées WGS84 en degrés souffrent du même problème : en Float32, la longitude d'Yverdon (6,634257°) n'est représentable qu'au pas de 0,0000005°, soit environ **4 cm** sur le terrain.
 
-<div class="demo" data-demo="float"></div>
+<div class="demo" id="demo-float" data-demo="float"></div>
 
 ## Unités informatiques
 
@@ -312,7 +329,7 @@ Depuis 1998, la Commission électrotechnique internationale (CEI, en anglais IEC
 !!! example "🧵 Fil rouge : combien pèse la tuile SWISSIMAGE ?"
     Le serveur de swisstopo indique **65'004'150 octets**, soit **65,0 Mo**. Téléchargée sous Windows, la même tuile s'affiche comme « 62,0 Mo », car Windows divise par 1'048'576 : ce sont en réalité **62,0 Mio**.
 
-<div class="demo" data-demo="unites"></div>
+<div class="demo" id="demo-unites" data-demo="unites"></div>
 
 ## Le codage du texte
 
@@ -349,7 +366,7 @@ UTF-8 est aujourd'hui le standard du web, de XML, de JSON et de la plupart des f
 !!! warning "Le problème d'encodage (*mojibake*)"
     Si un logiciel lit un texte avec le **mauvais** codage, les caractères accentués sont mal affichés. Les octets UTF-8 `C3 AF` lus comme du Latin-1 donnent deux caractères : « Ã¯ ». « Faïencerie » devient **« FaÃ¯encerie »**, et « Genève » devient « GenÃ¨ve ». C'est exactement ce qui arrive avec un shapefile dont le fichier `.cpg` (qui indique le codage des attributs) a été oublié (voir [chapitre 3](../03-vecteur/README.md#shapefile)). C'est aussi pourquoi un fichier XML commence par `<?xml version="1.0" encoding="UTF-8"?>` (voir [chapitre 5](../05-xml-json/README.md)).
 
-<div class="demo" data-demo="texte"></div>
+<div class="demo" id="demo-texte" data-demo="texte"></div>
 
 ## Fichiers texte et fichiers binaires
 
@@ -406,7 +423,7 @@ Le logiciel qui connaît la **spécification** du format sait, lui, exactement o
 
     On retrouve l'emprise de la tuile du fil rouge, en MN95 ! Ouvert dans un éditeur de texte (en Windows-1252), ce même en-tête affiche : `··'·······················Îžè·······p4€×=]CA u·šr·2AX±¿Œ·_CA·Þ·©··2A` (les `·` remplacent les caractères invisibles).
 
-<div class="demo" data-demo="fichier"></div>
+<div class="demo" id="demo-fichier" data-demo="fichier"></div>
 
 ### Texte ou binaire : que choisir ?
 
