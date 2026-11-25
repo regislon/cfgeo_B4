@@ -510,6 +510,25 @@ Le logiciel qui connaît la **spécification** du format sait, lui, exactement o
 
     On retrouve l'emprise de la tuile du fil rouge, en MN95 ! Ouvert dans un éditeur de texte (en Windows-1252), ce même en-tête affiche : `··'·······················Îžè·······p4€×=]CA u·šr·2AX±¿Œ·_CA·Þ·©··2A` (les `·` remplacent les caractères invisibles).
 
+    **Pourquoi ce charabia ?** L'éditeur de texte ne connaît pas le format shapefile. Il prend les octets **un par un** et applique à chacun la table de caractères choisie, ici Windows-1252, comme si c'était des lettres :
+
+    | Octets | Sens réel (shapefile) | Affichage en Windows-1252 |
+    |---|---|---|
+    | `00 00` | début de l'entier 9'994 | `··` (caractères invisibles) |
+    | `27 0A` | fin de l'entier 9'994 | `'` (27 = apostrophe) et un **retour à la ligne** (0A, `↵` dans la démo ci-dessous) |
+    | `CE 9E` / `E8` | fin de la longueur / début de la version | `Î` `ž` / `è` |
+    | `70 34 80 D7…` | début du X min de l'emprise (Float64) | `p` `4` `€` `×`… |
+
+    Ces octets sont des **nombres binaires**, pas du texte : l'éditeur leur applique quand même une table de caractères, et le résultat ne veut rien dire. Le retour à la ligne après `··'`, par exemple, n'est qu'un hasard : `0A`, la fin du nombre 9'994, est aussi le code du saut de ligne.
+
+    Avec un autre codage, le charabia serait **différent**. Lu en **UTF-8**, l'éditeur respecterait les étiquettes vues [plus haut](#demo-utf8) :
+
+    - `CE 9E` : `CE` commence par `110` et `9E` par `10`, donc UTF-8 colle les deux octets en **une seule** lettre, « Ξ » (un xi grec), au lieu de « Îž » ;
+    - `80` commence par `10`, mais aucune lettre n'est en cours : c'est une erreur, affichée « � » ;
+    - `D7` annonce une lettre sur 2 octets, mais l'octet suivant (`3D`) ne commence pas par `10` : encore « � ».
+
+    Les mêmes octets donnent donc un charabia différent selon le codage de l'éditeur, et aucun des deux n'a de sens. Seul un logiciel qui connaît la **spécification** du shapefile (la colonne 3 de la démo) sait que ces octets sont des entiers et des Float64.
+
 <div class="demo" id="demo-fichier" data-demo="fichier"></div>
 
 ### Texte ou binaire : que choisir ?
