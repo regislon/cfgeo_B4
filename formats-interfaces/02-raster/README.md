@@ -53,11 +53,16 @@ Ces trois produits décrivent le même territoire, mais leurs pixels ne contienn
 
 !!! tip "À vous de jouer"
 
-    Ouvrez la tuile directement dans QGIS sans la télécharger : *Couche › Ajouter une couche raster*, source « Protocole HTTP(S) », puis collez l'URL du fichier, par exemple
-    `https://data.geo.admin.ch/ch.swisstopo.swissalti3d/swissalti3d_2019_2538-1180/swissalti3d_2019_2538-1180_0.5_2056_5728.tif`.
-    C'est possible parce que ces fichiers sont des *Cloud Optimized GeoTIFF* (voir [plus bas](#cloud-optimized-geotiff-cog)).
+    Ouvrez les tuiles directement dans QGIS sans les télécharger : *Couche › Ajouter une couche raster*, source « Protocole HTTP(S) », puis collez l'URL du fichier :
 
-    **Sans rien installer** : ouvrez [GeoLibre](https://web.geolibre.app) (à ouvrir dans **Chrome**) dans votre navigateur, puis *Add Data › Raster Layer*, collez la même URL et cliquez sur *Load*. Activez *Inspect pixel values* (icône de la couche) et cliquez sur la carte pour lire l'altitude d'un pixel.
+    - **orthophoto** SWISSIMAGE 10 cm (65 Mo) :
+      `https://data.geo.admin.ch/ch.swisstopo.swissimage-dop10/swissimage-dop10_2020_2538-1180/swissimage-dop10_2020_2538-1180_0.1_2056.tif`
+    - **MNT** swissALTI3D 50 cm (15,5 Mo) :
+      `https://data.geo.admin.ch/ch.swisstopo.swissalti3d/swissalti3d_2019_2538-1180/swissalti3d_2019_2538-1180_0.5_2056_5728.tif`
+
+    C'est possible parce que ces fichiers sont des *Cloud Optimized GeoTIFF* (voir [plus bas](#cloud-optimized-geotiff-cog)) : QGIS ne télécharge que les morceaux affichés à l'écran.
+
+    **Sans rien installer** : ouvrez [GeoLibre](https://web.geolibre.app) (à ouvrir dans **Chrome**) dans votre navigateur, puis *Add Data › Raster Layer*, collez une de ces URL et cliquez sur *Load*. Activez *Inspect pixel values* (icône de la couche) et cliquez sur la carte pour lire la valeur d'un pixel : les trois couleurs (rouge, vert, bleu) sur l'orthophoto, l'altitude sur le MNT.
 
 !!! info "GeoLibre, un SIG dans le navigateur"
 
