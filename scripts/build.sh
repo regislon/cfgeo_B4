@@ -27,6 +27,9 @@ for src in formats-interfaces/*/slides.md; do
   mkdir -p "$(dirname "$out")"
   npx --yes "@marp-team/marp-cli@${MARP_VERSION}" \
     "$src" -o "$out.html" --html --theme-set marp/theme.css < /dev/null
+  # Liens des slides (démos, cours, exercices) : ouverture dans un nouvel onglet,
+  # sauf les ancres internes à la présentation (href="#…")
+  perl -pi -e 's/<a (?![^>]*\btarget=)(?=[^>]*\bhref="(?!#))/<a target="_blank" rel="noopener" /g' "$out.html"
   # --allow-local-files : le navigateur qui produit le PDF doit lire les images du chapitre
   npx --yes "@marp-team/marp-cli@${MARP_VERSION}" \
     "$src" -o "$out.pdf" --pdf --allow-local-files --html --theme-set marp/theme.css < /dev/null

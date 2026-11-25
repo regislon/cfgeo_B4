@@ -131,6 +131,38 @@ Un fichier = une suite d'**octets** · un **format** = la convention pour les li
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 La table ASCII](./#loctet)' -->
+<style scoped>
+table { font-size: 17px; }
+th, td { padding: 1px 9px !important; }
+p { font-size: 22px; margin: 6px 0; }
+</style>
+
+## Un octet = un caractère : la table ASCII
+
+| Déc. | Car. | Déc. | Car. | Déc. | Car. | Déc. | Car. | Déc. | Car. | Déc. | Car. |
+|---:|:---:|---:|:---:|---:|:---:|---:|:---:|---:|:---:|---:|:---:|
+| 32 | <code>␣</code> | 48 | <code>0</code> | 64 | <code>@</code> | 80 | <code>P</code> | 96 | <code>&#96;</code> | 112 | <code>p</code> |
+| 33 | <code>!</code> | 49 | <code>1</code> | 65 | <code>A</code> | 81 | <code>Q</code> | 97 | <code>a</code> | 113 | <code>q</code> |
+| 34 | <code>"</code> | 50 | <code>2</code> | 66 | <code>B</code> | 82 | <code>R</code> | 98 | <code>b</code> | 114 | <code>r</code> |
+| 35 | <code>&#35;</code> | 51 | <code>3</code> | 67 | <code>C</code> | 83 | <code>S</code> | 99 | <code>c</code> | 115 | <code>s</code> |
+| 36 | <code>$</code> | 52 | <code>4</code> | 68 | <code>D</code> | 84 | <code>T</code> | 100 | <code>d</code> | 116 | <code>t</code> |
+| 37 | <code>%</code> | 53 | <code>5</code> | 69 | <code>E</code> | 85 | <code>U</code> | 101 | <code>e</code> | 117 | <code>u</code> |
+| 38 | <code>&amp;</code> | 54 | <code>6</code> | 70 | <code>F</code> | 86 | <code>V</code> | 102 | <code>f</code> | 118 | <code>v</code> |
+| 39 | <code>'</code> | 55 | <code>7</code> | 71 | <code>G</code> | 87 | <code>W</code> | 103 | <code>g</code> | 119 | <code>w</code> |
+| 40 | <code>(</code> | 56 | <code>8</code> | 72 | <code>H</code> | 88 | <code>X</code> | 104 | <code>h</code> | 120 | <code>x</code> |
+| 41 | <code>)</code> | 57 | <code>9</code> | 73 | <code>I</code> | 89 | <code>Y</code> | 105 | <code>i</code> | 121 | <code>y</code> |
+| 42 | <code>&#42;</code> | 58 | <code>:</code> | 74 | <code>J</code> | 90 | <code>Z</code> | 106 | <code>j</code> | 122 | <code>z</code> |
+| 43 | <code>+</code> | 59 | <code>;</code> | 75 | <code>K</code> | 91 | <code>&#91;</code> | 107 | <code>k</code> | 123 | <code>{</code> |
+| 44 | <code>,</code> | 60 | <code>&lt;</code> | 76 | <code>L</code> | 92 | <code>&#92;</code> | 108 | <code>l</code> | 124 | <code>&#124;</code> |
+| 45 | <code>-</code> | 61 | <code>=</code> | 77 | <code>M</code> | 93 | <code>&#93;</code> | 109 | <code>m</code> | 125 | <code>}</code> |
+| 46 | <code>.</code> | 62 | <code>&gt;</code> | 78 | <code>N</code> | 94 | <code>^</code> | 110 | <code>n</code> | 126 | <code>&#126;</code> |
+| 47 | <code>/</code> | 63 | <code>?</code> | 79 | <code>O</code> | 95 | <code>&#95;</code> | 111 | <code>o</code> | 127 | <code>DEL</code> |
+
+« Geo » = 71 · 101 · 111 = `01000111 01100101 01101111` · 0–31 : caractères de contrôle (10 = saut de ligne)
+
+---
+
 <!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 L’octet](./#loctet)' -->
 <!-- _class: demo -->
 ## ▶ À vous : allumer les bits
