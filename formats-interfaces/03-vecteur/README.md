@@ -228,6 +228,10 @@ Un « shapefile » est en réalité un **ensemble de fichiers** portant le même
 !!! example "🧵 Fil rouge : un GeoPackage ou vingt fichiers ?"
     Le fil rouge tient dans **un seul** GeoPackage de 440 Ko. Exporté en Shapefile, il devient **5 shapefiles** (un par couche, puisqu'un shapefile n'accepte qu'un type de géométrie) et **20 fichiers** au total. Il suffit d'en oublier un en l'envoyant…
 
+!!! tip "Exercice"
+
+    Exportez une base de données spatiale en shapefile et relevez ce qui se perd au passage : [Du fichier de base de données au shapefile](../exercices/ex04-shapefile/README.md).
+
 ### GeoPackage
 
 **GeoPackage** (`.gpkg`) est un format **ouvert**, non propriétaire et indépendant du système d'exploitation, standardisé par l'OGC (2014). Il est implémenté sous la forme d'une **base de données SQLite** contenue dans **un seul fichier**.
@@ -244,6 +248,10 @@ Chaque couche vectorielle est une table de la base. L'index spatial ajoute quelq
 Léger et autonome, GeoPackage convient à l'usage sur le terrain (terminaux mobiles hors connexion), au partage par clé USB ou stockage cloud, et à l'échange courant de données. C'est le format par défaut de QGIS, et swisstopo diffuse plusieurs de ses produits (swissBOUNDARIES3D, swissTLM3D…) dans ce format.
 
 *Texte adapté de [12].*
+
+!!! tip "Exercice"
+
+    Comparez un shapefile et un GeoPackage, puis réunissez des données vecteur et raster dans un seul fichier : [Shapefile, GeoPackage et raster](../exercices/ex05-geopackage/README.md).
 
 ### GeoJSON
 

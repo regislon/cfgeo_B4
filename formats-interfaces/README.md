@@ -23,4 +23,4 @@ Commencez par l'[introduction](00-introduction/README.md) : elle présente le pa
 
 ## Exercices
 
-Les [exercices](exercices/README.md) sont annoncés dans les slides de chaque chapitre, au moment où ils sont faits en classe.
+Les [exercices](exercices/README.md) sont annoncés à la fois dans le cours et dans les slides de chaque chapitre, au moment où ils sont faits en classe.

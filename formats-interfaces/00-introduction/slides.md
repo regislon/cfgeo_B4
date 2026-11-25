@@ -153,6 +153,18 @@ Tous les chapitres travaillent sur la tuile **2538-1180**
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 0. Introduction · [📖 Les séances en ligne : bonnes pratiques](./#les-seances-en-ligne-bonnes-pratiques)' -->
+## Séances en ligne : bonnes pratiques
+
+- 📷 **Caméra allumée** (sauf courte absence : pause, toilettes…)
+- 🎙️ **Micro coupé** quand on ne parle pas
+- 🙋 **Participez** : une question n'est jamais bête
+- ✋ **Levez la main** pour une question… l'enseignant ne la voit **pas toujours** : sans réaction, ouvrez le micro ou écrivez dans le **chat**
+- 🎧 Endroit calme, casque, PC sur secteur, **à l'heure** après les pauses
+- 🤝 On laisse finir celui qui parle, on respecte toutes les questions
+
+---
+
 <!-- _footer: 'CFGéo B4 · 0. Introduction · [📖 Examens](./#examens)' -->
 ## Examens
 

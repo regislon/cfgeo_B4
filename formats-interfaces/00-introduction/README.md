@@ -124,6 +124,19 @@ Horaire des journées : **08:30 – 16:30**, avec des pauses de 10:00 à 10:15, 
     - Pour les journées en visioconférence, installez **QGIS** à l'avance et vérifiez que Teams fonctionne avec micro et partage d'écran.
     - Places de parc gratuites au Centre Venoge (TCS), Route de Dizy 4, 1304 Cossonay.
 
+### Les séances en ligne : bonnes pratiques
+
+Deux des trois journées ont lieu sur Teams. Pour qu'elles restent des cours vivants, et pas une vidéo qu'on regarde de loin, quelques règles simples :
+
+- **Caméra allumée.** L'enseignant voit qui suit, qui décroche, qui a l'air perdu. Vous pouvez bien sûr la couper le temps d'une courte absence (pause, toilettes…), puis la rallumer en revenant.
+- **Micro coupé** quand vous ne parlez pas, pour éviter les bruits de fond et l'écho.
+- **Participez !** Une question n'est jamais bête : si vous ne comprenez pas, d'autres sont probablement dans le même cas.
+- **Levez la main** (bouton ✋ de Teams) pour poser une question. L'enseignant partage son écran et **ne voit pas toujours** les mains levées : si personne ne réagit au bout d'un moment, n'hésitez pas à **ouvrir votre micro** et à vous manifester, ou à écrire dans le **chat**.
+- **Pendant les exercices**, restez connectés : en cas de blocage, demandez dans le chat ou levez la main. Partager votre écran est souvent le plus rapide pour qu'on vous aide.
+- **Soyez dans un endroit calme**, avec une connexion stable et le PC branché sur secteur. Avec un casque ou des écouteurs, on vous entend mieux.
+- **Soyez à l'heure** au début et après chaque pause, comme en présentiel.
+- **Respect et bienveillance** : on laisse finir celui qui parle, on ne se moque pas des questions, et le chat sert au cours, pas aux discussions privées.
+
 ### Examens
 
 | Date | Horaire | Contenu | Lieu |
@@ -137,7 +150,7 @@ Le planning complet du module B4 (cours B4a à B4e) se trouve sur la [page d'acc
 ## Comment utiliser ce support
 
 - Chaque chapitre a une **page de cours** (à lire, avec démonstrations interactives et quiz) et des **slides** (📽, projetées en classe). Chaque slide renvoie à la section correspondante du cours (lien 📖 en bas de page).
-- Les **exercices** sont annoncés dans les slides au moment où on les fait. Leurs données se téléchargent en un seul fichier zip.
+- Les **exercices** sont annoncés dans le cours et dans les slides, au moment où on les fait. Leurs données se téléchargent en un seul fichier zip.
 - Les rubriques **« À retenir »** en fin de chapitre résument l'essentiel pour l'examen.
 
 ## À retenir

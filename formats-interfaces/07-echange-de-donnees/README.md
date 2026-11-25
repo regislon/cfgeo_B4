@@ -312,6 +312,10 @@ Les propositions de l'agent peuvent varier entre deux exécutions. Pour rendre l
 !!! tip "Bon réflexe"
     Utilisez l'agent pour préparer et exécuter le mapping, puis contrôlez le résultat avec le modèle cible et des vérifications explicites : comptage des objets, types et valeurs autorisées, géométries, identifiants et inspection d'un échantillon. La référence reste le modèle officiel.
 
+!!! tip "Exercice"
+
+    Établissez vous-même la table de correspondance entre deux modèles de données : [Schema mapping](../exercices/ex08-schema-mapping/README.md).
+
 ## Incompatibilités possibles lors d'un transfert
 
 Il est fréquent de rencontrer des incompatibilités en construisant une interface. Voici les cas les plus typiques.

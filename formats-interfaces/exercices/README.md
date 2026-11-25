@@ -1,7 +1,7 @@
 # Exercices
 
 Chaque exercice contient ses consignes et ses données, téléchargeables en un seul fichier zip.
-Ils sont présentés pendant le cours, au moment indiqué dans les slides du chapitre.
+Ils sont annoncés dans le cours et dans les slides du chapitre, au moment où on les fait en classe.
 
 | Exercice | Chapitre |
 |---|---|

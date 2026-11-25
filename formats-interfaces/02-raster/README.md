@@ -510,6 +510,10 @@ Sans entrer dans les détails, LZW construit un **dictionnaire** au fil de la le
 
 **Deflate** combine une autre méthode par dictionnaire (**LZ77**) avec un **codage de Huffman** (les valeurs fréquentes reçoivent des codes courts). C'est l'algorithme des archives **ZIP** (et donc des fichiers KMZ, DOCX…), du format **PNG**, et une option courante de TIFF/GeoTIFF. Des algorithmes plus récents (ZSTD, LERC pour les MNT) suivent les mêmes principes avec de meilleures performances.
 
+!!! tip "Exercice"
+
+    Constatez pourquoi une compression sans perte est efficace sur des données répétitives et inefficace sur des données aléatoires : [Compression par dictionnaire](../exercices/ex02-compression-dictionnaire/README.md).
+
 #### JPEG
 
 La compression **JPEG** est une compression **avec perte** très répandue, optimisée pour les photographies. Elle enchaîne plusieurs étapes, en exploitant les caractéristiques de l'œil humain :
@@ -589,6 +593,10 @@ Au-delà de LZW, Deflate et JPEG, les outils actuels (GDAL, et donc QGIS) propos
     gdal_translate -co COMPRESS=LERC_ZSTD -co MAX_Z_ERROR=0.01 -co TILED=YES mnt.tif mnt_lerc.tif
     ```
     Tous les logiciels ne lisent pas encore ZSTD, LERC ou WebP dans un GeoTIFF (les versions récentes de QGIS et d'ArcGIS Pro, oui). Pour un **échange** avec un partenaire dont on ignore les outils, LZW ou Deflate restent les choix les plus sûrs.
+
+!!! tip "Exercice"
+
+    Mesurez l'effet du format et de l'algorithme de compression sur la taille et la qualité d'une image : [Formats d'images et compression](../exercices/ex01-images-compression/README.md).
 
 ## Séries temporelles et cubes de données
 

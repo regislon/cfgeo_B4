@@ -511,6 +511,10 @@ La seconde requête renvoie, en GeoJSON, les dalles SWISSIMAGE qui touchent l'em
 
     Autre exemple de catalogue STAC, cette fois pour des données **multidimensionnelles** au format Zarr : la [démo de prévisions météo](../02-raster/README.md#zarr) du chapitre 2.
 
+!!! tip "Exercice"
+
+    Accédez aux bâtiments de la tuile du fil rouge de quatre manières différentes (carte WMS, API, catalogue STAC, GeoParquet) et comparez ce que chaque accès renvoie : [Un même territoire, quatre accès](../exercices/ex12-quatre-acces/README.md).
+
 ## Et demain ?
 
 - **Une plateforme unique** : selon la Confédération (mai 2026), le Géoportail fédéral, qui compte désormais plus de 1'000 jeux de données, doit fusionner progressivement avec le portail des cantons (geodienste.ch) et d'autres portails dans une plateforme unique, **SWISSGEO**.
