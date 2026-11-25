@@ -10,7 +10,7 @@
 - Convertir un nombre entre binaire et décimal
 - Calculer le nombre de valeurs représentables avec *n* bits
 - Lire et écrire un nombre en hexadécimal
-- Expliquer comment sont codés les nombres négatifs et les nombres à virgule, et pourquoi une coordonnée MN95 ne doit pas être stockée en Float32
+- Savoir que le type de stockage influence la précision d'un nombre à virgule, et qu'une coordonnée MN95 doit être stockée en **Float64** (8 octets) plutôt qu'en Float32 (4 octets)
 - Expliquer comment un texte est codé (ASCII, Latin-1, UTF-8) et reconnaître un problème d'encodage
 - Maîtriser les unités (bit, octet, ko/Kio, Mo/Mio…) et la différence entre préfixes décimaux et binaires
 - Distinguer un fichier texte d'un fichier binaire, et comprendre pourquoi un logiciel sait lire un fichier « illisible »
@@ -256,6 +256,14 @@ L'intérêt est simple : **un chiffre hexadécimal correspond exactement à 4 bi
 | 0111 | 7 | 7 | | 1111 | F | 15 |
 
 !!! example "🧵 Fil rouge : la couleur d'un pixel"
+    Sur un écran, chaque couleur est un mélange de **trois lumières** : **rouge, vert et bleu** (RVB, ou RGB en anglais). Dans une image couleur, chaque pixel stocke l'intensité de chacune de ces trois lumières sur **un octet**, donc avec **256 niveaux** (de 0 = éteint à 255 = pleine intensité).
+
+    Un pixel occupe ainsi **3 octets** (24 bits), et le nombre de couleurs possibles est :
+
+    **256 × 256 × 256 = 2²⁴ = 16'777'216 couleurs**, soit environ 16,7 millions, plus que ce que l'œil humain sait distinguer.
+
+    Ce n'est qu'une première approche : le [chapitre 2](../02-raster/README.md#codage-de-la-couleur) reviendra en détail sur le codage de la couleur (synthèse additive, palettes, autres profondeurs).
+
     Un pixel de l'orthophoto, sur le toit d'une voiture, vaut rouge = 204, vert = 211, bleu = 230 :
 
     | | Rouge | Vert | Bleu |
@@ -277,6 +285,17 @@ On rencontre l'hexadécimal partout en géomatique :
 *Un pixel = trois octets (rouge, vert, bleu), chacun écrit avec deux chiffres hexadécimaux. Cliquez sur les bits pour changer la couleur ; le bouton 🧵 charge le pixel du toit de voiture de l'orthophoto du fil rouge.*
 
 ## Nombres négatifs et nombres à virgule
+
+!!! danger "Important : cette partie n'est pas à apprendre en détail"
+
+    **Le fonctionnement interne des nombres négatifs et des nombres à virgule ne fait pas partie de la matière du cours.** Comment l'ordinateur code un nombre négatif (complément à deux) ou un nombre à virgule (signe, exposant, mantisse) sont des notions avancées : vous n'avez **pas besoin de comprendre pourquoi** ni de retenir ces mécanismes. Les explications ci-dessous sont là pour les curieux.
+
+    **Ce qu'il faut retenir, c'est la conséquence pratique : le type de stockage choisi influence la précision d'un nombre à virgule.**
+
+    - **Float32** (4 octets, « simple précision ») suffit pour une altitude, mais **dégrade les coordonnées MN95** : jusqu'à 25 cm d'écart !
+    - Pour des coordonnées, choisissez **Float64** (8 octets, « double précision »).
+
+    C'est exactement ce que montre l'exercice [« Float32 ou Float64 ? »](#demo-float) à la fin de cette partie : c'est lui qui compte. Ces notions de types de données reviendront plus tard, notamment dans le cours B4e « Bases de données ».
 
 ### Les nombres entiers signés
 

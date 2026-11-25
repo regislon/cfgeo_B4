@@ -21,7 +21,7 @@ Module B4 « Géomatique & TI » — Formats, interfaces
 - Expliquer pourquoi l'ordinateur travaille en **base 2**
 - Convertir entre **binaire** et **décimal** ; *n* bits = **2ⁿ** valeurs
 - Lire et écrire en **hexadécimal**
-- Entiers signés, **nombres à virgule** : pourquoi pas de MN95 en Float32
+- **Nombres à virgule** : coordonnées MN95 en **Float64**, pas en Float32
 - **Codage du texte** (ASCII, Latin-1, UTF-8), reconnaître un problème d'encodage
 - Unités : **ko / Kio**, Mo / Mio…
 - **Fichier texte** ou **fichier binaire** ?
@@ -271,6 +271,19 @@ Puis : exercices tirés au hasard, **corrigés pas à pas**, autant que vous vou
 ---
 
 <!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 L’hexadécimal](./#lhexadecimal)' -->
+## Un pixel couleur = 3 octets
+
+- Écran : mélange de **3 lumières** → **R**ouge, **V**ert, **B**leu (RVB / RGB)
+- Chaque lumière sur **1 octet** → **256 niveaux** (0 = éteint, 255 = plein)
+- 1 pixel = **3 octets** = 24 bits
+
+**256 × 256 × 256 = 2²⁴ = 16'777'216 couleurs** (≈ 16,7 millions)
+
+*Première approche : détails au chapitre 2 (synthèse additive, palettes…)*
+
+---
+
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 L’hexadécimal](./#lhexadecimal)' -->
 <!-- _class: demo -->
 ## ▶ À vous : une couleur = trois octets
 
@@ -290,6 +303,20 @@ Puis : exercices tirés au hasard, **corrigés pas à pas**, autant que vous vou
 <!-- _class: lead -->
 
 # Nombres négatifs et à virgule
+
+---
+
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Nombres négatifs et nombres à virgule](./#nombres-negatifs-et-nombres-a-virgule)' -->
+## ⚠️ Important : pas à apprendre en détail
+
+Comment l'ordinateur code un **nombre négatif** ou un **nombre à virgule** : **hors matière**, pour les curieux. Pas besoin de comprendre pourquoi.
+
+**À retenir : le type de stockage influence la précision**
+
+- **Float32** (4 octets) : OK pour une altitude, **pas pour une coordonnée MN95** (jusqu'à 25 cm d'écart)
+- Coordonnées → **Float64** (8 octets)
+- C'est l'**exercice « Float32 ou Float64 ? »** qui compte
+- On y reviendra, notamment en **B4e « Bases de données »**
 
 ---
 
