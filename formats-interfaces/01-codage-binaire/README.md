@@ -396,6 +396,8 @@ Depuis 1998, la Commission électrotechnique internationale (CEI, en anglais IEC
 !!! example "🧵 Fil rouge : combien pèse la tuile SWISSIMAGE ?"
     Le serveur de swisstopo indique **65'004'150 octets**, soit **65,0 Mo**. Téléchargée sous Windows, la même tuile s'affiche comme « 62,0 Mo », car Windows divise par 1'048'576 : ce sont en réalité **62,0 Mio**.
 
+    [⬇ Télécharger la tuile SWISSIMAGE 2538-1180](https://data.geo.admin.ch/ch.swisstopo.swissimage-dop10/swissimage-dop10_2020_2538-1180/swissimage-dop10_2020_2538-1180_0.1_2056.tif) (GeoTIFF, 65 Mo, © swisstopo) : après le téléchargement, comparez la taille affichée par votre explorateur de fichiers.
+
 <div class="demo" id="demo-unites" data-demo="unites"></div>
 
 ## Le codage du texte

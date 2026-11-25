@@ -413,6 +413,7 @@ Mêmes noms dans les rasters et les tables attributaires
 - Écart : 2,4 % (kilo) · 7,4 % (giga) · 10 % (téra)
 - Image 4'000 × 3'000 px × 3 octets = **36 Mo ≈ 34,3 Mio**
 - 🧵 Tuile SWISSIMAGE : 65'004'150 o = **65,0 Mo** = « 62,0 Mo » sous Windows (62,0 **Mio**)
+  [⬇ Télécharger la tuile](https://data.geo.admin.ch/ch.swisstopo.swissimage-dop10/swissimage-dop10_2020_2538-1180/swissimage-dop10_2020_2538-1180_0.1_2056.tif) (65 Mo)
 
 ---
 
