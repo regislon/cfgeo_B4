@@ -2911,8 +2911,322 @@ WHERE bbox.xmin BETWEEN 6.62 AND 6.66     -- emprise d'Yverdon-les-Bains
     });
   }
 
+  // ---------------------------------------------------------------- Chapitre 2 : indices spectraux Sentinel-2
+  // Extrait swissEO S2-SR v200 du 12.07.2025 (12 × 11 km autour d'Yverdon, 10 m, MN95).
+  // Deux images WebP sans perte : RVB = (B4, B3, B2), PIR-SWIR = (B8, B11, B12).
+  // Chaque octet code une réflectance en racine carrée (niveaux plus serrés pour les faibles valeurs, l'eau) :
+  // r = ((v − 1) / 254)² × 0,65 ; v = 0 = pas de donnée.
+  const S2 = {
+    w: 1200, h: 1100, e0: 2533000, n0: 1186500, px: 10, rmax: 0.65,
+    // coins (lon, lat) : haut-gauche, haut-droit, bas-droit, bas-gauche
+    coins: [[6.560538, 46.826264], [6.717799, 46.827366], [6.719124, 46.728421], [6.562151, 46.727321]],
+  };
+  const PAL = {
+    veg: [[0, "#2c5aa0"], [0.18, "#d9d4c7"], [0.36, "#e8d98a"], [0.55, "#a6d96a"], [0.75, "#4daf4a"], [1, "#00582a"]],
+    eau: [[0, "#8c510a"], [0.35, "#dfc27d"], [0.5, "#f5f5f5"], [0.7, "#6baed6"], [1, "#08306b"]],
+    humid: [[0, "#8c510a"], [0.4, "#f6e8c3"], [0.6, "#c7eae5"], [1, "#01665e"]],
+    bati: [[0, "#1a9850"], [0.45, "#d9ef8b"], [0.6, "#f7f7f7"], [0.8, "#fc8d59"], [1, "#b2182b"]],
+    feu: [[0, "#67000d"], [0.3, "#fc9272"], [0.5, "#fff5eb"], [0.75, "#74c476"], [1, "#00441b"]],
+    libre: [[0, "#440154"], [0.25, "#3b528b"], [0.5, "#21918c"], [0.75, "#5ec962"], [1, "#fde725"]],
+  };
+  const IDX = [
+    { id: "ndvi", g: "Végétation", nom: "NDVI", long: "Normalized Difference Vegetation Index", f: "(B8 − B4) / (B8 + B4)",
+      fn: (b) => (b.B8 - b.B4) / (b.B8 + b.B4), min: -0.2, max: 0.9, pal: "veg",
+      bandes: "PIR (B8) et rouge (B4)",
+      txt: "L'indice de végétation le plus utilisé. Une feuille en bonne santé <b>absorbe le rouge</b> pour la photosynthèse et <b>réfléchit fortement le proche infrarouge</b>. Plus la différence est grande, plus la végétation est dense et vigoureuse.",
+      lire: "Forêts et cultures en croissance en vert foncé (> 0,6), champs moissonnés et ville en beige (0,1 à 0,3). Sur le lac, rouge et PIR sont tous deux très faibles : le NDVI reste proche de 0 à −0,1 (gris-bleu) et devient bruité." },
+    { id: "gndvi", g: "Végétation", nom: "GNDVI", long: "Green NDVI", f: "(B8 − B3) / (B8 + B3)",
+      fn: (b) => (b.B8 - b.B3) / (b.B8 + b.B3), min: -0.2, max: 0.9, pal: "veg",
+      bandes: "PIR (B8) et vert (B3)",
+      txt: "Variante du NDVI où le rouge est remplacé par le <b>vert</b>. Le vert est sensible à la <b>teneur en chlorophylle</b> : l'indice sature moins sur les cultures très denses et sert au suivi de la fertilisation (azote).",
+      lire: "Image proche du NDVI, avec des contrastes plus marqués entre cultures denses." },
+    { id: "evi", g: "Végétation", nom: "EVI", long: "Enhanced Vegetation Index", f: "2,5 × (B8 − B4) / (B8 + 6 × B4 − 7,5 × B2 + 1)",
+      fn: (b) => 2.5 * (b.B8 - b.B4) / (b.B8 + 6 * b.B4 - 7.5 * b.B2 + 1), min: -0.2, max: 0.9, pal: "veg",
+      bandes: "PIR (B8), rouge (B4) et bleu (B2)",
+      txt: "NDVI « amélioré » : la bande <b>bleue</b> corrige une partie des effets de l'atmosphère, et les coefficients réduisent l'influence du sol. L'EVI <b>sature moins</b> que le NDVI dans les forêts et cultures très denses.",
+      lire: "Les forêts denses se distinguent mieux des cultures qu'avec le NDVI." },
+    { id: "savi", g: "Végétation", nom: "SAVI", long: "Soil Adjusted Vegetation Index", f: "1,5 × (B8 − B4) / (B8 + B4 + 0,5)",
+      fn: (b) => 1.5 * (b.B8 - b.B4) / (b.B8 + b.B4 + 0.5), min: -0.2, max: 0.9, pal: "veg",
+      bandes: "PIR (B8) et rouge (B4), avec L = 0,5",
+      txt: "NDVI corrigé de l'influence du <b>sol nu</b>, grâce à une constante L (ici 0,5). Utile là où la végétation est <b>clairsemée</b> : jeunes cultures, régions sèches, chantiers.",
+      lire: "Valeurs plus basses que le NDVI ; les champs peu couverts ressortent plus nettement." },
+    { id: "ndwi", g: "Eau", nom: "NDWI", long: "Normalized Difference Water Index (McFeeters)", f: "(B3 − B8) / (B3 + B8)",
+      fn: (b) => (b.B3 - b.B8) / (b.B3 + b.B8), min: -0.8, max: 0.8, pal: "eau",
+      bandes: "vert (B3) et PIR (B8)",
+      txt: "Détecte l'<b>eau libre</b> : l'eau réfléchit un peu de vert mais <b>absorbe presque tout le proche infrarouge</b>. L'indice est positif sur l'eau et négatif sur la végétation.",
+      lire: "Le lac de Neuchâtel, la Thièle et les canaux en bleu ; la végétation en brun." },
+    { id: "mndwi", g: "Eau", nom: "MNDWI", long: "Modified NDWI", f: "(B3 − B11) / (B3 + B11)",
+      fn: (b) => (b.B3 - b.B11) / (b.B3 + b.B11), min: -0.8, max: 0.8, pal: "eau",
+      bandes: "vert (B3) et infrarouge moyen SWIR (B11, pixel 20 m)",
+      txt: "Variante du NDWI avec l'<b>infrarouge moyen</b> (SWIR) au lieu du PIR. Elle sépare mieux l'<b>eau</b> des <b>zones bâties</b>, que le NDWI confond parfois.",
+      lire: "Eau en bleu, bâti nettement négatif. Les pixels de 20 m de la bande B11 sont visibles en zoomant." },
+    { id: "ndmi", g: "Humidité", nom: "NDMI", long: "Normalized Difference Moisture Index (aussi appelé LSWI)", f: "(B8 − B11) / (B8 + B11)",
+      fn: (b) => (b.B8 - b.B11) / (b.B8 + b.B11), min: -0.5, max: 0.6, pal: "humid",
+      bandes: "PIR (B8) et SWIR (B11, pixel 20 m)",
+      txt: "Mesure la <b>teneur en eau de la végétation</b> : l'eau contenue dans les feuilles absorbe l'infrarouge moyen. Sert au suivi du <b>stress hydrique</b> et des sécheresses (forêts, cultures).",
+      lire: "Forêts et cultures irriguées en vert-bleu, champs secs et moissonnés en brun." },
+    { id: "ndbi", g: "Bâti", nom: "NDBI", long: "Normalized Difference Built-up Index", f: "(B11 − B8) / (B11 + B8)",
+      fn: (b) => (b.B11 - b.B8) / (b.B11 + b.B8), min: -0.6, max: 0.3, pal: "bati",
+      bandes: "SWIR (B11, pixel 20 m) et PIR (B8)",
+      txt: "Met en évidence les <b>zones bâties</b> : toits, routes et sols minéraux réfléchissent davantage l'infrarouge moyen que le proche infrarouge. Limite : les <b>sols nus</b> (champs moissonnés) réagissent comme le bâti.",
+      lire: "Ville d'Yverdon et zones industrielles en rouge, mais aussi certains champs nus : à comparer avec les vraies couleurs." },
+    { id: "nbr", g: "Feu", nom: "NBR", long: "Normalized Burn Ratio", f: "(B8 − B12) / (B8 + B12)",
+      fn: (b) => (b.B8 - b.B12) / (b.B8 + b.B12), min: -0.5, max: 0.8, pal: "feu",
+      bandes: "PIR (B8) et SWIR (B12, pixel 20 m)",
+      txt: "Indice des <b>surfaces brûlées</b> : après un incendie, le PIR chute et l'infrarouge moyen augmente. On compare une image avant et après le feu (dNBR) pour cartographier la gravité.",
+      lire: "Pas d'incendie à Yverdon : l'indice montre ici surtout l'opposition végétation (vert) / sol nu et bâti (orange)." },
+  ];
+  const COMPO = [
+    { id: "vc", nom: "Vraies couleurs (B4, B3, B2)", txt: "Les trois bandes visibles dans les canaux rouge, vert et bleu de l'écran : l'image ressemble à une photo.", c: (b) => [b.B4 / 0.2, b.B3 / 0.2, b.B2 / 0.2] },
+    { id: "fc", nom: "Fausses couleurs (B8, B4, B3)", txt: "Le proche infrarouge dans le canal rouge : la végétation vigoureuse apparaît en rouge vif.", c: (b) => [b.B8 / 0.5, b.B4 / 0.2, b.B3 / 0.2] },
+    { id: "swir", nom: "Infrarouge moyen (B12, B8, B4)", txt: "Le SWIR dans le canal rouge : sols nus et bâti en rose-brun, végétation en vert, eau en noir.", c: (b) => [b.B12 / 0.35, b.B8 / 0.5, b.B4 / 0.2] },
+  ];
+  const BANDES = ["B2", "B3", "B4", "B8", "B11", "B12"];
+
+  // Formules approchées de swisstopo : WGS84 → MN95 (précision métrique)
+  function wgsVersMn95(lon, lat) {
+    const p = (lat * 3600 - 169028.66) / 10000, l = (lon * 3600 - 26782.5) / 10000;
+    return [
+      2600072.37 + 211455.93 * l - 10938.51 * l * p - 0.36 * l * p * p - 44.54 * l * l * l,
+      1200147.07 + 308807.95 * p + 3745.25 * l * l + 76.63 * p * p - 194.56 * l * l * p + 119.79 * p * p * p,
+    ];
+  }
+
+  function rampe(stops) {
+    const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+    const lut = new Uint8ClampedArray(256 * 3);
+    for (let i = 0; i < 256; i++) {
+      const t = i / 255;
+      let k = 0;
+      while (k < stops.length - 2 && t > stops[k + 1][0]) k++;
+      const [t0, c0] = stops[k], [t1, c1] = stops[k + 1];
+      const u = Math.min(1, Math.max(0, (t - t0) / (t1 - t0)));
+      const a = hex(c0), b = hex(c1);
+      for (let j = 0; j < 3; j++) lut[i * 3 + j] = a[j] + (b[j] - a[j]) * u;
+    }
+    return lut;
+  }
+
+  async function lireBandes(urlRvb, urlPir) {
+    const lire = async (url) => {
+      const blob = await (await fetch(url)).blob();
+      const bmp = await createImageBitmap(blob, { premultiplyAlpha: "none", colorSpaceConversion: "none" });
+      const c = el("canvas", { width: S2.w, height: S2.h });
+      const ctx = c.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(bmp, 0, 0);
+      return ctx.getImageData(0, 0, S2.w, S2.h).data;
+    };
+    const [a, b] = await Promise.all([lire(urlRvb), lire(urlPir)]);
+    const n = S2.w * S2.h;
+    const out = {};
+    BANDES.forEach((nom) => (out[nom] = new Float32Array(n)));
+    const src = [["B4", a, 0], ["B3", a, 1], ["B2", a, 2], ["B8", b, 0], ["B11", b, 1], ["B12", b, 2]];
+    for (const [nom, d, o] of src) {
+      const t = out[nom];
+      for (let i = 0; i < n; i++) { const v = d[i * 4 + o]; t[i] = v === 0 ? NaN : ((v - 1) / 254) ** 2 * S2.rmax; }
+    }
+    return out;
+  }
+
+  function demoIndices(root) {
+    lazyDemo(root, "Charger l'image Sentinel‑2 et la carte (2,5 Mo)", async () => {
+      loadCss(LIBS.maplibreCss);
+      const [bd] = await Promise.all([lireBandes(root.dataset.rvb, root.dataset.pir), loadScript(LIBS.maplibreJs)]);
+      const n = S2.w * S2.h;
+
+      // ---- Contrôles
+      const sel = el("select", { "aria-label": "Indice ou composition affichée" });
+      const groupes = {};
+      for (const ix of IDX) {
+        if (!groupes[ix.g]) { groupes[ix.g] = el("optgroup", { label: ix.g }); sel.appendChild(groupes[ix.g]); }
+        groupes[ix.g].appendChild(el("option", { value: ix.id, text: `${ix.nom} – ${ix.long}` }));
+      }
+      const og = el("optgroup", { label: "Compositions colorées" });
+      COMPO.forEach((c) => og.appendChild(el("option", { value: c.id, text: c.nom })));
+      sel.appendChild(og);
+      const ol = el("optgroup", { label: "À vous" });
+      ol.appendChild(el("option", { value: "libre", text: "Formule libre (calculatrice raster)" }));
+      sel.appendChild(ol);
+
+      const formule = el("input", { type: "text", spellcheck: "false", size: "34", value: "(B8 - B4) / (B8 + B4)", "aria-label": "Formule" });
+      const formuleRow = el("div", { class: "demo-row" }, [el("span", { text: "Formule :" }), formule, el("small", { text: "bandes B2 B3 B4 B8 B11 B12, opérateurs + − × ÷ ( )" })]);
+      formuleRow.style.display = "none";
+      const opac = el("input", { type: "range", min: "0", max: "100", value: "85", "aria-label": "Opacité" });
+      const fond = el("select", { "aria-label": "Fond de carte" });
+      fond.append(el("option", { value: "swissimage", text: "Orthophoto SWISSIMAGE" }), el("option", { value: "pixelkarte-grau", text: "Carte nationale (gris)" }));
+      root.append(
+        el("div", { class: "demo-row" }, [el("span", { text: "Afficher :" }), sel]),
+        formuleRow,
+        el("div", { class: "demo-row" }, [el("span", { text: "Opacité :" }), opac, el("span", { text: "Fond :" }), fond]),
+      );
+      const info = el("div", { class: "demo-info demo-idx-info" });
+      const legende = el("canvas", { class: "demo-idx-leg", width: "400", height: "14" });
+      const legTxt = el("div", { class: "demo-idx-legtxt" });
+      const legNote = el("div", { class: "demo-idx-legtxt" });
+      const legBox = el("div", { class: "demo-idx-legbox" }, [legende, legTxt, legNote]);
+      const mapDiv = el("div", { class: "demo-map" });
+      const lecture = el("div", { class: "demo-stats demo-idx-val", text: "Cliquez sur la carte pour lire les valeurs d'un pixel." });
+      root.append(info, legBox, mapDiv, lecture);
+
+      // ---- Rendu de l'image calculée
+      const cv = el("canvas", { width: S2.w, height: S2.h });
+      const ctx = cv.getContext("2d");
+      const img = ctx.createImageData(S2.w, S2.h);
+      const px = {};
+      let valeurs = new Float32Array(n), courant = null, urlCourante = null;
+
+      function pixel(i) { for (const b of BANDES) px[b] = bd[b][i]; return px; }
+
+      function compilerLibre(txt) {
+        const t = txt.replace(/,/g, ".").replace(/×/g, "*").replace(/÷/g, "/").replace(/−/g, "-");
+        if (!/^[\sB0-9.+\-*/()]+$/.test(t)) throw new Error("caractère non autorisé");
+        const bandes = t.match(/B\d+/g) || [];
+        const inc = bandes.find((b) => !BANDES.includes(b));
+        if (inc) throw new Error(`bande ${inc} non disponible`);
+        if (/B(?!\d)/.test(t)) throw new Error("bande incomplète");
+        const f = new Function("b", "return (" + t.replace(/B(\d+)/g, "b.B$1") + ");");
+        f(pixel(0));
+        return f;
+      }
+
+      function plage(v) {
+        const ech = [];
+        for (let i = 0; i < n; i += 37) if (Number.isFinite(v[i])) ech.push(v[i]);
+        ech.sort((a, b) => a - b);
+        if (!ech.length) return [0, 1];
+        const lo = ech[Math.floor(ech.length * 0.02)], hi = ech[Math.floor(ech.length * 0.98)];
+        return lo === hi ? [lo - 1, hi + 1] : [lo, hi];
+      }
+
+      function dessiner() {
+        const id = sel.value, d = img.data;
+        const compo = COMPO.find((c) => c.id === id);
+        formuleRow.style.display = id === "libre" ? "" : "none";
+        if (compo) {
+          courant = { compo };
+          for (let i = 0; i < n; i++) {
+            const b = pixel(i);
+            if (Number.isNaN(b.B4)) { d[i * 4 + 3] = 0; continue; }
+            const [r, g, bl] = compo.c(b);
+            d[i * 4] = 255 * Math.sqrt(Math.min(1, r)); d[i * 4 + 1] = 255 * Math.sqrt(Math.min(1, g)); d[i * 4 + 2] = 255 * Math.sqrt(Math.min(1, bl)); d[i * 4 + 3] = 255;
+          }
+          info.innerHTML = `<b>${compo.nom}</b><br>${compo.txt}`;
+          legBox.style.display = "none";
+        } else {
+          let ix = IDX.find((x) => x.id === id);
+          if (id === "libre") {
+            let f;
+            try { f = compilerLibre(formule.value); formule.classList.remove("demo-ko"); }
+            catch (e) { formule.classList.add("demo-ko"); info.innerHTML = `❌ Formule invalide : ${esc(e.message)}`; return; }
+            ix = { nom: "Formule libre", f: formule.value, fn: f, pal: "libre", libre: true,
+              txt: "Comme la <i>Calculatrice raster</i> de QGIS : chaque pixel du résultat est calculé à partir des réflectances des bandes au même endroit. L'échelle des couleurs s'adapte aux valeurs obtenues (2 % à 98 %)." };
+          }
+          for (let i = 0; i < n; i++) valeurs[i] = ix.fn(pixel(i));
+          const [mn, mx] = ix.libre ? plage(valeurs) : [ix.min, ix.max];
+          const lut = rampe(PAL[ix.pal]);
+          for (let i = 0; i < n; i++) {
+            const v = valeurs[i];
+            if (Number.isNaN(bd.B4[i])) { d[i * 4 + 3] = 0; continue; }
+            // division par zéro ou résultat infini (réflectances nulles, p. ex. l'eau dans le SWIR) : gris
+            if (!Number.isFinite(v)) { d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = 110; d[i * 4 + 3] = 255; continue; }
+            const k = Math.max(0, Math.min(255, Math.round(((v - mn) / (mx - mn)) * 255))) * 3;
+            d[i * 4] = lut[k]; d[i * 4 + 1] = lut[k + 1]; d[i * 4 + 2] = lut[k + 2]; d[i * 4 + 3] = 255;
+          }
+          courant = { ix, mn, mx };
+          info.innerHTML = `<b>${ix.nom}</b>${ix.long ? ` <small>(${ix.long})</small>` : ""}<br><code>${esc(ix.f)}</code>${ix.bandes ? ` · bandes : ${ix.bandes}` : ""}<br>${ix.txt}${ix.lire ? `<br>🧵 <i>${ix.lire}</i>` : ""}`;
+          legBox.style.display = "";
+          const lg = legende.getContext("2d");
+          for (let x = 0; x < legende.width; x++) {
+            const k = Math.round((x / (legende.width - 1)) * 255) * 3;
+            lg.fillStyle = `rgb(${lut[k]},${lut[k + 1]},${lut[k + 2]})`;
+            lg.fillRect(x, 0, 1, legende.height);
+          }
+          const f2 = (v) => fmt(v, Math.abs(mx - mn) < 5 ? 2 : 0);
+          legTxt.innerHTML = `<span>${f2(mn)}</span><span>${f2((mn + mx) / 2)}</span><span>${f2(mx)}</span>`;
+          let nInf = 0;
+          for (let i = 0; i < n; i += 7) if (!Number.isFinite(valeurs[i])) nInf++;
+          legNote.textContent = nInf ? "Gris : pas de valeur (division par zéro, quand les deux bandes valent 0, par exemple l'eau dans l'infrarouge moyen)." : "";
+        }
+        ctx.putImageData(img, 0, 0);
+        cv.toBlob((blob) => pousser(URL.createObjectURL(blob)));
+      }
+
+      // Une seule mise à jour d'image à la fois : MapLibre annule sinon le chargement précédent
+      let occupe = false, suivante = null;
+      function pousser(url) {
+        const src = map.getSource("s2");
+        if (!src) { ajouterCouche(url); return; }
+        if (occupe) { if (suivante) URL.revokeObjectURL(suivante); suivante = url; return; }
+        occupe = true;
+        const fin = () => {
+          clearTimeout(garde); map.off("sourcedata", surDonnees); occupe = false;
+          if (urlCourante && urlCourante !== url) URL.revokeObjectURL(urlCourante);
+          urlCourante = url;
+          if (suivante) { const u = suivante; suivante = null; pousser(u); }
+        };
+        const surDonnees = (e) => { if (e.sourceId === "s2" && e.sourceDataType === "metadata") fin(); };
+        const garde = setTimeout(fin, 3000);
+        map.on("sourcedata", surDonnees);
+        src.updateImage({ url, coordinates: S2.coins });
+      }
+
+      // ---- Carte
+      const tuiles = (couche) => [`https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.${couche}/default/current/3857/{z}/{x}/{y}.jpeg`];
+      const map = new maplibregl.Map({
+        container: mapDiv,
+        style: { version: 8, sources: { fond: { type: "raster", tiles: tuiles("swissimage"), tileSize: 256, maxzoom: 19, attribution: "© swisstopo" } },
+          layers: [{ id: "fond", type: "raster", source: "fond" }] },
+        bounds: [[6.5605, 46.7273], [6.7192, 46.8274]],
+        maxZoom: 18.5,
+        attributionControl: { compact: false, customAttribution: "Sentinel‑2 : swissEO S2‑SR (Copernicus)" },
+      });
+      map.addControl(new maplibregl.NavigationControl({ showCompass: false }));
+      map.addControl(new maplibregl.ScaleControl({ unit: "metric" }));
+      root._map = map; // pour le débogage depuis la console
+      let pret = false, enAttente = null;
+      function ajouterCouche(url) {
+        if (!pret) { enAttente = url; return; }
+        urlCourante = url;
+        map.addSource("s2", { type: "image", url, coordinates: S2.coins });
+        map.addLayer({ id: "s2", type: "raster", source: "s2", paint: { "raster-opacity": opac.value / 100, "raster-resampling": "nearest", "raster-fade-duration": 0 } });
+      }
+      map.on("load", () => {
+        pret = true;
+        if (enAttente) ajouterCouche(enAttente);
+      });
+      const popup = new maplibregl.Popup({ closeButton: true, maxWidth: "260px" });
+      map.on("click", (e) => {
+        const [E, N] = wgsVersMn95(e.lngLat.lng, e.lngLat.lat);
+        const c = Math.floor((E - S2.e0) / S2.px), r = Math.floor((S2.n0 - N) / S2.px);
+        if (c < 0 || r < 0 || c >= S2.w || r >= S2.h) { popup.remove(); lecture.textContent = "Hors de l'extrait Sentinel‑2."; return; }
+        const i = r * S2.w + c, b = pixel(i);
+        const refl = BANDES.map((k) => `${k} ${fmt(b[k], 3)}`).join(" · ");
+        let html = `<b>E ${fmt(E)} · N ${fmt(N)}</b><br><small>réflectances : ${refl}</small>`;
+        if (courant && courant.ix) {
+          const v = valeurs[i];
+          html = `<b>${esc(courant.ix.nom)} = ${Number.isFinite(v) ? fmt(v, 3) : "—"}</b><br>` + html;
+        }
+        popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+        lecture.innerHTML = html.replace(/<br>/g, " · ");
+      });
+      opac.addEventListener("input", () => map.getLayer("s2") && map.setPaintProperty("s2", "raster-opacity", opac.value / 100));
+      fond.addEventListener("change", () => {
+        map.removeLayer("fond");
+        if (map.getLayer("s2")) map.removeLayer("s2");
+        map.removeSource("fond");
+        map.addSource("fond", { type: "raster", tiles: tuiles(fond.value), tileSize: 256, maxzoom: 19, attribution: "© swisstopo" });
+        map.addLayer({ id: "fond", type: "raster", source: "fond" });
+        if (map.getSource("s2")) map.addLayer({ id: "s2", type: "raster", source: "s2", paint: { "raster-opacity": opac.value / 100, "raster-resampling": "nearest", "raster-fade-duration": 0 } });
+      });
+      sel.addEventListener("change", dessiner);
+      let tempo;
+      formule.addEventListener("input", () => { clearTimeout(tempo); tempo = setTimeout(dessiner, 350); });
+      dessiner();
+    });
+  }
+
   const demos = {
-    pixels: demoPixels, compression: demoCompression, taille: demoTaille, pmtiles: demoPmtiles, quiz: demoQuiz,
+    pixels: demoPixels, indices: demoIndices, compression: demoCompression, taille: demoTaille, pmtiles: demoPmtiles, quiz: demoQuiz,
     bits: demoBits, decoder: demoDecoder, float: demoFloat, unites: demoUnites, texte: demoTexte, utf8: demoUtf8, fichier: demoFichier, exercices: demoExercices,
     las: demoLas, ifc: demoIfc,
     editeur: demoEditeur, couleurkml: demoCouleurKml, geojsoncarte: demoGeojsonCarte,

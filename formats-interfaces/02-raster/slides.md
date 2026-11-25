@@ -339,6 +339,45 @@ R‑V‑B = B04‑B03‑B02 · R‑V‑B = **B08**‑B04‑B03 → végétation 
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 D’autres indices spectraux](./#dautres-indices-spectraux)' -->
+<style scoped>
+table { font-size: 21px; }
+th, td { padding: 3px 10px !important; }
+</style>
+## D'autres indices spectraux
+
+Même recette : **(A − B) / (A + B)** entre deux bandes, de −1 à +1
+
+| Indice | Formule (Sentinel‑2) | Fait ressortir |
+|---|---|---|
+| **NDVI** | (B8 − B4) / (B8 + B4) | végétation |
+| **GNDVI** | (B8 − B3) / (B8 + B3) | chlorophylle |
+| **EVI** | 2,5 (B8 − B4) / (B8 + 6 B4 − 7,5 B2 + 1) | végétation dense |
+| **SAVI** | 1,5 (B8 − B4) / (B8 + B4 + 0,5) | végétation clairsemée |
+| **NDWI** · **MNDWI** | (B3 − B8) / (B3 + B8) · (B3 − B11) / (B3 + B11) | eau |
+| **NDMI** | (B8 − B11) / (B8 + B11) | humidité des plantes |
+| **NDBI** | (B11 − B8) / (B11 + B8) | bâti, sol nu |
+| **NBR** | (B8 − B12) / (B8 + B12) | surfaces brûlées |
+
+---
+
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 D’autres indices spectraux](./#dautres-indices-spectraux)' -->
+<!-- _class: demo -->
+## ▶ À vous : explorer les indices
+
+<div class="todo">
+
+1. Comparez **NDVI**, **NDWI** et **NDBI** : où sont l'eau, la ville, les cultures ?
+2. Zoomez jusqu'aux **pixels de 10 m**, puis affichez le **MNDWI** : pixels de **20 m** (bande B11)
+3. Cliquez sur un pixel : réflectances et valeur de l'indice
+4. **Formule libre** : `B8 / B4`, puis votre propre indice
+
+</div>
+
+<a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/02-raster/#demo-indices"><small>Démo sur la page du cours ↗</small>▶ Indices spectraux Sentinel‑2</a>
+
+---
+
 <!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Compression](./#compression)' -->
 <!-- _class: lead -->
 

@@ -419,6 +419,53 @@ Le résultat est compris entre −1 et +1 :
 
 Le NDVI est un raster **calculé** à partir d'autres rasters : ses valeurs sont des nombres à virgule, à stocker en **Float32** (ou en entier mis à l'échelle). C'est un exemple typique d'« algèbre de rasters », qu'on réalise dans QGIS avec la *Calculatrice raster*.
 
+### D'autres indices spectraux
+
+Le NDVI n'est qu'un exemple. En combinant d'autres bandes, on fait ressortir d'autres propriétés de la surface : l'eau, l'humidité des plantes, le bâti, les surfaces brûlées… La plupart de ces **indices spectraux** suivent la même recette, une **différence normalisée** entre deux bandes : (A − B) / (A + B), toujours comprise entre −1 et +1.
+
+| Indice | Formule (bandes Sentinel‑2) | Ce qu'il fait ressortir |
+|---|---|---|
+| **NDVI** | (B8 − B4) / (B8 + B4) | Vigueur de la végétation |
+| **GNDVI** | (B8 − B3) / (B8 + B3) | Teneur en chlorophylle, suivi des cultures |
+| **EVI** | 2,5 × (B8 − B4) / (B8 + 6 × B4 − 7,5 × B2 + 1) | Végétation dense (sature moins que le NDVI) |
+| **SAVI** | 1,5 × (B8 − B4) / (B8 + B4 + 0,5) | Végétation clairsemée, en limitant l'effet du sol nu |
+| **NDWI** | (B3 − B8) / (B3 + B8) | Eau libre (lacs, rivières) |
+| **MNDWI** | (B3 − B11) / (B3 + B11) | Eau, mieux séparée du bâti |
+| **NDMI** (ou LSWI) | (B8 − B11) / (B8 + B11) | Teneur en eau de la végétation, sécheresse |
+| **NDBI** | (B11 − B8) / (B11 + B8) | Zones bâties (et sols nus) |
+| **NBR** | (B8 − B12) / (B8 + B12) | Surfaces brûlées (comparaison avant / après un incendie) |
+
+*B2 bleu, B3 vert, B4 rouge, B8 proche infrarouge (10 m) ; B11 et B12 infrarouge moyen ou SWIR (20 m). Les formules s'appliquent aux **réflectances**, après conversion des valeurs stockées (× 0,0001 − 0,1). Les mêmes indices existent pour Landsat, avec d'autres numéros de bandes.*
+
+**À vous : explorer les indices.** Choisissez un indice ou une composition colorée : il est **calculé en direct par votre navigateur**, pixel par pixel, sur l'image Sentinel‑2 du fil rouge. Zoomez jusqu'à voir les pixels de 10 m (et ceux de 20 m des bandes SWIR), baissez l'opacité pour comparer avec l'orthophoto, et cliquez sur un pixel pour lire ses réflectances et la valeur de l'indice. L'option **Formule libre** fonctionne comme la *Calculatrice raster* de QGIS : essayez par exemple `B8 / B4` ou `(B11 - B12) / (B11 + B12)`.
+
+<div class="demo" id="demo-indices" data-demo="indices" data-rvb="donnees/s2-yverdon-rvb.webp" data-pir="donnees/s2-yverdon-pir-swir.webp"></div>
+
+*Pour que la page reste légère (2,5 Mo), chaque réflectance de la démo est ramenée sur **un octet** (254 niveaux entre 0 et 0,65, plus serrés pour les faibles valeurs comme celles de l'eau ; voir le [chapitre 1](../01-codage-binaire/README.md#loctet)) : l'écart avec les valeurs d'origine reste de l'ordre de 0,01 sur les indices. Source : swissEO S2‑SR v200 du 12 juillet 2025, © swisstopo, contient des données Copernicus Sentinel modifiées.*
+
+!!! info "Télécharger l'image Sentinel‑2"
+
+    swisstopo diffuse les images Sentinel‑2 de toute la Suisse dans le produit **swissEO S2‑SR**, sous forme de **COG**, **un fichier par bande**, décrits dans le [catalogue STAC](https://data.geo.admin.ch/api/stac/v1/collections/ch.swisstopo.swisseo_s2-sr_v200/items/2025-07-12t102559). Pour la date du fil rouge (12 juillet 2025, passage de 10:25) :
+
+    | Bande | Fichier (mosaïque de toute la Suisse) | Taille |
+    |---|---|---|
+    | B2 bleu | [`…_b02_10m.tif`](https://data.geo.admin.ch/ch.swisstopo.swisseo_s2-sr_v200/2025-07-12t102559/swisseo_s2-sr_v200_mosaic_2025-07-12t102559_b02_10m.tif) | 721 Mo |
+    | B3 vert | [`…_b03_10m.tif`](https://data.geo.admin.ch/ch.swisstopo.swisseo_s2-sr_v200/2025-07-12t102559/swisseo_s2-sr_v200_mosaic_2025-07-12t102559_b03_10m.tif) | 735 Mo |
+    | B4 rouge | [`…_b04_10m.tif`](https://data.geo.admin.ch/ch.swisstopo.swisseo_s2-sr_v200/2025-07-12t102559/swisseo_s2-sr_v200_mosaic_2025-07-12t102559_b04_10m.tif) | 738 Mo |
+    | B8 proche infrarouge | [`…_b08_10m.tif`](https://data.geo.admin.ch/ch.swisstopo.swisseo_s2-sr_v200/2025-07-12t102559/swisseo_s2-sr_v200_mosaic_2025-07-12t102559_b08_10m.tif) | 810 Mo |
+    | B11 SWIR | [`…_b11_20m.tif`](https://data.geo.admin.ch/ch.swisstopo.swisseo_s2-sr_v200/2025-07-12t102559/swisseo_s2-sr_v200_mosaic_2025-07-12t102559_b11_20m.tif) | 199 Mo |
+    | B12 SWIR | [`…_b12_20m.tif`](https://data.geo.admin.ch/ch.swisstopo.swisseo_s2-sr_v200/2025-07-12t102559/swisseo_s2-sr_v200_mosaic_2025-07-12t102559_b12_20m.tif) | 196 Mo |
+
+    Inutile de tout télécharger : comme ce sont des **COG**, GDAL peut lire **seulement la zone voulue** directement sur le serveur (préfixe `/vsicurl/`). Ces commandes extraient le fil rouge (12 × 11 km autour d'Yverdon) en quelques secondes, quelques Mo par bande :
+
+    ```bash
+    URL=/vsicurl/https://data.geo.admin.ch/ch.swisstopo.swisseo_s2-sr_v200/2025-07-12t102559/swisseo_s2-sr_v200_mosaic_2025-07-12t102559_
+    gdal_translate -projwin 2533000 1186500 2545000 1175500 ${URL}b04_10m.tif yverdon_b04.tif
+    gdal_translate -projwin 2533000 1186500 2545000 1175500 ${URL}b08_10m.tif yverdon_b08.tif
+    ```
+
+    Dans QGIS, on peut aussi ouvrir un fichier distant par *Couche › Ajouter une couche raster › Protocole HTTP(S)*, puis calculer un indice avec la *Calculatrice raster*.
+
 !!! tip "En Suisse"
 
     swisstopo publie sur la base de Sentinel‑2 des produits dérivés prêts à l'emploi, par exemple l'[indice de santé de la végétation (VHI)](https://map.geo.admin.ch/?layers=ch.swisstopo.swisseo_vhi_v100) utilisé pour suivre l'état des forêts lors des sécheresses.
@@ -790,6 +837,7 @@ Le format **ASCII Grid** (`.asc`, défini par ESRI) décrit une grille de valeur
 - [Cloud Optimized GeoTIFF – cogeo.org](https://cogeo.org/)
 - [Catalogue STAC de swisstopo – data.geo.admin.ch](https://data.geo.admin.ch/api/stac/v1/) (SWISSIMAGE 10 cm, swissALTI3D, swissEO S2‑SR)
 - [swissEO S2‑SR : données satellitaires optiques Sentinel‑2 – swisstopo](https://data.geo.admin.ch/api/stac/v1/collections/ch.swisstopo.swisseo_s2-sr_v200)
+- [Awesome Spectral Indices : catalogue des indices spectraux et de leurs formules](https://github.com/awesome-spectral-indices/awesome-spectral-indices)
 - [Sentinel‑2 – Copernicus / ESA](https://sentinels.copernicus.eu/web/sentinel/missions/sentinel-2)
 - [openEO](https://openeo.org/)
 - [Swiss Data Cube](https://www.swissdatacube.org/)
