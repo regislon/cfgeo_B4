@@ -914,6 +914,200 @@
     calc();
   }
 
+  // ---------------------------------------------------------------- Lecture UTF-8 pas à pas
+  // Animation : le logiciel lit les octets un par un. Les premiers bits de chaque octet
+  // (0, 110, 1110, 11110 ou 10) disent s'il s'agit d'une lettre entière, du début d'une
+  // lettre sur plusieurs octets ou de la suite de la lettre en cours.
+  // Mode « Latin-1 » : chaque octet est une lettre, d'où le mojibake (« FaÃ¯encerie »).
+  function demoUtf8(root) {
+    const PRESETS = [
+      ["Faïencerie", "🧵 Faïencerie (ï sur 2 octets)"],
+      ["Genève", "Genève (è sur 2 octets)"],
+      ["Prix : 5 €", "Prix : 5 € (€ sur 3 octets)"],
+      ["Bus 🚌", "Bus 🚌 (émoji sur 4 octets)"],
+    ];
+    const KINDS = {
+      ascii: { pfx: 1, n: 1, label: "lettre entière" },
+      lead2: { pfx: 3, n: 2, label: "début, 2 octets" },
+      lead3: { pfx: 4, n: 3, label: "début, 3 octets" },
+      lead4: { pfx: 5, n: 4, label: "début, 4 octets" },
+      cont: { pfx: 2, n: 0, label: "suite" },
+    };
+    const LEGEND = [
+      ["ascii", "0xxxxxxx", "lettre complète sur <b>1 octet</b> (ASCII)"],
+      ["lead2", "110xxxxx", "<b>début</b> d'une lettre sur <b>2 octets</b>"],
+      ["lead3", "1110xxxx", "début d'une lettre sur 3 octets"],
+      ["lead4", "11110xxx", "début d'une lettre sur 4 octets (maximum)"],
+      ["cont", "10xxxxxx", "<b>suite</b> de la lettre en cours, jamais une lettre seule"],
+    ];
+    const kindOf = (b) =>
+      b < 0x80 ? "ascii" : (b & 0xe0) === 0xc0 ? "lead2" : (b & 0xf0) === 0xe0 ? "lead3" : (b & 0xf8) === 0xf0 ? "lead4" : "cont";
+    const bin8 = (b) => b.toString(2).padStart(8, "0");
+    const binHtml = (b, kind) => {
+      const s = bin8(b), p = KINDS[kind].pfx;
+      return `<span class="u8-pfx">${s.slice(0, p)}</span><span class="u8-data">${s.slice(p)}</span>`;
+    };
+    const showCh = (ch) => (ch === " " ? "␣" : esc(ch));
+
+    const select = el("select", {}, PRESETS.map(([v, t]) => el("option", { value: v, text: t })));
+    const modeU = el("input", { type: "radio", name: "u8-mode-" + Math.random().toString(36).slice(2), value: "utf8", checked: "" });
+    const modeL = el("input", { type: "radio", name: modeU.name, value: "latin1" });
+    const play = el("button", { type: "button", class: "demo-btn", text: "▶ Lire" });
+    const prev = el("button", { type: "button", class: "demo-btn", text: "← Étape précédente" });
+    const next = el("button", { type: "button", class: "demo-btn", text: "Étape suivante →" });
+    const reset = el("button", { type: "button", class: "demo-btn", text: "↺ Recommencer" });
+    const bytesRow = el("div", { class: "u8-bytes" });
+    const explain = el("div", { class: "u8-explain" });
+    const out = el("div", { class: "u8-out" });
+    const legend = el("table", { class: "demo-table u8-legend" });
+
+    let bytes = [], steps = [], s = -1, timer = null;
+    const mode = () => (modeL.checked ? "latin1" : "utf8");
+
+    function buildSteps() {
+      const st = [];
+      if (mode() === "latin1") {
+        const dec = new TextDecoder("windows-1252");
+        bytes.forEach((b, i) => {
+          const ch = dec.decode(new Uint8Array([b]));
+          st.push({ i, kind: kindOf(b), emit: ch, group: [i],
+            text: `Octet <code>${hex2(b)}</code> : en Latin-1, <b>chaque octet est une lettre</b>, sans regarder les premiers bits → « <b>${showCh(ch)}</b> »` +
+              (b >= 0x80 ? " ⚠️ ce n'est pas la bonne lettre !" : "") });
+        });
+        return st;
+      }
+      let i = 0;
+      while (i < bytes.length) {
+        const b = bytes[i], k = kindOf(b);
+        if (k === "ascii") {
+          const ch = String.fromCharCode(b);
+          st.push({ i, kind: k, emit: ch, group: [i],
+            text: `Octet <code>${hex2(b)}</code> = ${binHtml(b, k)} : commence par <b>0</b> → lettre complète sur <b>1 octet</b> → « <b>${showCh(ch)}</b> »` });
+          i++;
+        } else if (k === "cont") {
+          // octet de suite isolé : impossible dans un texte UTF-8 valide
+          st.push({ i, kind: k, emit: "�", group: [i],
+            text: `Octet <code>${hex2(b)}</code> commence par <b>10</b>, mais aucune lettre n'est en cours : erreur → « � »` });
+          i++;
+        } else {
+          const n = KINDS[k].n, grp = [];
+          for (let j = 0; j < n; j++) grp.push(i + j);
+          st.push({ i, kind: k, emit: null, group: grp,
+            text: `Octet <code>${hex2(b)}</code> = ${binHtml(b, k)} : commence par <b>${"1".repeat(n)}0</b> → <b>début</b> d'une lettre sur <b>${n} octets</b>. ` +
+              `Le lecteur ne s'arrête pas là : il doit prendre aussi ${n === 2 ? "l'octet suivant" : `les ${n - 1} octets suivants`}.` });
+          for (let j = 1; j < n; j++) {
+            const bj = bytes[i + j];
+            let text = `Octet <code>${hex2(bj)}</code> = ${binHtml(bj, "cont")} : commence par <b>10</b> → <b>suite</b> de la lettre en cours (octet ${j + 1} sur ${n}).`;
+            let emit = null;
+            if (j === n - 1) {
+              const parts = grp.map((x, m) => bin8(bytes[x]).slice(KINDS[m === 0 ? k : "cont"].pfx));
+              const cp = parseInt(parts.join(""), 2);
+              emit = String.fromCodePoint(cp);
+              text += `<br>La lettre est complète. On enlève les étiquettes et on colle les bits restants : ` +
+                parts.map((p) => `<span class="u8-data">${p}</span>`).join(" + ") +
+                ` = ${parts.join("")}₍₂₎ = ${fmt(cp)} = numéro Unicode U+${cp.toString(16).toUpperCase().padStart(4, "0")} → « <b>${showCh(emit)}</b> »`;
+            }
+            st.push({ i: i + j, kind: "cont", emit, group: grp, text });
+          }
+          i += n;
+        }
+      }
+      return st;
+    }
+
+    function render() {
+      const cur = s >= 0 ? steps[s] : null;
+      const latin = mode() === "latin1";
+      // Octets lus jusqu'ici, et appartenance à une lettre sur plusieurs octets
+      const multi = new Set();
+      steps.slice(0, s + 1).forEach((st) => { if (st.group.length > 1) st.group.forEach((g) => multi.add(g)); });
+      bytesRow.innerHTML = "";
+      bytes.forEach((b, idx) => {
+        const read = cur && idx <= cur.i;
+        const k = kindOf(b);
+        let cls = "u8-cell";
+        if (!read) cls += cur && cur.group.includes(idx) ? " u8-wait" : " u8-todo";
+        if (read && multi.has(idx)) cls += " u8-multi";
+        if (cur && idx === cur.i) cls += " u8-cur";
+        bytesRow.appendChild(el("div", { class: cls }, [
+          el("div", { class: "u8-hex", text: hex2(b) }),
+          el("div", { class: "u8-bin", html: latin ? bin8(b) : binHtml(b, k) }),
+          el("div", { class: "u8-tag", text: read ? (latin ? "1 lettre" : KINDS[k].label) : "" }),
+        ]));
+      });
+      // Lettres obtenues, avec leurs octets
+      out.innerHTML = "<b>Texte lu :</b>";
+      steps.slice(0, s + 1).forEach((st, k) => {
+        if (st.emit === null) return;
+        out.appendChild(el("span", { class: "demo-chip" + (st.group.length > 1 ? " demo-chip-multi" : latin && bytes[st.i] >= 0x80 ? " demo-chip-bad" : "") + (k === s ? " u8-new" : "") }, [
+          el("span", { class: "demo-chip-c", html: showCh(st.emit) }),
+          el("span", { class: "demo-chip-b", text: st.group.map((g) => hex2(bytes[g])).join(" ") }),
+        ]));
+      });
+      if (!cur) {
+        explain.innerHTML = `Le fichier contient ces <b>${bytes.length} octets</b>. Cliquez sur <b>▶ Lire</b> (ou « Étape suivante ») pour voir comment le logiciel les ${latin ? "lit s'il croit, à tort, que le texte est en Latin-1" : "découpe en lettres"}.`;
+      } else {
+        let txt = cur.text;
+        if (s === steps.length - 1) {
+          const nChars = Array.from(select.value).length;
+          const result = steps.map((st) => st.emit || "").join("");
+          txt += latin
+            ? `<br>🏁 Résultat : « <b class="demo-bad">${esc(result)}</b> », ${fmt(bytes.length)} lettres au lieu de ${fmt(nChars)}. Le texte était en UTF-8 : lu en Latin-1, il devient illisible (<i>mojibake</i>).`
+            : `<br>🏁 Résultat : « <b>${esc(result)}</b> », ${fmt(nChars)} lettres pour ${fmt(bytes.length)} octets. Aucune ambiguïté : les étiquettes ont dit à chaque fois où commence la lettre suivante.`;
+        }
+        explain.innerHTML = txt;
+      }
+      // Légende des étiquettes, ligne de l'octet courant surlignée
+      legend.innerHTML = "<tr><th>L'octet commence par…</th><th>Signification en UTF-8</th></tr>" +
+        LEGEND.map(([k, pat, txt]) => {
+          const on = cur && !latin && cur.kind === k;
+          const p = KINDS[k].pfx;
+          return `<tr class="${on ? "u8-on" : ""}"><td><code><span class="u8-pfx">${pat.slice(0, p)}</span>${pat.slice(p)}</code></td><td>${txt}</td></tr>`;
+        }).join("");
+      legend.style.opacity = latin ? "0.4" : "";
+      prev.disabled = s < 0;
+      next.disabled = s >= steps.length - 1;
+    }
+
+    function stop() { clearInterval(timer); timer = null; play.textContent = "▶ Lire"; }
+    function step(d) {
+      s = Math.max(-1, Math.min(steps.length - 1, s + d));
+      render();
+      if (s >= steps.length - 1) stop();
+    }
+    function load() {
+      stop();
+      bytes = Array.from(new TextEncoder().encode(select.value));
+      steps = buildSteps();
+      s = -1;
+      render();
+    }
+    play.addEventListener("click", () => {
+      if (timer) { stop(); return; }
+      if (s >= steps.length - 1) s = -1;
+      play.textContent = "⏸ Pause";
+      step(1);
+      timer = setInterval(() => step(1), 2200);
+    });
+    next.addEventListener("click", () => { stop(); step(1); });
+    prev.addEventListener("click", () => { stop(); step(-1); });
+    reset.addEventListener("click", () => { stop(); s = -1; render(); });
+    select.addEventListener("change", load);
+    modeU.addEventListener("change", load);
+    modeL.addEventListener("change", load);
+
+    root.append(
+      el("div", { class: "demo-row" }, [el("span", { text: "Texte : " }), select]),
+      el("div", { class: "demo-row" }, [
+        el("label", {}, [modeU, el("span", { text: " Lire en UTF-8 (le bon codage)" })]),
+        el("label", {}, [modeL, el("span", { text: " Lire en Latin-1 (le mauvais codage)" })]),
+      ]),
+      el("div", { class: "demo-row" }, [play, prev, next, reset]),
+      bytesRow, explain, out, legend
+    );
+    load();
+  }
+
   // ---------------------------------------------------------------- Fichier texte / binaire
   // Les mêmes octets vus par un éditeur de texte, un éditeur hexadécimal et un logiciel qui connaît le format.
   const SHP_HEADER = "00 00 27 0A 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 CE 9E E8 03 00 00 05 00 00 00 70 34 80 D7 3D 5D 43 41 20 75 02 9A 72 01 32 41 58 B1 BF 8C 0E 5F 43 41 00 DE 02 A9 7F 05 32 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
@@ -2719,7 +2913,7 @@ WHERE bbox.xmin BETWEEN 6.62 AND 6.66     -- emprise d'Yverdon-les-Bains
 
   const demos = {
     pixels: demoPixels, compression: demoCompression, taille: demoTaille, pmtiles: demoPmtiles, quiz: demoQuiz,
-    bits: demoBits, decoder: demoDecoder, float: demoFloat, unites: demoUnites, texte: demoTexte, fichier: demoFichier, exercices: demoExercices,
+    bits: demoBits, decoder: demoDecoder, float: demoFloat, unites: demoUnites, texte: demoTexte, utf8: demoUtf8, fichier: demoFichier, exercices: demoExercices,
     las: demoLas, ifc: demoIfc,
     editeur: demoEditeur, couleurkml: demoCouleurKml, geojsoncarte: demoGeojsonCarte,
     normes: demoNormes, trier: demoTrier, frise: demoFrise,

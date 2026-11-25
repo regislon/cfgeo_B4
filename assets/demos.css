@@ -378,3 +378,41 @@
 /* Décoder un octet : bits non cliquables */
 .demo-decoder .demo-bit { cursor: default; }
 .md-typeset img.demo-decoder-img, .demo-decoder-img { display: block; max-width: 320px; width: 100%; margin-top: 0.6rem; border-radius: 0.5rem; }
+
+/* Lecture UTF-8 pas à pas */
+.demo[data-demo="utf8"]::before { content: "▶ Animation : comment le logiciel lit les octets"; }
+.u8-bytes { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 1.4rem 0 0.5rem; }
+.u8-cell {
+  position: relative; display: flex; flex-direction: column; align-items: center;
+  min-width: 4.4em; padding: 0.25rem 0.3rem; border-radius: 4px;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  background: var(--md-default-bg-color); color: var(--md-default-fg-color);
+  transition: background 0.3s, border-color 0.3s, opacity 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+.u8-cell.u8-todo { opacity: 0.4; }
+.u8-cell.u8-wait { opacity: 0.75; border: 1px dashed #1565c0; }
+.u8-cell.u8-multi { background: #bbdefb; color: #0d47a1; border-color: #1565c0; }
+.u8-cell.u8-cur { box-shadow: 0 0 0 2px var(--md-accent-fg-color); transform: translateY(-3px); }
+.u8-cell.u8-cur::before {
+  content: "▼ lecteur"; position: absolute; top: -1.2rem; white-space: nowrap;
+  font-size: 0.6rem; font-weight: 700; color: var(--md-accent-fg-color);
+}
+.u8-hex { font-family: var(--md-code-font-family); font-weight: 700; font-size: 0.85rem; }
+.u8-bin { font-family: var(--md-code-font-family); font-size: 0.65rem; letter-spacing: 0.03em; }
+.u8-pfx { background: #ffe082; color: #000; border-radius: 2px; padding: 0 1px; font-weight: 700; }
+.u8-tag { font-size: 0.55rem; min-height: 1.3em; opacity: 0.85; white-space: nowrap; }
+.u8-explain {
+  min-height: 3.6em; padding: 0.4rem 0.6rem; line-height: 1.7; border-radius: 4px;
+  background: var(--md-default-bg-color); border: 1px solid var(--md-default-fg-color--lightest);
+}
+.u8-out { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem; min-height: 2.6rem; margin: 0.5rem 0; }
+.u8-out > b { margin-right: 0.3rem; }
+.u8-new { animation: u8-pop 0.45s ease-out; }
+@keyframes u8-pop { from { transform: scale(1.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.u8-legend { transition: opacity 0.3s; }
+.u8-legend tr.u8-on td { background: #ffe082; color: #000; }
+.u8-legend tr.u8-on code { background: transparent; }
+@media (prefers-reduced-motion: reduce) {
+  .u8-cell, .u8-legend { transition: none; }
+  .u8-new { animation: none; }
+}

@@ -430,7 +430,23 @@ UTF-8 est aujourd'hui le standard du web, de XML, de JSON et de la plupart des f
     | Latin-1 / Windows-1252 | `46 61` **`EF`** `65 6E 63 65 72 69 65` | 10 |
     | UTF-8 | `46 61` **`C3 AF`** `65 6E 63 65 72 69 65` | 11 |
 
-    Les lettres sans accent ont les mêmes octets partout ; seul le « ï » diffère.
+    Les lettres sans accent ont les mêmes octets partout ; seul le « ï » diffère. Le mot a **10 lettres** : en UTF-8, il occupe **11 octets**, car le « ï » en prend deux.
+
+    **Comment le logiciel sait-il que `C3 AF` est une seule lettre, et pas deux ?** En UTF-8, les **premiers bits** de chaque octet servent d'**étiquette** :
+
+    | L'octet commence par… | Signification |
+    |---|---|
+    | `0` | lettre complète sur **1 octet** (ASCII) |
+    | `110` | **début** d'une lettre sur **2 octets** |
+    | `1110` | début d'une lettre sur 3 octets |
+    | `11110` | début d'une lettre sur 4 octets (le maximum) |
+    | `10` | **suite** de la lettre en cours : jamais une lettre à elle seule |
+
+    `C3` = **`110`**`00011` annonce une lettre sur 2 octets ; `AF` = **`10`**`101111` est sa suite. On enlève les étiquettes et on colle les bits restants : `00011` + `101111` = `00011101111` = 239, le numéro Unicode du « ï ». Toutes les autres lettres de « Faïencerie » commencent par `0` : une lettre par octet.
+
+    Le logiciel lit donc le fichier **octet par octet**, et l'étiquette de chaque octet lui dit combien d'octets prendre pour la lettre en cours. En **Latin-1**, au contraire, chaque octet est **toujours** une lettre : les mêmes octets `C3 AF` y donnent deux lettres, « Ã¯ » (voir l'encadré suivant).
+
+    <div class="demo" id="demo-utf8" data-demo="utf8"></div>
 
 !!! warning "Le problème d'encodage (*mojibake*)"
     Si un logiciel lit un texte avec le **mauvais** codage, les caractères accentués sont mal affichés. Les octets UTF-8 `C3 AF` lus comme du Latin-1 donnent deux caractères : « Ã¯ ». « Faïencerie » devient **« FaÃ¯encerie »**, et « Genève » devient « GenÃ¨ve ». C'est exactement ce qui arrive avec un shapefile dont le fichier `.cpg` (qui indique le codage des attributs) a été oublié (voir [chapitre 3](../03-vecteur/README.md#shapefile)). C'est aussi pourquoi un fichier XML commence par `<?xml version="1.0" encoding="UTF-8"?>` (voir [chapitre 5](../05-xml-json/README.md)).
