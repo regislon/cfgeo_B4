@@ -487,6 +487,8 @@ Dans un **fichier binaire**, les octets ne représentent **pas des caractères**
 Le logiciel qui connaît la **spécification** du format sait, lui, exactement où se trouve chaque information et comment la décoder.
 
 !!! example "🧵 Fil rouge : l'en-tête du shapefile des bâtiments (binaire)"
+    [⬇ Télécharger `batiments_shp.zip`](donnees/batiments_shp.zip) (63 Ko) : les 405 bâtiments du fil rouge en shapefile (5 fichiers : `.shp`, `.shx`, `.dbf`, `.prj`, `.cpg`), soit la couche `batiments` du [GeoPackage du chapitre 3](../03-vecteur/README.md#fil-rouge-le-meme-kilometre-carre-en-vecteur), exportée telle quelle. Source : swissBUILDINGS3D 3.0, © swisstopo.
+
     Les 100 premiers octets de `batiments.shp`, vus dans un éditeur hexadécimal (16 octets par ligne) :
     ```text
     00 00 27 0A 00 00 00 00 00 00 00 00 00 00 00 00
