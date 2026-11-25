@@ -1,6 +1,6 @@
 # 5. XML et JSON
 
-[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/slides.html)
+[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/slides.html) · [📄 Slides en PDF](https://regislon.github.io/cfgeo_B4/formats-interfaces/05-xml-json/slides.pdf)
 
 ## Objectifs
 

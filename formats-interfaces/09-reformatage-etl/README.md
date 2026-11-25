@@ -1,6 +1,6 @@
 # 9. Reformatage et ETL
 
-[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/09-reformatage-etl/slides.html)
+[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/09-reformatage-etl/slides.html) · [📄 Slides en PDF](https://regislon.github.io/cfgeo_B4/formats-interfaces/09-reformatage-etl/slides.pdf)
 
 ## Objectifs
 

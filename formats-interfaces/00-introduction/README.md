@@ -1,6 +1,6 @@
 # 0. Introduction
 
-[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/00-introduction/slides.html) · [📄 Version PDF](slides.pdf)
+[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/00-introduction/slides.html) · [📄 Slides en PDF](https://regislon.github.io/cfgeo_B4/formats-interfaces/00-introduction/slides.pdf)
 
 ## Objectifs
 

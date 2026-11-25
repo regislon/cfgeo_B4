@@ -21,12 +21,15 @@ fi
 # 2. Site MkDocs
 mkdocs build --clean
 
-# 3. Slides Marp : chaque slides.md -> slides.html à côté du README du chapitre
+# 3. Slides Marp : chaque slides.md -> slides.html et slides.pdf à côté du README du chapitre
 for src in formats-interfaces/*/slides.md; do
-  out="site/${src%.md}.html"
+  out="site/${src%.md}"
   mkdir -p "$(dirname "$out")"
   npx --yes "@marp-team/marp-cli@${MARP_VERSION}" \
-    "$src" -o "$out" --html --theme-set marp/theme.css < /dev/null
+    "$src" -o "$out.html" --html --theme-set marp/theme.css < /dev/null
+  # --allow-local-files : le navigateur qui produit le PDF doit lire les images du chapitre
+  npx --yes "@marp-team/marp-cli@${MARP_VERSION}" \
+    "$src" -o "$out.pdf" --pdf --allow-local-files --html --theme-set marp/theme.css < /dev/null
 done
 
 # 4. Données des exercices : un zip par exercice

@@ -1,6 +1,6 @@
 # 1. Codage binaire
 
-[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/slides.html)
+[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/slides.html) · [📄 Slides en PDF](https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/slides.pdf)
 
 ## Objectifs
 

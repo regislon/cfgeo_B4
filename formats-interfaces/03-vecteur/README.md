@@ -1,6 +1,6 @@
 # 3. Données vectorielles
 
-[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/slides.html)
+[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/slides.html) · [📄 Slides en PDF](https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/slides.pdf)
 
 ## Objectifs
 

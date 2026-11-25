@@ -1,6 +1,6 @@
 # 4. 3D et nuages de points
 
-[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/04-3d-nuages-de-points/slides.html)
+[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/04-3d-nuages-de-points/slides.html) · [📄 Slides en PDF](https://regislon.github.io/cfgeo_B4/formats-interfaces/04-3d-nuages-de-points/slides.pdf)
 
 ## Objectifs
 

@@ -1,6 +1,6 @@
 # 2. Données raster
 
-[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/02-raster/slides.html)
+[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/02-raster/slides.html) · [📄 Slides en PDF](https://regislon.github.io/cfgeo_B4/formats-interfaces/02-raster/slides.pdf)
 
 ## Objectifs
 

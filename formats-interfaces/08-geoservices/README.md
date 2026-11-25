@@ -1,6 +1,6 @@
 # 8. Géoservices (GeoWeb)
 
-[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/08-geoservices/slides.html)
+[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/08-geoservices/slides.html) · [📄 Slides en PDF](https://regislon.github.io/cfgeo_B4/formats-interfaces/08-geoservices/slides.pdf)
 
 ## Objectifs
 

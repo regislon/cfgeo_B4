@@ -1,6 +1,6 @@
 # 6. Interopérabilité et normes
 
-[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/06-interoperabilite-normes/slides.html)
+[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/06-interoperabilite-normes/slides.html) · [📄 Slides en PDF](https://regislon.github.io/cfgeo_B4/formats-interfaces/06-interoperabilite-normes/slides.pdf)
 
 ## Objectifs
 

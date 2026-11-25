@@ -1,6 +1,6 @@
 # 7. Échange de données
 
-[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/slides.html)
+[📽 Slides du chapitre](https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/slides.html) · [📄 Slides en PDF](https://regislon.github.io/cfgeo_B4/formats-interfaces/07-echange-de-donnees/slides.pdf)
 
 ## Objectifs
 

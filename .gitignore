@@ -5,3 +5,6 @@ site/
 
 # Programme officiel (contient des coordonnées) : non publié
 B4_organisation*.pdf
+
+# PDF des slides : générés au build (scripts/build.sh)
+formats-interfaces/*/slides.pdf
