@@ -4,10 +4,13 @@ Cette partie du module B4 traite de la manière dont l'information géographique
 stockée et échangée entre systèmes. Elle complète les cours « Modèles de données » et
 « Interlis » sans les répéter.
 
+Commencez par l'[introduction](00-introduction/README.md) : elle présente le parcours du cours, du binaire jusqu'à l'ETL, et le planning des trois journées.
+
 ## Chapitres
 
 | # | Chapitre | Slides |
 |---|---|---|
+| 0 | [Introduction : le parcours du cours et le planning](00-introduction/README.md) | [📽](https://regislon.github.io/cfgeo_B4/formats-interfaces/00-introduction/slides.html) · [📄 PDF](00-introduction/slides.pdf) |
 | 1 | [Codage binaire](01-codage-binaire/README.md) | [📽](https://regislon.github.io/cfgeo_B4/formats-interfaces/01-codage-binaire/slides.html) |
 | 2 | [Données raster](02-raster/README.md) | [📽](https://regislon.github.io/cfgeo_B4/formats-interfaces/02-raster/slides.html) |
 | 3 | [Données vectorielles](03-vecteur/README.md) | [📽](https://regislon.github.io/cfgeo_B4/formats-interfaces/03-vecteur/slides.html) |

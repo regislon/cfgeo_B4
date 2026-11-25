@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 330" font-family="Helvetica Neue, Arial, sans-serif">
+  <rect width="1200" height="330" fill="#ffffff"/>
+  <defs>
+    <marker id="fl" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#ffc107"/>
+    </marker>
+  </defs>
+
+  <!-- Bandeaux des trois grandes parties -->
+  <rect x="20" y="20" width="175" height="34" rx="6" fill="#e0f2f1"/>
+  <text x="107" y="43" text-anchor="middle" font-size="17" font-weight="bold" fill="#00796b">LA BASE</text>
+  <rect x="210" y="20" width="370" height="34" rx="6" fill="#e0f2f1"/>
+  <text x="395" y="43" text-anchor="middle" font-size="17" font-weight="bold" fill="#00796b">REPRÉSENTER LE TERRITOIRE</text>
+  <rect x="595" y="20" width="390" height="34" rx="6" fill="#e0f2f1"/>
+  <text x="790" y="43" text-anchor="middle" font-size="17" font-weight="bold" fill="#00796b">COMMUNIQUER</text>
+  <rect x="1000" y="20" width="180" height="34" rx="6" fill="#e0f2f1"/>
+  <text x="1090" y="43" text-anchor="middle" font-size="17" font-weight="bold" fill="#00796b">TRANSFORMER</text>
+
+  <!-- Étapes -->
+  <g font-size="15" fill="#1f2a2e" text-anchor="middle">
+    <!-- 1 -->
+    <rect x="20" y="80" width="175" height="150" rx="10" fill="#00796b"/>
+    <text x="107" y="115" font-size="34" font-weight="bold" fill="#ffc107">1</text>
+    <text x="107" y="148" font-size="18" font-weight="bold" fill="#fff">Binaire</text>
+    <text x="107" y="178" fill="#e0f2f1">0 et 1, octets,</text>
+    <text x="107" y="198" fill="#e0f2f1">nombres, texte</text>
+
+    <!-- 2 3 4 -->
+    <rect x="210" y="80" width="115" height="150" rx="10" fill="#00796b"/>
+    <text x="267" y="115" font-size="34" font-weight="bold" fill="#ffc107">2</text>
+    <text x="267" y="148" font-size="18" font-weight="bold" fill="#fff">Raster</text>
+    <text x="267" y="178" fill="#e0f2f1">grille de</text>
+    <text x="267" y="198" fill="#e0f2f1">pixels</text>
+
+    <rect x="337" y="80" width="115" height="150" rx="10" fill="#00796b"/>
+    <text x="394" y="115" font-size="34" font-weight="bold" fill="#ffc107">3</text>
+    <text x="394" y="148" font-size="18" font-weight="bold" fill="#fff">Vecteur</text>
+    <text x="394" y="178" fill="#e0f2f1">points, lignes,</text>
+    <text x="394" y="198" fill="#e0f2f1">polygones</text>
+
+    <rect x="464" y="80" width="116" height="150" rx="10" fill="#00796b"/>
+    <text x="522" y="115" font-size="34" font-weight="bold" fill="#ffc107">4</text>
+    <text x="522" y="148" font-size="18" font-weight="bold" fill="#fff">3D</text>
+    <text x="522" y="178" fill="#e0f2f1">nuages de</text>
+    <text x="522" y="198" fill="#e0f2f1">points, BIM</text>
+
+    <!-- 5 6 7 8 -->
+    <rect x="595" y="80" width="88" height="150" rx="10" fill="#00796b"/>
+    <text x="639" y="115" font-size="34" font-weight="bold" fill="#ffc107">5</text>
+    <text x="639" y="148" font-size="17" font-weight="bold" fill="#fff">XML</text>
+    <text x="639" y="168" font-size="17" font-weight="bold" fill="#fff">JSON</text>
+    <text x="639" y="198" fill="#e0f2f1">la langue</text>
+
+    <rect x="695" y="80" width="88" height="150" rx="10" fill="#00796b"/>
+    <text x="739" y="115" font-size="34" font-weight="bold" fill="#ffc107">6</text>
+    <text x="739" y="148" font-size="17" font-weight="bold" fill="#fff">Normes</text>
+    <text x="739" y="178" fill="#e0f2f1">les règles</text>
+    <text x="739" y="198" fill="#e0f2f1">communes</text>
+
+    <rect x="795" y="80" width="88" height="150" rx="10" fill="#00796b"/>
+    <text x="839" y="115" font-size="34" font-weight="bold" fill="#ffc107">7</text>
+    <text x="839" y="148" font-size="17" font-weight="bold" fill="#fff">Échange</text>
+    <text x="839" y="178" fill="#e0f2f1">envoyer</text>
+    <text x="839" y="198" fill="#e0f2f1">un fichier</text>
+
+    <rect x="895" y="80" width="90" height="150" rx="10" fill="#00796b"/>
+    <text x="940" y="115" font-size="34" font-weight="bold" fill="#ffc107">8</text>
+    <text x="940" y="148" font-size="17" font-weight="bold" fill="#fff">Services</text>
+    <text x="940" y="178" fill="#e0f2f1">accès en</text>
+    <text x="940" y="198" fill="#e0f2f1">direct (web)</text>
+
+    <!-- 9 -->
+    <rect x="1000" y="80" width="180" height="150" rx="10" fill="#00796b"/>
+    <text x="1090" y="115" font-size="34" font-weight="bold" fill="#ffc107">9</text>
+    <text x="1090" y="148" font-size="18" font-weight="bold" fill="#fff">ETL</text>
+    <text x="1090" y="178" fill="#e0f2f1">convertir, nettoyer,</text>
+    <text x="1090" y="198" fill="#e0f2f1">modifier, automatiser</text>
+  </g>
+
+  <!-- Flèche de progression -->
+  <line x1="30" y1="268" x2="1165" y2="268" stroke="#ffc107" stroke-width="5" marker-end="url(#fl)"/>
+  <text x="30" y="305" font-size="16" fill="#6b7b80">du plus petit élément (le bit)…</text>
+  <text x="1170" y="305" font-size="16" fill="#6b7b80" text-anchor="end">… jusqu'au traitement de jeux de données complets</text>
+</svg>
