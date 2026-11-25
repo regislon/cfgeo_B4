@@ -178,16 +178,6 @@ Cette limite de 255 revient très souvent en géomatique : une image en niveaux 
 | 2 octets (16 bits) | 65'536 | 0 à 65'535 |
 | 4 octets (32 bits) | 4'294'967'296 | 0 à env. 4,3 milliards |
 
-<div class="demo" id="demo-octet" data-demo="bits"></div>
-
-*Cliquez sur les bits pour les allumer ou les éteindre : la valeur de l'octet est la somme des poids des bits à 1. Le carré montre la même valeur comme niveau de gris (0 = noir, 255 = blanc).*
-
-**À vous : décoder un octet.** Quelle valeur décimale représente cet octet ? Additionnez les poids des bits à 1 (cochez « Afficher les poids » si besoin). Une fois la bonne réponse trouvée, « Octet suivant » vous en propose d'autres, tirés au hasard.
-
-<div class="demo" id="demo-decoder" data-demo="decoder" data-img67="img/octet-67.jpg"></div>
-
-## Conversions
-
 ### Du binaire vers le décimal
 
 Il suffit de faire la **somme des puissances de 2** correspondant aux positions où se trouve un 1.
@@ -205,6 +195,18 @@ Pour un octet, un tableau des poids facilite le calcul. On place le **bit de poi
     | Valeur | 128 | 64 | 32 | 16 | 8 | 4 | 2 | 1 | |
     | Bits | 0 | 0 | 1 | 0 | 1 | 0 | 1 | 0 | |
     | Total | 0 | 0 | 32 | 0 | 8 | 0 | 2 | 0 | **Σ = 42** |
+
+<div class="demo" id="demo-octet" data-demo="bits"></div>
+
+*Cliquez sur les bits pour les allumer ou les éteindre : la valeur de l'octet est la somme des poids des bits à 1. Le carré montre la même valeur comme niveau de gris (0 = noir, 255 = blanc).*
+
+**À vous : décoder un octet.** Quelle valeur décimale représente cet octet ? Additionnez les poids des bits à 1 (cochez « Afficher les poids » si besoin). Une fois la bonne réponse trouvée, « Octet suivant » vous en propose d'autres, tirés au hasard.
+
+<div class="demo" id="demo-decoder" data-demo="decoder" data-img67="img/octet-67.jpg"></div>
+
+## Conversions
+
+Nous avons vu plus haut comment passer [du binaire vers le décimal](#du-binaire-vers-le-decimal). Voici le chemin inverse.
 
 ### Du décimal vers le binaire
 

@@ -163,7 +163,23 @@ p { font-size: 22px; margin: 6px 0; }
 
 ---
 
-<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 L’octet](./#loctet)' -->
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Du binaire vers le décimal](./#du-binaire-vers-le-decimal)' -->
+## Binaire → décimal
+
+Somme des puissances de 2 là où il y a un 1 :
+
+10101₍₂₎ = 1·2⁴ + 0·2³ + 1·2² + 0·2¹ + 1·2⁰ = 16 + 4 + 1 = **21**
+
+| 2⁷ | 2⁶ | 2⁵ | 2⁴ | 2³ | 2² | 2¹ | 2⁰ | |
+|---|---|---|---|---|---|---|---|---|
+| 128 | 64 | 32 | 16 | 8 | 4 | 2 | 1 | |
+| 0 | 0 | 1 | 0 | 1 | 0 | 1 | 0 | **= 42** |
+
+Le bit de poids faible (2⁰) est **à droite**
+
+---
+
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Du binaire vers le décimal](./#du-binaire-vers-le-decimal)' -->
 <!-- _class: demo -->
 ## ▶ À vous : allumer les bits
 
@@ -178,7 +194,7 @@ p { font-size: 22px; margin: 6px 0; }
 
 ---
 
-<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 L’octet](./#loctet)' -->
+<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Du binaire vers le décimal](./#du-binaire-vers-le-decimal)' -->
 <!-- _class: exo -->
 ## ✏️ À vous : décoder un octet
 
@@ -202,22 +218,6 @@ p { font-size: 22px; margin: 6px 0; }
 <!-- _class: lead -->
 
 # Conversions
-
----
-
-<!-- _footer: 'CFGéo B4 · 1. Codage binaire · [📖 Du binaire vers le décimal](./#du-binaire-vers-le-decimal)' -->
-## Binaire → décimal
-
-Somme des puissances de 2 là où il y a un 1 :
-
-10101₍₂₎ = 1·2⁴ + 0·2³ + 1·2² + 0·2¹ + 1·2⁰ = 16 + 4 + 1 = **21**
-
-| 2⁷ | 2⁶ | 2⁵ | 2⁴ | 2³ | 2² | 2¹ | 2⁰ | |
-|---|---|---|---|---|---|---|---|---|
-| 128 | 64 | 32 | 16 | 8 | 4 | 2 | 1 | |
-| 0 | 0 | 1 | 0 | 1 | 0 | 1 | 0 | **= 42** |
-
-Le bit de poids faible (2⁰) est **à droite**
 
 ---
 
