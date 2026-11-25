@@ -290,6 +290,33 @@ Lausanne 144'873 · **Yverdon-les-Bains 30'292** · Montreux 26'955…
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Notre propre site, un exemple de diffusion sans serveur](./#notre-propre-site-un-exemple-de-diffusion-sans-serveur)' -->
+## ✋ À vous : les communes vaudoises sur le web
+
+<style scoped>
+pre code { white-space: pre-wrap; word-break: break-all; font-size: 19px; }
+.todo { font-size: 22px; }
+</style>
+
+<div class="todo">
+
+1. **FlatGeobuf dans GeoLibre** (Chrome) : *Add Data › Vector Layer*, collez l'adresse → *Load*
+
+```text
+https://raw.githubusercontent.com/regislon/cfgeo_B4/main/formats-interfaces/03-vecteur/donnees/communes_vd.fgb
+```
+
+2. **PMTiles** dans [pmtiles.io](https://pmtiles.io/?url=https://raw.githubusercontent.com/regislon/cfgeo_B4/main/formats-interfaces/03-vecteur/donnees/communes_vd.pmtiles) : dézoomez, que deviennent les limites ?
+3. **GeoParquet** dans [shell.duckdb.org](https://shell.duckdb.org) : la requête SQL de la slide précédente
+
+F12 › *Réseau* : observez les **requêtes partielles**
+
+</div>
+
+<a class="go" href="./#notre-propre-site-un-exemple-de-diffusion-sans-serveur"><small>Adresses complètes sur la page du cours ↗</small>▶ Les communes vaudoises sur le web</a>
+
+---
+
 <!-- _footer: 'CFGéo B4 · 8. Géoservices (GeoWeb) · [📖 Overture Maps : une base de données mondiale, sans API](./#overture-maps-une-base-de-donnees-mondiale-sans-api)' -->
 ## Overture Maps : le monde en GeoParquet
 

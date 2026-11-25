@@ -298,6 +298,27 @@ Shapefile : `einwohnerzahl` → `einwohnerz` · À ouvrir dans QGIS ou **GeoLibr
 
 ---
 
+<!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Formats récents : FlatGeobuf, GeoParquet et PMTiles](./#formats-recents-flatgeobuf-geoparquet-et-pmtiles)' -->
+## ✋ À vous : les communes dans tous les formats
+
+<div class="todo">
+
+QGIS, ou **GeoLibre** (Chrome) : *Add Data › Vector Layer*, collez l'adresse du fichier → *Load*
+
+1. Ouvrez les fichiers : combien en faut-il pour le **shapefile** ? Pourquoi un zip ?
+2. `bezirksnummer` → `bezirksnum`, `einwohnerzahl` → `einwohnerz` : pourquoi ?
+3. Pourquoi le **GeoJSON** est-il en WGS84, et le plus volumineux ?
+4. Lesquels s'ouvrent dans un **éditeur de texte** ? Lesquels peut-on modifier ?
+5. Table attributaire : triez les communes par `einwohnerzahl`
+6. Exportez le GeoPackage en **CSV (WKT)**, **GML** et **KML** : pourquoi sont-ils les plus gros ?
+7. Le **PMTiles** contient-il « les communes » comme les autres ? Que perd-on ?
+
+</div>
+
+<a class="go" href="./#formats-recents-flatgeobuf-geoparquet-et-pmtiles"><small>Fichiers sur la page du cours ↗</small>▶ Les communes vaudoises en 9 formats</a>
+
+---
+
 <!-- _footer: 'CFGéo B4 · 3. Données vectorielles · [📖 Synthèse : GDAL et normalisation](./#synthese-gdal-et-normalisation)' -->
 ## Synthèse : GDAL et OGC
 
