@@ -361,6 +361,12 @@ Une quatrième composante, le canal **alpha**, peut décrire la transparence ; c
 
 Une image RVB n'utilise que trois bandes, choisies pour reproduire ce que voit l'œil. Mais un raster n'est **pas d'abord une image** : c'est une **mesure**. Chaque bande d'un capteur multispectral enregistre la part de lumière réfléchie par le sol (la **réflectance**, entre 0 et 1) dans une plage de longueurs d'onde donnée.
 
+La lumière est une **onde électromagnétique**, caractérisée par sa **longueur d'onde**. L'œil humain n'en perçoit qu'une toute petite partie, de 400 nm (violet) à 700 nm (rouge) : c'est la lumière **visible**. Les capteurs des satellites optiques vont plus loin et mesurent aussi le **proche infrarouge** (PIR) et l'**infrarouge moyen** (SWIR), invisibles pour nous mais très riches en information sur la végétation, l'eau et les sols. Plus loin encore, dans les micro-ondes, travaillent les satellites **radar** (Sentinel‑1), qui voient à travers les nuages.
+
+![Le spectre électromagnétique, des rayons gamma aux ondes radio, avec un zoom sur le visible, le proche infrarouge et l'infrarouge moyen, où se situent les bandes B2, B3, B4, B8, B11 et B12 de Sentinel-2](img/spectre-electromagnetique.svg)
+
+*Le spectre électromagnétique (en haut, échelle logarithmique) et, agrandie, la partie mesurée par Sentinel‑2 (en bas, échelle linéaire) avec les six bandes utilisées dans ce chapitre.*
+
 | Bande Sentinel‑2 | Domaine | Longueur d'onde (centre) | Pixel |
 |---|---|---|---|
 | B02 | Bleu | 490 nm | 10 m |

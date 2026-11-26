@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" font-family="Helvetica Neue, Arial, sans-serif">
+  <title>Le spectre électromagnétique et les bandes Sentinel-2</title>
+  <rect width="1200" height="400" fill="#ffffff"/>
+  <defs>
+    <!-- Spectre complet : le visible n'est qu'une fine tranche -->
+    <linearGradient id="arcEtroit" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#7a00d6"/>
+      <stop offset="0.2" stop-color="#0030ff"/>
+      <stop offset="0.4" stop-color="#00c8ff"/>
+      <stop offset="0.55" stop-color="#2ad400"/>
+      <stop offset="0.7" stop-color="#ffe600"/>
+      <stop offset="0.85" stop-color="#ff7a00"/>
+      <stop offset="1" stop-color="#d40000"/>
+    </linearGradient>
+    <!-- Zoom de 380 à 2'400 nm : x = 60 + (nm − 380) × 0,5347 -->
+    <linearGradient id="zoom" gradientUnits="userSpaceOnUse" x1="60" x2="1140" y1="0" y2="0">
+      <stop offset="0" stop-color="#4b0082"/>
+      <stop offset="0.0106" stop-color="#7a00d6"/>
+      <stop offset="0.0347" stop-color="#0030ff"/>
+      <stop offset="0.0545" stop-color="#00a8ff"/>
+      <stop offset="0.0743" stop-color="#2ad400"/>
+      <stop offset="0.099" stop-color="#ffe600"/>
+      <stop offset="0.114" stop-color="#ff7a00"/>
+      <stop offset="0.134" stop-color="#e00000"/>
+      <stop offset="0.163" stop-color="#7a0000"/>
+      <stop offset="0.20" stop-color="#3a2a2a"/>
+      <stop offset="1" stop-color="#202428"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ===== Spectre complet (échelle logarithmique : x = 60 + (log10 λ + 12) × 72) ===== -->
+  <g font-size="13" fill="#37474f" text-anchor="middle">
+    <text x="60" y="22">1 pm</text>
+    <text x="276" y="22">1 nm</text>
+    <text x="492" y="22">1 µm</text>
+    <text x="708" y="22">1 mm</text>
+    <text x="924" y="22">1 m</text>
+    <text x="1140" y="22">1 km</text>
+  </g>
+  <g stroke="#90a4ae" stroke-width="1">
+    <line x1="60" y1="28" x2="60" y2="36"/><line x1="276" y1="28" x2="276" y2="36"/><line x1="492" y1="28" x2="492" y2="36"/>
+    <line x1="708" y1="28" x2="708" y2="36"/><line x1="924" y1="28" x2="924" y2="36"/><line x1="1140" y1="28" x2="1140" y2="36"/>
+  </g>
+
+  <rect x="60" y="38" width="72" height="50" fill="#455a64"/>
+  <rect x="132" y="38" width="216" height="50" fill="#546e7a"/>
+  <rect x="348" y="38" width="114" height="50" fill="#5e35b1"/>
+  <rect x="462" y="38" width="21" height="50" fill="url(#arcEtroit)"/>
+  <rect x="483" y="38" width="225" height="50" fill="#8d2f2f"/>
+  <rect x="708" y="38" width="216" height="50" fill="#5d4037"/>
+  <rect x="924" y="38" width="216" height="50" fill="#37474f"/>
+
+  <g font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle">
+    <text x="96" y="60">gamma</text>
+    <text x="240" y="60">rayons X</text>
+    <text x="405" y="60">ultraviolet</text>
+    <text x="595" y="60">infrarouge</text>
+    <text x="816" y="60">micro-ondes</text>
+    <text x="1032" y="60">radio</text>
+  </g>
+  <g font-size="11" fill="#ffffff" fill-opacity="0.85" text-anchor="middle">
+    <text x="96" y="78">radioactivité</text>
+    <text x="240" y="78">radiographie</text>
+    <text x="405" y="78">coups de soleil</text>
+    <text x="595" y="78">chaleur, télécommande</text>
+    <text x="816" y="78">four, wifi, radar</text>
+    <text x="1032" y="78">radio, télévision</text>
+  </g>
+  <text x="490" y="106" font-size="12" font-weight="700" fill="#00796b" text-anchor="middle">visible</text>
+
+  <!-- Zoom : de 380 nm à 2,4 µm -->
+  <polygon points="462,88 519,88 1140,170 60,170" fill="#cfd8dc" opacity="0.45"/>
+  <line x1="462" y1="88" x2="60" y2="170" stroke="#90a4ae" stroke-dasharray="4 3"/>
+  <line x1="519" y1="88" x2="1140" y2="170" stroke="#90a4ae" stroke-dasharray="4 3"/>
+  <rect x="462" y="38" width="57" height="50" fill="none" stroke="#ffc107" stroke-width="2.5"/>
+  <text x="60" y="104" font-size="12" fill="#78909c">← longueurs d'onde courtes, très énergétiques</text>
+  <text x="1140" y="104" font-size="12" fill="#78909c" text-anchor="end">longueurs d'onde longues →</text>
+
+  <!-- ===== Zoom : visible, proche et moyen infrarouge (échelle linéaire) ===== -->
+  <rect x="60" y="170" width="1080" height="80" fill="url(#zoom)"/>
+  <g font-weight="700" text-anchor="middle" fill="#ffffff">
+    <text x="159" y="196" font-size="14" stroke="#000000" stroke-opacity="0.55" stroke-width="3" paint-order="stroke">visible (œil)</text>
+    <text x="405" y="196" font-size="14">proche infrarouge (PIR)</text>
+    <text x="846" y="196" font-size="14">infrarouge moyen (SWIR)</text>
+  </g>
+  <g stroke="#ffffff" stroke-opacity="0.55" stroke-dasharray="3 3">
+    <line x1="258" y1="172" x2="258" y2="248"/>
+    <line x1="552" y1="172" x2="552" y2="248"/>
+  </g>
+
+  <!-- Bandes Sentinel-2 utilisées dans le chapitre (largeur = largeur de bande) -->
+  <g fill="#ffffff" fill-opacity="0.18" stroke="#ffffff" stroke-width="2">
+    <rect x="102" y="218" width="35" height="30"/>
+    <rect x="147" y="218" width="19" height="30"/>
+    <rect x="204" y="218" width="17" height="30"/>
+    <rect x="277" y="218" width="56" height="30"/>
+    <rect x="694" y="218" width="48" height="30"/>
+    <rect x="980" y="218" width="96" height="30"/>
+  </g>
+  <g font-size="14" font-weight="700" text-anchor="middle" fill="#00796b">
+    <text x="119" y="270">B2</text>
+    <text x="157" y="270">B3</text>
+    <text x="213" y="270">B4</text>
+    <text x="305" y="270">B8</text>
+    <text x="718" y="270">B11</text>
+    <text x="1028" y="270">B12</text>
+  </g>
+  <g font-size="11" text-anchor="middle" fill="#546e7a">
+    <text x="119" y="285">bleu</text>
+    <text x="157" y="285">vert</text>
+    <text x="213" y="285">rouge</text>
+    <text x="305" y="285">PIR</text>
+    <text x="718" y="285">SWIR 1</text>
+    <text x="1028" y="285">SWIR 2</text>
+  </g>
+
+  <!-- Axe en nanomètres -->
+  <line x1="60" y1="300" x2="1140" y2="300" stroke="#90a4ae"/>
+  <g stroke="#90a4ae">
+    <line x1="71" y1="300" x2="71" y2="307"/><line x1="124" y1="300" x2="124" y2="307"/><line x1="178" y1="300" x2="178" y2="307"/>
+    <line x1="231" y1="300" x2="231" y2="307"/><line x1="285" y1="300" x2="285" y2="307"/><line x1="392" y1="300" x2="392" y2="307"/>
+    <line x1="498" y1="300" x2="498" y2="307"/><line x1="605" y1="300" x2="605" y2="307"/><line x1="712" y1="300" x2="712" y2="307"/>
+    <line x1="819" y1="300" x2="819" y2="307"/><line x1="926" y1="300" x2="926" y2="307"/><line x1="1033" y1="300" x2="1033" y2="307"/>
+    <line x1="1140" y1="300" x2="1140" y2="307"/>
+  </g>
+  <g font-size="12" fill="#37474f" text-anchor="middle">
+    <text x="71" y="322">400</text><text x="124" y="322">500</text><text x="178" y="322">600</text><text x="231" y="322">700</text>
+    <text x="285" y="322">800</text><text x="392" y="322">1'000</text><text x="498" y="322">1'200</text><text x="605" y="322">1'400</text>
+    <text x="712" y="322">1'600</text><text x="819" y="322">1'800</text><text x="926" y="322">2'000</text><text x="1033" y="322">2'200</text>
+    <text x="1140" y="322">2'400 nm</text>
+  </g>
+
+  <text x="60" y="360" font-size="13" fill="#37474f">Les satellites optiques comme Sentinel‑2 mesurent la lumière solaire réfléchie, du visible à l'infrarouge moyen.</text>
+  <text x="60" y="380" font-size="13" fill="#37474f">Les cadres blancs montrent les 6 bandes utilisées dans ce chapitre (leur largeur correspond à la largeur de la bande).</text>
+</svg>

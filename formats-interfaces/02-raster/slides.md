@@ -286,6 +286,15 @@ Image couleur basse résolution + image panchromatique fine → couleur fine
 ---
 
 <!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Au-delà du visible : images multispectrales](./#au-dela-du-visible-images-multispectrales)' -->
+## Le spectre électromagnétique
+
+![w:1140](img/spectre-electromagnetique.svg)
+
+L'œil : **400 à 700 nm** · Sentinel‑2 : du visible à l'**infrarouge moyen** · radar : micro-ondes
+
+---
+
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Au-delà du visible : images multispectrales](./#au-dela-du-visible-images-multispectrales)' -->
 ## Un raster est une **mesure**
 
 - Chaque bande = **réflectance** (0 à 1) dans une plage de longueurs d'onde
