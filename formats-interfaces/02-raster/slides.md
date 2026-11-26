@@ -426,38 +426,24 @@ Même recette : **(A − B) / (A + B)** entre deux bandes, de −1 à +1
 
 ---
 
-<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Exemple : la marguerite](./#exemple-la-marguerite)' -->
-## Exemple : la marguerite
-
-![bg right:35% w:300](img/marguerite-originale.png)
-
-- 300 × 300 = 90'000 pixels × 3 octets = 270'000 o ≈ **264 Kio**
-- **256 couleurs** : 1 octet/pixel → 88 Kio (avec perte)
-- **Palette adaptative** : sans perte si peu de couleurs
-- **Répétition** : 4'500 pixels de fond = compteur (2 octets) + couleur (1 octet) = **3 octets**
-- ⚠️ Un compteur d'1 octet ne dépasse pas **255**
-
----
-
 <!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Quelques algorithmes de compression](./#quelques-algorithmes-de-compression)' -->
-## RLE — *Run Length Encoding*
+<style scoped>
+table { font-size: 22px; }
+th, td { padding: 4px 12px !important; }
+</style>
+## Quelques compressions
 
-- Nombre de répétitions + valeur
-- `AAAAAABBBBBCCCC` → `6A5B4C`
-- Sans perte, efficace sur les grandes plages uniformes
-- ⚠️ Échiquier : 64 octets → **128** octets en RLE !
-- Utilisé dans BMP, TGA, TIFF (PackBits), JPEG
+| Compression | Perte | Bon usage |
+|---|---|---|
+| **LZW** · **Deflate** | sans | les plus **compatibles** |
+| **ZSTD** | sans | comme Deflate, plus rapide |
+| **JPEG** | avec | photos, orthophotos |
+| **WebP** | avec ou sans | successeur du JPEG |
+| **JPEG 2000**, **ECW** | avec ou sans | grandes mosaïques |
+| **LERC** | erreur max. fixée | MNT |
 
----
-
-<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Quelques algorithmes de compression](./#quelques-algorithmes-de-compression)' -->
-## Compression par dictionnaire
-
-- **LZW** : dictionnaire des séquences déjà vues → TIFF, GIF
-  - brevet Unisys, libre depuis le début des années 2000
-- **Deflate** = LZ77 + codage de Huffman → **ZIP**, KMZ, **PNG**, TIFF
-- Sans perte
-- Données répétitives → bonne compression ; aléatoires → presque rien
+Pas besoin de savoir **comment** elles fonctionnent
+⚠️ **Tous les logiciels ne les lisent pas toutes** → échange : **LZW** ou **Deflate**
 
 ---
 
@@ -468,51 +454,24 @@ Même recette : **(A − B) / (A + B)** entre deux bandes, de −1 à +1
 
 [Consignes et données](https://regislon.github.io/cfgeo_B4/formats-interfaces/exercices/ex02-compression-dictionnaire/)
 
-
 ---
 
-<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Quelques algorithmes de compression](./#quelques-algorithmes-de-compression)' -->
+<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 JPEG](./#jpeg)' -->
 <!-- _class: demo -->
 ## JPEG
 
-1. RVB → luminance + chrominance
-2. Sous-échantillonnage de la chrominance
-3. Blocs 8 × 8 → fréquences (DCT)
-4. **Quantification** (perte, selon la qualité)
-5. Zigzag + RLE + Huffman
-
-- Ratio 10:1 à 25:1 sur les photos ; artefacts sur plans et textes
+- **Avec perte**, pour les photos : blocs de **8 × 8 pixels** dont on supprime des détails
+- Orthophoto : **10:1 à 25:1** · artefacts sur plans et textes
+- **Qualité** = quantité de détails supprimés
+  basse → petit fichier, blocs visibles, couleurs perdues · 75–90 : bon compromis
 - ⚠️ Les pertes **s'accumulent** à chaque ré-enregistrement
 
 <a class="go" href="https://regislon.github.io/cfgeo_B4/formats-interfaces/02-raster/#jpeg"><small>Démo sur la page du cours ↗</small>▶ Qualité JPEG / WebP</a>
 
 ---
 
-<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Quelques algorithmes de compression](./#quelques-algorithmes-de-compression)' -->
-## Ondelettes
-
-- Image décrite à **plusieurs niveaux de détail** : vue grossière + corrections fines
-- On renonce aux corrections les plus fines → ratio ↑, qualité ↓
-- Vue d'ensemble disponible immédiatement
-- Formats **JPEG 2000** (norme ISO) et **ECW** (propriétaire, en recul)
-
----
-
 <!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Compressions modernes dans GeoTIFF](./#compressions-modernes-dans-geotiff)' -->
-## Compressions modernes dans GeoTIFF
-
-- **Prédicteur** : stocker la **différence avec le voisin** → petites valeurs répétitives
-  `PREDICTOR=2` (entiers), `PREDICTOR=3` (virgule) · sans perte
-- **ZSTD** : comme Deflate, mais **beaucoup plus rapide**
-- **LERC** : perte **contrôlée**, on fixe l'**erreur maximale** (ex. 1 cm) → MNT
-- **WebP** : remplaçant du JPEG, avec ou sans perte
-
-⚠️ Pour l'**échange** : LZW / Deflate restent les plus compatibles
-
----
-
-<!-- _footer: 'CFGéo B4 · 2. Données raster · [📖 Compressions modernes dans GeoTIFF](./#compressions-modernes-dans-geotiff)' -->
-## 🧵 Mesures réelles : swissALTI3D (2'000 × 2'000, Float32, 16 Mo)
+## 🧵 swissALTI3D compressé (1 km², Float32, 16 Mo)
 
 | Compression | Taille | Ratio | Erreur max. |
 |---|---|---|---|
@@ -520,9 +479,8 @@ Même recette : **(A − B) / (A + B)** entre deux bandes, de −1 à +1
 | Deflate + prédicteur | 6,9 Mo | 2,3:1 | 0 |
 | ZSTD + prédicteur | 6,7 Mo | 2,4:1 | 0 |
 | **LERC + ZSTD, 1 cm** | **2,1 Mo** | **7,8:1** | 1 cm |
-| LERC + ZSTD, 10 cm | 0,6 Mo | 25:1 | 10 cm |
 
-SWISSIMAGE : sans perte ≤ 2:1 · JPEG 95 → 5,8:1 · WebP 75 → 18:1
+SWISSIMAGE : sans perte ≈ 2:1 · JPEG ou WebP → 15 à 18:1
 
 ---
 

@@ -486,30 +486,17 @@ La taille des fichiers raster devient très vite considérable. Réduire la rés
 
 ### Ratio et taux de compression
 
-On caractérise une compression par :
-
-- le **ratio de compression** (ou facteur) = taille originale / taille compressée, noté par exemple **4:1** ;
-- le **taux de compression** = taille compressée / taille originale, exprimé en pourcentage, par exemple **25 %**. Le **gain** (réduction de taille) vaut alors 1 − taux = 75 %.
-
-Ainsi, une image de 2 Mo compressée avec un ratio de 4:1 donne un fichier de 0,5 Mo : taux de 25 %, gain de 75 %.
-
-!!! note
-
-    Les définitions varient selon les auteurs et les logiciels : certains appellent « taux de compression » ce que nous appelons ici le gain. Indiquez toujours votre formule de calcul.
+Le **ratio de compression** = taille originale / taille compressée, noté par exemple **4:1**. Une image de 2 Mo compressée avec un ratio de 4:1 donne un fichier de 0,5 Mo : elle occupe **25 %** de sa taille d'origine (le **taux**), soit un **gain** de 75 %. Les définitions varient selon les logiciels : indiquez toujours votre formule de calcul.
 
 ### Compression avec ou sans perte
 
 ![Schéma d'une compression sans perte 2:1 : l'image restaurée est identique à l'originale](img/compression-sans-perte.png)
 
-Une compression **sans perte** (*lossless*) permet de reconstruire une image **mathématiquement identique** à l'originale. Les ratios obtenus sont modestes, typiquement de l'ordre de 2:1 pour une photo.
+Une compression **sans perte** (*lossless*) permet de reconstruire une image **identique** à l'originale. Les ratios sont modestes, de l'ordre de 2:1 pour une photo.
 
 ![Schéma d'une compression avec perte 20:1 : l'image restaurée a perdu de l'information](img/compression-avec-perte.png)
 
-Une compression **avec perte** (*lossy*, ou destructive) atteint des ratios beaucoup plus élevés, mais l'image reconstruite a perdu de l'information par rapport à l'originale.
-
-![Schéma d'une compression avec perte 3:1 dont les pertes ne sont pas visibles](img/compression-perte-invisible.png)
-
-Certaines compressions avec perte éliminent en priorité les informations **non perceptibles par l'œil humain**. C'est le principe de JPEG : l'œil étant plus sensible aux variations de luminosité qu'aux variations de couleur, on sépare l'image en **luminance** et **chrominance** et on sacrifie une partie de la chrominance.
+Une compression **avec perte** (*lossy*) atteint des ratios beaucoup plus élevés, mais l'image reconstruite a perdu de l'information. Les meilleures éliminent en priorité ce que l'œil ne perçoit pas.
 
 *Schémas : cours CFGéo 2023.*
 
@@ -517,56 +504,28 @@ Certaines compressions avec perte éliminent en priorité les informations **non
 
     Transporter un plan A0 à plat est encombrant.
 
-    - On peut le **rouler** : il prend moins de place, mais garde une taille minimale. Une fois déroulé, il ne garde aucune trace de l'opération : c'est une compression **sans perte**.
-    - On peut le **plier** : le nombre de plis n'est presque pas limité, on peut le rendre aussi petit que souhaité… mais une fois déplié, il reste marqué par les plis : c'est une compression **avec perte**.
-
-### Exemple : la marguerite
-
-![Photo d'une marguerite sur fond vert uniforme](img/marguerite-originale.png)
-
-Cette image mesure 300 × 300 pixels, soit **90'000 pixels**. En couleurs vraies (24 bits = 3 octets par pixel), elle occupe :
-
-90'000 × 3 = 270'000 octets ≈ **264 Kio**. Énorme pour une si petite image ! Plusieurs approches permettent de la réduire.
-
-**1) Réduire la profondeur de codage.** L'image ne contient qu'environ 8'000 couleurs différentes, et les nuances subtiles du cœur de la fleur sont imperceptibles. En réduisant à **256 couleurs**, chaque pixel tient sur 1 octet : 90'000 octets ≈ **88 Kio**. Comme plusieurs couleurs ont dû être regroupées, la transformation inverse est impossible : c'est une compression **avec perte**.
-
-![La même marguerite réduite à 256 couleurs, visuellement presque identique](img/marguerite-256-couleurs.png)
-
-*La marguerite en 256 couleurs.*
-
-**2) Utiliser une palette de couleurs indexées.** On décrit l'image par référence à une palette plutôt que par des valeurs RVB absolues :
-
-- **Palette fixe** (non adaptative) : le système impose une palette standard de 256 couleurs, même si elles ne sont pas toutes présentes dans l'image. Les couleurs absentes de la palette sont remplacées par la plus proche : compression **avec perte**.
-- **Palette adaptative** : la palette (256 couleurs au maximum) est construite à partir des couleurs réellement présentes dans l'image. Pour une image qui contient peu de couleurs (un plan, un logo, une carte), la palette contient exactement les couleurs utilisées : compression **sans perte**.
-
-**3) Exploiter la répétition.** Le fond de l'image est uniforme. Les 15 premières lignes (15 × 300 = 4'500 pixels) ont toutes la même couleur. Plutôt que de décrire 4'500 fois cette couleur, on peut écrire « 4'500 fois la couleur n° 124 » :
-
-- un compteur sur **2 octets** (valeur maximale 65'535) pour le nombre de répétitions ;
-- 1 octet pour l'indice de la couleur répétée.
-
-On décrit ainsi 4'500 pixels avec **3 octets** au lieu de 4'500 ! C'est le principe de l'algorithme RLE (voir ci-dessous).
-
-!!! warning "Attention à la capacité du compteur"
-
-    Un compteur sur **1 seul octet** ne peut pas dépasser **255**. Avec un tel compteur, il faudrait découper la plage en ⌈4'500 / 255⌉ = 18 séquences de 2 octets, soit 36 octets : toujours très efficace, mais moins.
+    - On peut le **rouler** : il prend moins de place et, une fois déroulé, ne garde aucune trace de l'opération : compression **sans perte**.
+    - On peut le **plier** : il devient aussi petit qu'on veut… mais une fois déplié, il reste marqué par les plis : compression **avec perte**.
 
 ### Quelques algorithmes de compression
 
-#### RLE (*Run Length Encoding*)
+Il existe de nombreuses compressions. **Il n'est pas nécessaire de savoir comment elles fonctionnent** : il faut savoir qu'elles existent, si elles perdent de l'information, et à quoi elles servent.
 
-Le codage par plages remplace chaque suite de valeurs identiques par le **nombre de répétitions suivi de la valeur**. La chaîne `AAAAAABBBBBCCCC` (15 caractères) devient `6A5B4C` (6 caractères).
+| Compression | Perte | Où la rencontre-t-on ? | Bon usage |
+|---|---|---|---|
+| **LZW** | sans | TIFF, GIF | La plus compatible, mais peu efficace |
+| **Deflate** | sans | ZIP, PNG, TIFF | Compatible, un peu meilleure que LZW |
+| **ZSTD** | sans | GeoTIFF récent | Comme Deflate, en beaucoup plus rapide |
+| **JPEG** | avec | JPEG, TIFF | Photos, orthophotos |
+| **WebP** | avec ou sans | Web, GeoTIFF récent | Successeur du JPEG, plus efficace |
+| **JPEG 2000, ECW** | avec ou sans | Grandes mosaïques d'orthophotos | Voir [Formats raster](#jpeg-2000-et-ecw) |
+| **LERC** | perte contrôlée | GeoTIFF récent | MNT : on fixe l'erreur maximale admise (ex. 1 cm) |
 
-RLE est **sans perte** et très efficace sur les images contenant de grandes plages uniformes (plans, cartes, masques). Mais il peut produire l'effet inverse : un échiquier de 64 cases décrit avec 64 octets en nécessite **128** en RLE (1N 1B 1N 1B…), car aucune valeur ne se répète. Les logiciels testent donc s'il est judicieux d'appliquer l'algorithme.
+Les compressions **sans perte** exploitent les **répétitions** dans les données : elles sont efficaces sur un plan ou une carte (grandes surfaces de même couleur), beaucoup moins sur une photo, où les pixels voisins varient sans cesse. L'option **prédicteur** (`PREDICTOR=2` ou `3`), qui stocke la différence avec le pixel voisin plutôt que la valeur, les aide beaucoup sur un MNT.
 
-RLE est utilisé notamment dans les formats BMP, TGA et TIFF (variante *PackBits*), ainsi que comme étape de la compression JPEG.
+!!! warning "Tous les logiciels ne lisent pas toutes les compressions"
 
-#### LZW et Deflate (compression par dictionnaire)
-
-**LZW** (Lempel‑Ziv‑Welch) est un algorithme **sans perte** très répandu, utilisé notamment dans les formats **TIFF** et **GIF**. Il a longtemps été couvert par un brevet de la société Unisys, ce qui a freiné sa diffusion (les éditeurs devaient payer des redevances). Le brevet a expiré au début des années 2000 et l'algorithme est désormais libre.
-
-Sans entrer dans les détails, LZW construit un **dictionnaire** au fil de la lecture : chaque fois qu'une séquence d'octets déjà rencontrée réapparaît, on écrit seulement sa référence dans le dictionnaire au lieu de la répéter. Plus les données sont répétitives, plus la compression est efficace ; sur des données aléatoires, elle est quasi nulle. Pour plus de détails : [10].
-
-**Deflate** combine une autre méthode par dictionnaire (**LZ77**) avec un **codage de Huffman** (les valeurs fréquentes reçoivent des codes courts). C'est l'algorithme des archives **ZIP** (et donc des fichiers KMZ, DOCX…), du format **PNG**, et une option courante de TIFF/GeoTIFF. Des algorithmes plus récents (ZSTD, LERC pour les MNT) suivent les mêmes principes avec de meilleures performances.
+    Un fichier n'est utile que si le destinataire sait le lire. Les compressions récentes (**ZSTD**, **LERC**, **WebP** dans un GeoTIFF) demandent des versions récentes des logiciels (QGIS, ArcGIS Pro, GDAL) ; **ECW** nécessite un module propriétaire qui n'est pas toujours installé. Pour un **échange** avec un partenaire dont on ignore les outils, **LZW** ou **Deflate** restent les choix les plus sûrs.
 
 !!! tip "Exercice"
 
@@ -574,83 +533,41 @@ Sans entrer dans les détails, LZW construit un **dictionnaire** au fil de la le
 
 #### JPEG
 
-La compression **JPEG** est une compression **avec perte** très répandue, optimisée pour les photographies. Elle enchaîne plusieurs étapes, en exploitant les caractéristiques de l'œil humain :
+La compression **JPEG** est la compression **avec perte** la plus répandue, conçue pour les photographies. Elle découpe l'image en **blocs de 8 × 8 pixels** et y supprime une partie des détails fins, peu visibles à l'œil. Sur une orthophoto, elle atteint des ratios de **10:1 à 25:1** sans dégradation gênante ; sur un plan, une carte ou du texte, des artefacts apparaissent autour des contours nets.
 
-1. Conversion des couleurs RVB en **luminance + chrominance** (YCbCr).
-2. **Sous-échantillonnage de la chrominance** : l'œil ne distingue pas les différences de couleur au sein d'un carré de 2 × 2 pixels.
-3. Découpage de l'image en **blocs de 8 × 8 pixels** et décomposition de chaque bloc en une somme de fréquences (transformée en cosinus discrète, DCT).
-4. **Quantification** : selon le facteur de qualité choisi, les hautes fréquences (détails fins) sont atténuées ou supprimées. C'est l'étape où l'information est perdue.
-5. Parcours de chaque bloc en zigzag, codage **RLE** puis **Huffman** (sans perte).
-
-JPEG est très efficace sur les images photographiques (orthophotos), avec des ratios de l'ordre de **10:1 à 25:1** sans dégradation gênante. En revanche, sur des images géométriques (plans, cartes, texte), les artefacts autour des contours nets sont très visibles : on préfère alors une compression sans perte (LZW, Deflate) ou une palette.
+Le réglage **qualité** (de 1 à 100) fixe la **quantité de détails supprimés** dans chaque bloc. Plus la qualité est basse, plus le fichier est petit, et plus l'image se dégrade : à la qualité 1, il ne reste que la couleur moyenne de chaque bloc, et même les couleurs disparaissent (image grise). Une qualité de 75 à 90 est un bon compromis pour une orthophoto. Même à 100, JPEG n'est pas sans perte.
 
 !!! warning "Pas de ré-enregistrements successifs"
 
-    Chaque enregistrement en JPEG applique à nouveau la quantification : les pertes **s'accumulent**. Ré-enregistrer en qualité 100 une image déjà dégradée ne restaure pas l'information perdue, mais augmente la taille du fichier. Travaillez sur un original sans perte et n'exportez en JPEG qu'à la fin.
+    Chaque enregistrement en JPEG supprime à nouveau des détails : les pertes **s'accumulent**. Travaillez sur un original sans perte et n'exportez en JPEG qu'à la fin.
 
 <div class="demo" data-demo="compression" data-src="img/demo-swissimage-400.png"></div>
 
 *Extrait de 40 m × 40 m de la tuile SWISSIMAGE du fil rouge, recompressé en direct par votre navigateur. Baissez la qualité et activez le zoom : les blocs de 8 × 8 pixels apparaissent. Source : © swisstopo*
 
-#### La compression par ondelettes
-
-La compression par **ondelettes** (*wavelets*) décrit l'image à **plusieurs niveaux de détail** : d'abord une version grossière de l'image entière, puis des corrections de plus en plus fines, uniquement là où il y a des détails. On renonce aux corrections les plus fines pour comprimer davantage : le seuil choisi fixe à la fois le ratio et la perte. Comme la version grossière est au début du fichier, on peut afficher rapidement une vue d'ensemble, puis l'affiner.
-
-Les ondelettes donnent d'excellents résultats sur les très grandes mosaïques d'orthophotos ; elles sont utilisées par **JPEG 2000** et **ECW** (voir [Formats raster](#jpeg-2000-et-ecw)).
-
 ### Compressions modernes dans GeoTIFF
 
-Au-delà de LZW, Deflate et JPEG, les outils actuels (GDAL, et donc QGIS) proposent pour GeoTIFF des compressions plus récentes, souvent nettement meilleures.
+Les outils actuels (GDAL, et donc QGIS) proposent pour GeoTIFF des compressions récentes, souvent nettement meilleures que LZW.
 
-- **Prédicteur** (*predictor*) : ce n'est pas une compression, mais une **préparation** des données. Au lieu de stocker chaque valeur, on stocke sa **différence avec le pixel voisin**. Sur un MNT, deux altitudes voisines diffèrent de quelques centimètres : les différences sont petites et répétitives, donc bien mieux compressées. On utilise `PREDICTOR=2` pour les entiers et `PREDICTOR=3` pour les nombres à virgule. Sans perte.
-- **ZSTD** (*Zstandard*, Facebook, 2016) : compression sans perte par dictionnaire, comme Deflate, avec un ratio équivalent ou meilleur mais **beaucoup plus rapide**, surtout en lecture.
-- **LERC** (*Limited Error Raster Compression*, Esri) : compression **avec perte contrôlée**, conçue pour les MNT et les données de mesure. On fixe l'**erreur maximale** admise (par exemple 1 cm) ; LERC garantit qu'aucun pixel ne s'écarte davantage de sa valeur d'origine. Avec une erreur maximale de 0, elle est sans perte. Elle se combine souvent avec ZSTD ou Deflate (`LERC_ZSTD`).
-- **WebP** (Google, 2010) : remplaçant du JPEG sur le web, avec ou sans perte, pour les images 8 bits RVB(A).
+!!! example "🧵 Fil rouge : le MNT swissALTI3D compressé"
 
-!!! example "🧵 Fil rouge : mesures réelles"
-
-    Mesures faites avec GDAL sur 2'000 × 2'000 pixels de chaque produit, en GeoTIFF tuilé 256 × 256 : un extrait de 200 m × 200 m de SWISSIMAGE et la tuile swissALTI3D entière (1 km × 1 km).
-
-    **SWISSIMAGE** (3 bandes Byte, brut 12 Mo)
+    Tuile swissALTI3D de 1 km² (2'000 × 2'000 pixels, Float32, 16 Mo bruts), mesurée avec GDAL :
 
     | Compression | Taille | Ratio | Erreur max. |
     |---|---|---|---|
-    | Aucune | 12,6 Mo | — | 0 |
-    | LZW | 12,1 Mo | 1,0:1 | 0 |
-    | Deflate | 9,8 Mo | 1,2:1 | 0 |
-    | Deflate + prédicteur | 8,2 Mo | 1,5:1 | 0 |
-    | ZSTD + prédicteur | 8,2 Mo | 1,5:1 | 0 |
-    | WebP sans perte | 5,8 Mo | 2,1:1 | 0 |
-    | JPEG qualité 95 | 2,1 Mo | 5,8:1 | 36 niveaux |
-    | JPEG qualité 75 | 0,8 Mo | 15:1 | 71 niveaux |
-    | WebP qualité 75 | 0,7 Mo | 18:1 | 50 niveaux |
-
-    **swissALTI3D** (1 bande Float32, brut 16 Mo)
-
-    | Compression | Taille | Ratio | Erreur max. |
-    |---|---|---|---|
-    | Aucune | 16,8 Mo | — | 0 |
-    | LZW | 11,8 Mo | 1,4:1 | 0 |
-    | Deflate | 9,9 Mo | 1,6:1 | 0 |
+    | LZW (fichier swisstopo) | 11,8 Mo | 1,4:1 | 0 |
     | Deflate + prédicteur | 6,9 Mo | 2,3:1 | 0 |
     | ZSTD + prédicteur | 6,7 Mo | 2,4:1 | 0 |
     | LERC + ZSTD, erreur max. 1 cm | 2,1 Mo | 7,8:1 | 1 cm |
-    | LERC + ZSTD, erreur max. 10 cm | 0,6 Mo | 25:1 | 10 cm |
 
-    Trois enseignements :
-
-    - Les compressions **sans perte** gagnent peu sur une photo aérienne : les pixels voisins varient sans cesse (texture, bruit du capteur), et cette orthophoto a déjà été compressée en JPEG par swisstopo. Le **prédicteur** et **WebP** font nettement mieux que LZW.
-    - Sur le **MNT**, le prédicteur divise presque la taille par deux, sans aucune perte. LZW, utilisé dans le fichier swisstopo, est le moins bon choix sans perte.
-    - **LERC** est spectaculaire : avec une erreur garantie inférieure à 1 cm, bien en dessous de la précision du MNT (de l'ordre de quelques décimètres), le fichier est 5 fois plus petit qu'en LZW.
+    Avec une erreur garantie inférieure à 1 cm, bien en dessous de la précision du MNT, **LERC** rend le fichier 5 fois plus petit qu'en LZW. Sur l'orthophoto SWISSIMAGE, les compressions sans perte dépassent à peine 2:1, alors que JPEG ou WebP atteignent 15 à 18:1.
 
 !!! tip "En pratique"
 
-    Dans QGIS, ces options se règlent lors de l'export (*Exporter › Enregistrer sous…* › *Options de création* › profil personnalisé), ou avec GDAL :
+    Dans QGIS, la compression se choisit lors de l'export (*Exporter › Enregistrer sous…* › *Options de création*), ou avec GDAL :
     ```bash
-    gdal_translate -co COMPRESS=ZSTD -co PREDICTOR=3 -co TILED=YES mnt.tif mnt_zstd.tif
-    gdal_translate -co COMPRESS=LERC_ZSTD -co MAX_Z_ERROR=0.01 -co TILED=YES mnt.tif mnt_lerc.tif
+    gdal_translate -co COMPRESS=DEFLATE -co PREDICTOR=3 mnt.tif mnt_deflate.tif
     ```
-    Tous les logiciels ne lisent pas encore ZSTD, LERC ou WebP dans un GeoTIFF (les versions récentes de QGIS et d'ArcGIS Pro, oui). Pour un **échange** avec un partenaire dont on ignore les outils, LZW ou Deflate restent les choix les plus sûrs.
 
 !!! tip "Exercice"
 
@@ -829,7 +746,7 @@ Le format **ASCII Grid** (`.asc`, défini par ESRI) décrit une grille de valeur
 - Le proche infrarouge permet les **fausses couleurs** et le calcul du **NDVI**.
 - Taille brute = colonnes × lignes × bandes × octets par valeur.
 - Le **world file** donne 6 paramètres **sans système de coordonnées** ; le **GeoTIFF** inclut le système de coordonnées.
-- **Format ≠ compression** : avec perte (JPEG, ondelettes) ou sans perte (RLE, LZW, Deflate, ZSTD). Pour des données à analyser : **sans perte** (ou LERC à erreur maîtrisée), jamais JPEG.
+- **Format ≠ compression** : avec perte (JPEG, ondelettes) ou sans perte (LZW, Deflate, ZSTD). Pour des données à analyser : **sans perte** (ou LERC à erreur maîtrisée), jamais JPEG.
 - **GeoTIFF / COG** est le choix par défaut en géomatique.
 
 ## Sources
